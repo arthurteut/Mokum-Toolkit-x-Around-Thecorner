@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Around The Corner Barista Hub</title>
+<meta name="description" content="Toolkit-ul intern Around The Corner pentru bariștii Mokum: calculatoare de rețete, dial-in espresso, cronometru, ghid de lapte și jurnal de degustare.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Karla:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --bg: #F6F2EA;
+    --surface: #FFFDF8;
+    --surface-2: #EFE8DB;
+    --ink: #2A241E;
+    --ink-soft: #6B6157;
+    --line: #DDD3C4;
+    --accent: #34604F;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #E2EAE5;
+    --copper: #B85C33;
+    --copper-soft: #F3E3D8;
+    --good: #3D7A48;
+    --warn: #A8681C;
+    --bad: #A6402E;
+    --shadow: 0 2px 12px rgba(42, 36, 30, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1D1915;
+      --surface: #27221D;
+      --surface-2: #322B24;
+      --ink: #EDE6DB;
+      --ink-soft: #A89C8E;
+      --line: #423A31;
+      --accent: #7FAE9B;
+      --accent-ink: #16211D;
+      --accent-soft: #2A3830;
+      --copper: #D98A5D;
+      --copper-soft: #3D2E23;
+      --good: #7CB886;
+      --warn: #D9A45B;
+      --bad: #D97B66;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1D1915;
+    --surface: #27221D;
+    --surface-2: #322B24;
+    --ink: #EDE6DB;
+    --ink-soft: #A89C8E;
+    --line: #423A31;
+    --accent: #7FAE9B;
+    --accent-ink: #16211D;
+    --accent-soft: #2A3830;
+    --copper: #D98A5D;
+    --copper-soft: #3D2E23;
+    --good: #7CB886;
+    --warn: #D9A45B;
+    --bad: #D97B66;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Karla", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  h1, h2, h3 {
+    font-family: "Fraunces", Georgia, serif;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin: 0;
+  }
+  a { color: var(--accent); }
+  button { font: inherit; cursor: pointer; }
+  input, select, textarea { font: inherit; color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--copper); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { max-width: 1060px; margin-inline: auto; padding-inline: 20px; }
+
+  /* ── Header ── */
+  .site-header {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 40;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 40px; height: 40px; flex: none;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: grid; place-items: center;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700; font-size: 15px;
+    letter-spacing: 0.02em;
+  }
+  .brand-name {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700; font-size: 18px;
+  }
+  .brand-sub {
+    font-size: 12px; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.09em;
+  }
+  .main-nav { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 12px; }
+  .main-nav a {
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .main-nav a:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  /* ── Hero ── */
+  .hero { padding-block: 44px 36px; }
+  .hero-eyebrow {
+    display: inline-block;
+    background: var(--copper-soft);
+    color: var(--copper);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    margin-bottom: 16px;
+  }
+  .hero h1 { font-size: clamp(30px, 5vw, 46px); max-width: 17ch; }
+  .hero p { max-width: 62ch; color: var(--ink-soft); font-size: 17px; margin: 16px 0 0; }
+
+  /* ── Sections ── */
+  .tool-section { padding-block: 28px; border-top: 1px solid var(--line); scroll-margin-top: 130px; }
+  .section-head { margin-bottom: 20px; }
+  .section-kicker {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--accent);
+  }
+  .tool-section h2 { font-size: 26px; margin-top: 4px; }
+  .section-head p { color: var(--ink-soft); margin: 6px 0 0; max-width: 62ch; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 760px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .field label { font-weight: 700; font-size: 14px; }
+  .field .hint { font-weight: 400; font-size: 12px; color: var(--ink-soft); }
+  .field input, .field select {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+
+  .btn {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 700;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+  }
+  .btn-ghost:hover { background: var(--surface-2); }
+
+  .result-tile {
+    background: var(--accent-soft);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .result-tile .label {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--ink-soft);
+  }
+  .result-tile .value {
+    font-size: 26px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .result-tile .value small { font-size: 15px; font-weight: 500; color: var(--ink-soft); }
+  .result-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .table-scroll { overflow-x: auto; }
+
+  .pill {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .pill-good { background: var(--accent-soft); color: var(--good); }
+  .pill-warn { background: var(--copper-soft); color: var(--warn); }
+  .pill-bad  { background: var(--copper-soft); color: var(--bad); }
+
+  /* ── Dial-in ── */
+  .taste-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .taste-buttons button {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-weight: 500;
+  }
+  .taste-buttons button[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+  .advice {
+    margin-top: 14px;
+    background: var(--surface-2);
+    border-left: 4px solid var(--copper);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  .advice strong { color: var(--copper); }
+
+  /* ── Timer ── */
+  .timer-display {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(52px, 12vw, 84px);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    line-height: 1;
+    margin-block: 10px 4px;
+  }
+  .timer-target {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    min-height: 22px;
+  }
+  .timer-controls { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .timer-over .timer-display { color: var(--copper); }
+  .laps { list-style: none; padding: 0; margin: 14px 0 0; text-align: center; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .laps li { padding-block: 2px; }
+
+  /* ── Milk ── */
+  .milk-temp { font-weight: 700; color: var(--copper); }
+
+  /* ── Journal ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button {
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 5px 13px;
+    font-size: 13.5px;
+  }
+  .chips button[aria-pressed="true"] {
+    background: var(--copper);
+    color: #FFF8F2;
+    border-color: var(--copper);
+  }
+  .entry {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: var(--bg);
+  }
+  .entry + .entry { margin-top: 10px; }
+  .entry-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .entry-head strong { font-size: 16px; }
+  .entry-meta { font-size: 13px; color: var(--ink-soft); }
+  .entry-notes { margin: 6px 0 0; font-size: 14.5px; }
+  .entry-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .entry-tags span {
+    background: var(--surface-2);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .entry-score {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .entry-delete {
+    background: none; border: none;
+    color: var(--ink-soft);
+    font-size: 13px;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .journal-note { font-size: 13px; color: var(--ink-soft); margin-top: 10px; }
+  .example-tag { color: var(--copper); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── Recipes ── */
+  .recipe-card h3 { font-size: 19px; margin-bottom: 4px; }
+  .recipe-card .ratio {
+    font-family: "Fraunces", Georgia, serif;
+    color: var(--copper);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .recipe-card dl { margin: 12px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14.5px; }
+  .recipe-card dt { color: var(--ink-soft); }
+  .recipe-card dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .recipe-card .steps { margin: 12px 0 0; padding-left: 18px; font-size: 14px; color: var(--ink-soft); }
+  .recipe-card .steps li { margin-bottom: 3px; }
+
+  /* ── Footer ── */
+  .site-footer {
+    border-top: 1px solid var(--line);
+    margin-top: 40px;
+    padding-block: 28px;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+  .site-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="header-row">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">AC</div>
+        <div>
+          <div class="brand-name">Around The Corner</div>
+          <div class="brand-sub">Mokum Development · Barista Hub</div>
+        </div>
+      </div>
+    </div>
+    <nav class="main-nav" aria-label="Navigare tool-uri">
+      <a href="#calculator">Calculator rețete</a>
+      <a href="#dialin">Dial-in espresso</a>
+      <a href="#cronometru">Cronometru</a>
+      <a href="#lapte">Lapte &amp; texturare</a>
+      <a href="#jurnal">Jurnal degustare</a>
+      <a href="#retete">Rețetele casei</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <span class="hero-eyebrow">Mokum × Around The Corner</span>
+    <h1>Toolkit-ul de cafea al echipei</h1>
+    <p>
+      Toate instrumentele de care ai nevoie în spatele barului, într-un singur loc:
+      calculatoare de rețete, asistent de dial-in, cronometru de extracție, ghid de lapte
+      și jurnal de degustare. Construit de echipa Around The Corner, pentru bariștii Mokum —
+      simplu, rapid și mereu la îndemână pe telefon sau pe tableta barului.
+    </p>
+  </section>
+
+  <!-- ══════════ 1. Calculator rețete ══════════ -->
+  <section id="calculator" class="tool-section wrap" aria-labelledby="calculator-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 01</div>
+      <h2 id="calculator-title">Calculator de rețete</h2>
+      <p>Alege metoda, pune doza de cafea și raportul — calculatorul îți dă instant apa, randamentul și timpul orientativ.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="field">
+          <label for="calc-method">Metodă de preparare</label>
+          <select id="calc-method">
+            <option value="espresso">Espresso</option>
+            <option value="v60" selected>V60</option>
+            <option value="aeropress">Aeropress</option>
+            <option value="chemex">Chemex</option>
+            <option value="frenchpress">French Press</option>
+            <option value="batch">Batch brew (filtru automat)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="calc-dose">Doză de cafea <span class="hint">grame</span></label>
+          <input type="number" id="calc-dose" inputmode="decimal" min="1" max="500" step="0.1" value="15">
+        </div>
+        <div class="field">
+          <label for="calc-ratio">Raport (1 : <span id="calc-ratio-label">16</span>)</label>
+          <input type="range" id="calc-ratio" min="1.5" max="18" step="0.5" value="16" aria-describedby="calc-ratio-hint">
+          <span class="hint" id="calc-ratio-hint">Trage de slider ca să ajustezi raportul cafea : apă.</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="result-row" role="status" aria-live="polite">
+          <div class="result-tile">
+            <div class="label">Apă / randament</div>
+            <div class="value"><span id="calc-water">240</span> <small>g</small></div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Timp orientativ</div>
+            <div class="value" id="calc-time">2:30–3:00</div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Măcinare</div>
+            <div class="value" id="calc-grind" style="font-size:18px">Medie</div>
+          </div>
+        </div>
+        <p class="journal-note" id="calc-note">Rețetă de pornire pentru V60 — ajustează după cafea și prospețime.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 2. Dial-in espresso ══════════ -->
+  <section id="dialin" class="tool-section wrap" aria-labelledby="dialin-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 02</div>
+      <h2 id="dialin-title">Asistent de dial-in espresso</h2>
+      <p>Pune doza, randamentul și timpul shot-ului, spune-ne cum a ieșit la gust, iar asistentul îți recomandă următorul pas.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="field">
+          <label for="di-dose">Doză în portafiltru <span class="hint">grame</span></label>
+          <input type="number" id="di-dose" inputmode="decimal" min="5" max="30" step="0.1" value="18">
+        </div>
+        <div class="field">
+          <label for="di-yield">Randament în ceașcă <span class="hint">grame</span></label>
+          <input type="number" id="di-yield" inputmode="decimal" min="10" max="80" step="0.1" value="36">
+        </div>
+        <div class="field">
+          <label for="di-time">Timp de extracție <span class="hint">secunde</span></label>
+          <input type="number" id="di-time" inputmode="numeric" min="5" max="90" step="1" value="28">
+        </div>
+        <fieldset style="border:none;padding:0;margin:0">
+          <legend style="font-weight:700;font-size:14px;padding:0">Cum e la gust?</legend>
+          <div class="taste-buttons" id="di-taste">
+            <button type="button" data-taste="echilibrat" aria-pressed="true">Echilibrat</button>
+            <button type="button" data-taste="acru" aria-pressed="false">Acru / agresiv</button>
+            <button type="button" data-taste="amar" aria-pressed="false">Amar / astringent</button>
+            <button type="button" data-taste="apos" aria-pressed="false">Apos / slab</button>
+          </div>
+        </fieldset>
+      </div>
+      <div class="card">
+        <div class="result-row" role="status" aria-live="polite">
+          <div class="result-tile">
+            <div class="label">Raport shot</div>
+            <div class="value">1 : <span id="di-ratio">2.0</span></div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Debit mediu</div>
+            <div class="value"><span id="di-flow">1.3</span> <small>g/s</small></div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Verdict timp</div>
+            <div class="value" id="di-verdict" style="font-size:18px">În fereastră</div>
+          </div>
+        </div>
+        <div class="advice" id="di-advice" aria-live="polite">
+          <strong>Arată bine.</strong> Raport și timp în fereastra clasică — dacă și gustul e echilibrat, blochează rețeta și noteaz-o în jurnal.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 3. Cronometru ══════════ -->
+  <section id="cronometru" class="tool-section wrap" aria-labelledby="timer-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 03</div>
+      <h2 id="timer-title">Cronometru de extracție</h2>
+      <p>Un cronometru mare, vizibil de la un braț distanță. Alege metoda ca să vezi ținta de timp; culoarea se schimbă când ai depășit-o.</p>
+    </div>
+    <div class="card" id="timer-card">
+      <div class="field" style="max-width:320px;margin-inline:auto">
+        <label for="timer-preset">Țintă de timp</label>
+        <select id="timer-preset">
+          <option value="0">Fără țintă</option>
+          <option value="30" selected>Espresso · ~30 s</option>
+          <option value="150">Aeropress · ~2:30</option>
+          <option value="180">V60 · ~3:00</option>
+          <option value="240">French Press · 4:00</option>
+          <option value="270">Chemex · ~4:30</option>
+        </select>
+      </div>
+      <div class="timer-display" id="timer-display" role="timer" aria-live="off">0:00.0</div>
+      <div class="timer-target" id="timer-target">Țintă: 0:30</div>
+      <div class="timer-controls">
+        <button class="btn" id="timer-start">Start</button>
+        <button class="btn-ghost" id="timer-lap" disabled>Etapă</button>
+        <button class="btn-ghost" id="timer-reset">Reset</button>
+      </div>
+      <ol class="laps" id="timer-laps"></ol>
+    </div>
+  </section>
+
+  <!-- ══════════ 4. Lapte & texturare ══════════ -->
+  <section id="lapte" class="tool-section wrap" aria-labelledby="milk-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 04</div>
+      <h2 id="milk-title">Lapte &amp; texturare</h2>
+      <p>Temperaturile și texturile de referință pentru băuturile din meniul Around The Corner.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card table-scroll">
+        <table>
+          <caption class="section-kicker" style="text-align:left;padding-bottom:8px">Ghid pe băutură</caption>
+          <thead>
+            <tr><th scope="col">Băutură</th><th scope="col">Temperatură</th><th scope="col">Spumă</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Flat white</td><td class="num milk-temp">55–60 °C</td><td>Fină, ~0,5 cm — luciu de vopsea umedă</td></tr>
+            <tr><td>Cappuccino</td><td class="num milk-temp">60–65 °C</td><td>Catifelată, ~1 cm</td></tr>
+            <tr><td>Latte</td><td class="num milk-temp">60–65 °C</td><td>Fină, ~0,5–1 cm</td></tr>
+            <tr><td>Cortado</td><td class="num milk-temp">50–55 °C</td><td>Minimă, doar luciu</td></tr>
+            <tr><td>Babyccino</td><td class="num milk-temp">≤ 45 °C</td><td>Pufoasă, fără cafea</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 style="font-size:19px">Reflexele texturării</h3>
+        <ul style="margin:12px 0 0;padding-left:18px;font-size:15px;line-height:1.7">
+          <li><strong>Aerează devreme:</strong> tot aerul intră în primele secunde, cât laptele e încă rece.</li>
+          <li><strong>Apoi doar rulează:</strong> vârful duzei sub suprafață, vortex constant până la temperatură.</li>
+          <li><strong>Mâna pe cană:</strong> când nu mai poți ține palma pe latieră ~3 secunde, ești aproape de 55–60 °C.</li>
+          <li><strong>Bate și învârte:</strong> câteva bătăi de cană și rotiri păstrează luciul până la turnare.</li>
+          <li><strong>Lapte vegetal:</strong> ovăzul barista se comportă cel mai aproape de laptele integral — aerează puțin mai puțin și oprește-te la ~55 °C.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 5. Jurnal degustare ══════════ -->
+  <section id="jurnal" class="tool-section wrap" aria-labelledby="journal-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 05</div>
+      <h2 id="journal-title">Jurnal de degustare</h2>
+      <p>Notează fiecare cafea nouă de la prăjitorie: metodă, descriptori și scor. Notele se salvează local, pe dispozitivul barului.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <form id="journal-form">
+          <div class="field">
+            <label for="j-coffee">Cafea / lot</label>
+            <input type="text" id="j-coffee" placeholder="ex. Etiopia Guji, prăjire filtru" required maxlength="80">
+          </div>
+          <div class="field">
+            <label for="j-method">Metodă</label>
+            <select id="j-method">
+              <option>Espresso</option>
+              <option selected>V60</option>
+              <option>Aeropress</option>
+              <option>Chemex</option>
+              <option>French Press</option>
+              <option>Batch brew</option>
+            </select>
+          </div>
+          <div class="field">
+            <span style="font-weight:700;font-size:14px">Descriptori de aromă</span>
+            <div class="chips" id="j-tags" role="group" aria-label="Descriptori de aromă">
+              <button type="button" aria-pressed="false">Citrice</button>
+              <button type="button" aria-pressed="false">Fructe de pădure</button>
+              <button type="button" aria-pressed="false">Fructe cu sâmbure</button>
+              <button type="button" aria-pressed="false">Floral</button>
+              <button type="button" aria-pressed="false">Caramel</button>
+              <button type="button" aria-pressed="false">Ciocolată</button>
+              <button type="button" aria-pressed="false">Nuci</button>
+              <button type="button" aria-pressed="false">Condimente</button>
+              <button type="button" aria-pressed="false">Miere</button>
+              <button type="button" aria-pressed="false">Ceai negru</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="j-score">Scor <span class="hint">1–10 · <output id="j-score-out" for="j-score">8</output></span></label>
+            <input type="range" id="j-score" min="1" max="10" step="0.5" value="8">
+          </div>
+          <div class="field">
+            <label for="j-notes">Note libere <span class="hint">opțional</span></label>
+            <textarea id="j-notes" rows="2" maxlength="300" placeholder="ex. dulceață lungă, aciditate de mandarină; mai bine la 1:16.5" style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;resize:vertical"></textarea>
+          </div>
+          <button type="submit" class="btn">Salvează nota</button>
+        </form>
+        <p class="journal-note">Notele rămân doar pe acest dispozitiv (memoria browserului) — perfecte pentru tableta barului.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:19px;margin-bottom:12px">Note recente</h3>
+        <div id="journal-list" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 6. Rețetele casei ══════════ -->
+  <section id="retete" class="tool-section wrap" aria-labelledby="recipes-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 06</div>
+      <h2 id="recipes-title">Rețetele casei</h2>
+      <p>Punctele de pornire Around The Corner pentru fiecare metodă. Dial-in-ul zilnic pleacă de aici.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card recipe-card">
+        <h3>Espresso</h3>
+        <div class="ratio">1 : 2 · 25–32 s</div>
+        <dl>
+          <dt>Doză</dt><dd>18 g</dd>
+          <dt>Randament</dt><dd>36 g</dd>
+          <dt>Temperatură</dt><dd>93 °C</dd>
+        </dl>
+        <ol class="steps">
+          <li>Distribuie uniform, tampează drept.</li>
+          <li>Pornește cronometrul odată cu pompa.</li>
+          <li>Gustă înainte să ajustezi măcinarea.</li>
+        </ol>
+      </div>
+      <div class="card recipe-card">
+        <h3>V60</h3>
+        <div class="ratio">1 : 16 · ~3:00</div>
+        <dl>
+          <dt>Doză</dt><dd>15 g / 240 g apă</dd>
+          <dt>Bloom</dt><dd>45 g · 40 s</dd>
+          <dt>Apă</dt><dd>94 °C</dd>
+        </dl>
+        <ol class="steps">
+          <li>Bloom, apoi 2 turnări în spirală.</li>
+          <li>Ultima turnare la 1:30.</li>
+          <li>Pat plat la final = extracție uniformă.</li>
+        </ol>
+      </div>
+      <div class="card recipe-card">
+        <h3>Aeropress</h3>
+        <div class="ratio">1 : 15 · ~2:30</div>
+        <dl>
+          <dt>Doză</dt><dd>14 g / 210 g apă</dd>
+          <dt>Infuzie</dt><dd>1:45</dd>
+          <dt>Presare</dt><dd>~30 s</dd>
+        </dl>
+        <ol class="steps">
+          <li>Metoda standard, hârtie clătită.</li>
+          <li>Amestecă de 3 ori după turnare.</li>
+          <li>Presează lin, oprește-te la sâsâit.</li>
+        </ol>
+      </div>
+      <div class="card recipe-card">
+        <h3>Chemex</h3>
+        <div class="ratio">1 : 16 · ~4:30</div>
+        <dl>
+          <dt>Doză</dt><dd>30 g / 480 g apă</dd>
+          <dt>Bloom</dt><dd>90 g · 45 s</dd>
+          <dt>Apă</dt><dd>95 °C</dd>
+        </dl>
+        <ol class="steps">
+          <li>Filtru gros, clătit bine cu apă caldă.</li>
+          <li>Turnări lente, în 3 etape.</li>
+          <li>Ideal pentru 2 cești / servire la masă.</li>
+        </ol>
+      </div>
+      <div class="card recipe-card">
+        <h3>French Press</h3>
+        <div class="ratio">1 : 15 · 4:00</div>
+        <dl>
+          <dt>Doză</dt><dd>20 g / 300 g apă</dd>
+          <dt>Infuzie</dt><dd>4:00</dd>
+          <dt>Măcinare</dt><dd>Grosieră</dd>
+        </dl>
+        <ol class="steps">
+          <li>Sparge crusta la 4 minute.</li>
+          <li>Colectează spuma cu lingura.</li>
+          <li>Presează doar până sub suprafață.</li>
+        </ol>
+      </div>
+      <div class="card recipe-card">
+        <h3>Batch brew</h3>
+        <div class="ratio">1 : 16.5 · program filtru</div>
+        <dl>
+          <dt>Doză</dt><dd>60 g / L de apă</dd>
+          <dt>Păstrare</dt><dd>max. 2 h în termos</dd>
+          <dt>Măcinare</dt><dd>Medie-grosieră</dd>
+        </dl>
+        <ol class="steps">
+          <li>Cântărește mereu, nu măsura din ochi.</li>
+          <li>Amestecă patul după pre-infuzie.</li>
+          <li>Etichetează termosul cu ora preparării.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>© Around The Corner · Mokum Development</div>
+    <div>Făcut cu grijă pentru echipa de bariști ☕</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── 1. Calculator de rețete ── */
+  var METHODS = {
+    espresso:    { ratio: 2,    time: "25–32 s",   grind: "Fină",           note: "Espresso-ul casei pleacă de la 18 g → 36 g. Ajustează doar măcinarea la dial-in." },
+    v60:         { ratio: 16,   time: "2:30–3:30", grind: "Medie",          note: "Rețetă de pornire pentru V60 — ajustează după cafea și prospețime." },
+    aeropress:   { ratio: 15,   time: "2:00–2:30", grind: "Medie-fină",     note: "Aeropress iartă mult — bun pentru cafele mai dificile." },
+    chemex:      { ratio: 16,   time: "4:00–5:00", grind: "Medie-grosieră", note: "Filtrul gros cere măcinare puțin mai grosieră decât la V60." },
+    frenchpress: { ratio: 15,   time: "4:00",      grind: "Grosieră",       note: "Imersie totală: timpul e fix, joacă-te cu raportul." },
+    batch:       { ratio: 16.5, time: "program",   grind: "Medie-grosieră", note: "La batch: 60 g/L, termos etichetat, aruncă după 2 ore." }
+  };
+
+  var calcMethod = document.getElementById("calc-method");
+  var calcDose = document.getElementById("calc-dose");
+  var calcRatio = document.getElementById("calc-ratio");
+  var calcRatioLabel = document.getElementById("calc-ratio-label");
+  var calcWater = document.getElementById("calc-water");
+  var calcTime = document.getElementById("calc-time");
+  var calcGrind = document.getElementById("calc-grind");
+  var calcNote = document.getElementById("calc-note");
+
+  function formatNum(n) {
+    return (Math.round(n * 10) / 10).toLocaleString("ro-RO");
+  }
+
+  function updateCalc() {
+    var dose = parseFloat(calcDose.value) || 0;
+    var ratio = parseFloat(calcRatio.value) || 1;
+    calcRatioLabel.textContent = formatNum(ratio);
+    calcWater.textContent = formatNum(dose * ratio);
+    var m = METHODS[calcMethod.value];
+    calcTime.textContent = m.time;
+    calcGrind.textContent = m.grind;
+    calcNote.textContent = m.note;
+  }
+
+  calcMethod.addEventListener("change", function () {
+    calcRatio.value = METHODS[calcMethod.value].ratio;
+    updateCalc();
+  });
+  calcDose.addEventListener("input", updateCalc);
+  calcRatio.addEventListener("input", updateCalc);
+  updateCalc();
+
+  /* ── 2. Dial-in espresso ── */
+  var diDose = document.getElementById("di-dose");
+  var diYield = document.getElementById("di-yield");
+  var diTime = document.getElementById("di-time");
+  var diRatio = document.getElementById("di-ratio");
+  var diFlow = document.getElementById("di-flow");
+  var diVerdict = document.getElementById("di-verdict");
+  var diAdvice = document.getElementById("di-advice");
+  var tasteButtons = document.querySelectorAll("#di-taste button");
+  var currentTaste = "echilibrat";
+
+  var ADVICE = {
+    echilibrat: {
+      fast:  "<strong>Gust bun, dar shot rapid.</strong> Dacă e constant sub 25 s, strânge un pic măcinarea ca să nu aluneci spre acru pe parcursul zilei.",
+      slow:  "<strong>Gust bun, dar shot lent.</strong> Peste 32 s riscă amăreală la următoarele shot-uri — deschide puțin măcinarea.",
+      ok:    "<strong>Arată bine.</strong> Raport și timp în fereastra clasică — dacă și gustul e echilibrat, blochează rețeta și noteaz-o în jurnal."
+    },
+    acru: {
+      fast:  "<strong>Acru + rapid = subextracție clară.</strong> Macină mai fin (pasul principal). Verifică și distribuția/tamparea, apoi retestează la aceeași doză.",
+      slow:  "<strong>Acru deși timpul e mare?</strong> Neobișnuit — verifică temperatura apei (țintește 93–94 °C) și canalizarea în puck înainte să schimbi măcinarea.",
+      ok:    "<strong>Acru în fereastră de timp.</strong> Prelungește ușor extracția: măcinare cu o idee mai fină sau randament cu 2–3 g mai mare (ex. 1:2 → 1:2.2)."
+    },
+    amar: {
+      fast:  "<strong>Amar deși curge repede?</strong> Posibil cafea veche pe grup sau temperatură prea mare — curăță duza/site-le și verifică boilerul înainte de alte schimbări.",
+      slow:  "<strong>Amar + lent = supraextracție.</strong> Macină mai grosier. Dacă tot nu iese, scade ușor temperatura sau scurtează randamentul cu 2–3 g.",
+      ok:    "<strong>Amar în fereastră de timp.</strong> Scurtează extracția: randament cu 2–3 g mai mic sau măcinare cu o idee mai grosieră. Verifică și prospețimea cafelei."
+    },
+    apos: {
+      fast:  "<strong>Apos și rapid.</strong> Raport prea lung sau măcinare prea grosieră — coboară spre 1:2 și strânge măcinarea până revine corpul.",
+      slow:  "<strong>Apos deși curge greu.</strong> Suspect de canalizare: puck-ul lasă apa pe lângă. Refă distribuția, WDT dacă ai, tamper drept.",
+      ok:    "<strong>Apos în fereastră.</strong> Scurtează raportul (randament mai mic la aceeași doză) pentru mai mult corp — ex. de la 1:2.2 spre 1:1.8."
+    }
+  };
+
+  function updateDialin() {
+    var dose = parseFloat(diDose.value) || 0;
+    var yieldG = parseFloat(diYield.value) || 0;
+    var time = parseFloat(diTime.value) || 0;
+    var ratio = dose > 0 ? yieldG / dose : 0;
+    diRatio.textContent = formatNum(ratio);
+    diFlow.textContent = time > 0 ? formatNum(yieldG / time) : "–";
+
+    var band = "ok";
+    if (time > 0 && time < 25) band = "fast";
+    else if (time > 32) band = "slow";
+
+    if (band === "fast") { diVerdict.textContent = "Prea rapid"; diVerdict.style.color = "var(--warn)"; }
+    else if (band === "slow") { diVerdict.textContent = "Prea lent"; diVerdict.style.color = "var(--warn)"; }
+    else { diVerdict.textContent = "În fereastră"; diVerdict.style.color = "var(--good)"; }
+
+    diAdvice.innerHTML = ADVICE[currentTaste][band];
+  }
+
+  tasteButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      tasteButtons.forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+      btn.setAttribute("aria-pressed", "true");
+      currentTaste = btn.dataset.taste;
+      updateDialin();
+    });
+  });
+  [diDose, diYield, diTime].forEach(function (el) { el.addEventListener("input", updateDialin); });
+  updateDialin();
+
+  /* ── 3. Cronometru ── */
+  var timerDisplay = document.getElementById("timer-display");
+  var timerTarget = document.getElementById("timer-target");
+  var timerPreset = document.getElementById("timer-preset");
+  var timerStart = document.getElementById("timer-start");
+  var timerLap = document.getElementById("timer-lap");
+  var timerReset = document.getElementById("timer-reset");
+  var timerLaps = document.getElementById("timer-laps");
+  var timerCard = document.getElementById("timer-card");
+
+  var running = false, startTs = 0, elapsedBefore = 0, rafId = null, lapCount = 0;
+
+  function fmtTime(ms) {
+    var totalSec = ms / 1000;
+    var min = Math.floor(totalSec / 60);
+    var sec = totalSec - min * 60;
+    var whole = Math.floor(sec);
+    var tenth = Math.floor((sec - whole) * 10);
+    return min + ":" + String(whole).padStart(2, "0") + "." + tenth;
+  }
+  function fmtTarget(s) {
+    var min = Math.floor(s / 60);
+    var sec = s % 60;
+    return min + ":" + String(sec).padStart(2, "0");
+  }
+
+  function currentElapsed() {
+    return elapsedBefore + (running ? performance.now() - startTs : 0);
+  }
+
+  function tick() {
+    var ms = currentElapsed();
+    timerDisplay.textContent = fmtTime(ms);
+    var target = parseInt(timerPreset.value, 10);
+    timerCard.classList.toggle("timer-over", target > 0 && ms / 1000 > target);
+    if (running) rafId = requestAnimationFrame(tick);
+  }
+
+  function updateTargetLabel() {
+    var target = parseInt(timerPreset.value, 10);
+    timerTarget.textContent = target > 0 ? "Țintă: " + fmtTarget(target) : "Fără țintă de timp";
+    tick();
+  }
+
+  timerStart.addEventListener("click", function () {
+    if (!running) {
+      running = true;
+      startTs = performance.now();
+      timerStart.textContent = "Stop";
+      timerLap.disabled = false;
+      rafId = requestAnimationFrame(tick);
+    } else {
+      running = false;
+      elapsedBefore += performance.now() - startTs;
+      timerStart.textContent = "Start";
+      timerLap.disabled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      tick();
+    }
+  });
+
+  timerLap.addEventListener("click", function () {
+    lapCount++;
+    var li = document.createElement("li");
+    li.textContent = "Etapa " + lapCount + " · " + fmtTime(currentElapsed());
+    timerLaps.appendChild(li);
+  });
+
+  timerReset.addEventListener("click", function () {
+    running = false;
+    elapsedBefore = 0;
+    lapCount = 0;
+    if (rafId) cancelAnimationFrame(rafId);
+    timerStart.textContent = "Start";
+    timerLap.disabled = true;
+    timerLaps.innerHTML = "";
+    timerCard.classList.remove("timer-over");
+    timerDisplay.textContent = "0:00.0";
+  });
+
+  timerPreset.addEventListener("change", updateTargetLabel);
+  updateTargetLabel();
+
+  /* ── 5. Jurnal de degustare ── */
+  var STORAGE_KEY = "atc-tasting-journal";
+  var journalForm = document.getElementById("journal-form");
+  var journalList = document.getElementById("journal-list");
+  var jCoffee = document.getElementById("j-coffee");
+  var jMethod = document.getElementById("j-method");
+  var jScore = document.getElementById("j-score");
+  var jScoreOut = document.getElementById("j-score-out");
+  var jNotes = document.getElementById("j-notes");
+  var tagButtons = document.querySelectorAll("#j-tags button");
+
+  var EXAMPLES = [
+    { coffee: "Etiopia Guji, prăjire filtru", method: "V60", score: 8.5, tags: ["Citrice", "Floral", "Miere"], notes: "Dulceață lungă, aciditate de mandarină. Mai bine la 1:16.5.", example: true },
+    { coffee: "Brazilia Cerrado, prăjire espresso", method: "Espresso", score: 7.5, tags: ["Ciocolată", "Nuci", "Caramel"], notes: "Corp plin, perfect în flat white. 18 g → 36 g în 29 s.", example: true }
+  ];
+
+  function loadEntries() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) { /* memoria browserului indisponibilă — folosim exemplele */ }
+    return null;
+  }
+
+  function saveEntries(entries) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch (e) { /* ignorăm: nota rămâne doar în sesiune */ }
+  }
+
+  var entries = loadEntries() || EXAMPLES.slice();
+
+  function renderEntries() {
+    journalList.innerHTML = "";
+    if (!entries.length) {
+      var empty = document.createElement("p");
+      empty.className = "journal-note";
+      empty.textContent = "Nicio notă încă — salvează prima degustare din formular.";
+      journalList.appendChild(empty);
+      return;
+    }
+    entries.forEach(function (entry, idx) {
+      var div = document.createElement("div");
+      div.className = "entry";
+
+      var head = document.createElement("div");
+      head.className = "entry-head";
+      var name = document.createElement("strong");
+      name.textContent = entry.coffee;
+      var score = document.createElement("span");
+      score.className = "entry-score";
+      score.textContent = entry.score.toLocaleString("ro-RO") + " / 10";
+      head.appendChild(name);
+      head.appendChild(score);
+      div.appendChild(head);
+
+      var meta = document.createElement("div");
+      meta.className = "entry-meta";
+      meta.textContent = entry.method + (entry.date ? " · " + entry.date : "");
+      div.appendChild(meta);
+
+      if (entry.example) {
+        var ex = document.createElement("div");
+        ex.className = "example-tag";
+        ex.textContent = "Exemplu";
+        div.appendChild(ex);
+      }
+
+      if (entry.notes) {
+        var notes = document.createElement("p");
+        notes.className = "entry-notes";
+        notes.textContent = entry.notes;
+        div.appendChild(notes);
+      }
+
+      if (entry.tags && entry.tags.length) {
+        var tags = document.createElement("div");
+        tags.className = "entry-tags";
+        entry.tags.forEach(function (t) {
+          var s = document.createElement("span");
+          s.textContent = t;
+          tags.appendChild(s);
+        });
+        div.appendChild(tags);
+      }
+
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "entry-delete";
+      del.textContent = "Șterge";
+      del.addEventListener("click", function () {
+        entries.splice(idx, 1);
+        saveEntries(entries);
+        renderEntries();
+      });
+      div.appendChild(del);
+
+      journalList.appendChild(div);
+    });
+  }
+
+  jScore.addEventListener("input", function () {
+    jScoreOut.textContent = parseFloat(jScore.value).toLocaleString("ro-RO");
+  });
+
+  tagButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.setAttribute("aria-pressed", btn.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    });
+  });
+
+  journalForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var tags = [];
+    tagButtons.forEach(function (btn) {
+      if (btn.getAttribute("aria-pressed") === "true") tags.push(btn.textContent);
+    });
+    var now = new Date();
+    entries.unshift({
+      coffee: jCoffee.value.trim(),
+      method: jMethod.value,
+      score: parseFloat(jScore.value),
+      tags: tags,
+      notes: jNotes.value.trim(),
+      date: now.toLocaleDateString("ro-RO", { day: "numeric", month: "short" })
+    });
+    saveEntries(entries);
+    renderEntries();
+    journalForm.reset();
+    jScoreOut.textContent = "8";
+    tagButtons.forEach(function (btn) { btn.setAttribute("aria-pressed", "false"); });
+    jCoffee.focus();
+  });
+
+  renderEntries();
+})();
+</script>
+</body>
+</html>
