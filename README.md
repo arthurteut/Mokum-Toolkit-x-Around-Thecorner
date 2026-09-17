@@ -1,31 +1,37 @@
 # Mokum × Around The Corner — Barista Hub
 
-Pagina internă de development **Around The Corner** pentru bariștii Mokum:
-un toolkit de cafea într-un singur loc, user friendly și accesibil de pe
-telefon sau de pe tableta barului.
+Aplicația internă **Around The Corner** pentru bariștii Mokum, construită în
+jurul toolkit-ului avansat de preparare a cafelei: calculatoarele din tabelele
+Excel, rescrise ca web app brand-uită Around The Corner, cu profile de bariști
+și istoric al completărilor.
 
-## Tool-uri incluse
+## Tabelele toolkit-ului
 
-1. **Calculator de rețete** — doză + raport → apă/randament, timp și măcinare orientative, pentru espresso, V60, Aeropress, Chemex, French Press și batch brew.
-2. **Asistent de dial-in espresso** — raport și debit calculate live, verdict pe timpul de extracție și recomandări în funcție de gust (acru / amar / apos / echilibrat).
-3. **Cronometru de extracție** — afișaj mare, ținte de timp per metodă, etape (lap) și avertizare vizuală la depășirea țintei.
-4. **Ghid de lapte & texturare** — temperaturi și texturi de referință per băutură, plus reflexele texturării.
-5. **Jurnal de degustare** — note de cupping cu descriptori, scor și salvare locală în browser.
-6. **Rețetele casei** — punctele de pornire Around The Corner pentru fiecare metodă.
+1. **Randament de extracție** — solver pentru TDS ↔ masă băutură ↔ doză ↔ EY, cu verdict pe fereastra de extracție 18–22%.
+2. **Diluție** — diluție țintă (câtă apă adaugi pentru tăria dorită) și post-diluție (ce tărie obții după apa adăugată).
+3. **Calculatoare avansate** — masa reală a băuturii la imersie și doza efectivă (corecție umiditate + CO₂).
+4. **Calculator de lapte** — compoziția completă a băuturii finale (solubile, grăsime, lactoză, proteine, apă) și tăria totală.
+5. **Degustare TDS** — exercițiul celor 10 cești: tabelul de apă per ceașcă pentru pași egali de tărie.
+6. **Echilibru termic** — temperatura de echilibru apă + măcinătură.
+
+## Profile & istoric
+
+- **Profile de bariști** — creezi profiluri (nume + rol); profilul activ semnează fiecare calcul.
+- **Istoricul completărilor** — fiecare „Salvează în istoric" păstrează intrarea cu barist, dată/oră și valorile calculului; filtrabil pe barist și pe tabel. Datele stau în `localStorage`, pe dispozitivul barului.
+
+## Branding
+
+Site-ul e brand-uit exclusiv **Around The Corner**: logo-ul oficial, paleta
+verde-oliv (`#50534A`) + alb și fontul Avenir Next LT Pro (subset WOFF2,
+încorporat în pagină). Fără branding de terți.
 
 ## Rulare
 
-Site static, fără dependențe — deschide `index.html` direct în browser sau
-servește-l cu orice server static:
+Un singur fișier, fără dependențe — totul (fonturi, logo) e încorporat:
 
 ```bash
 python3 -m http.server 8000
 # apoi deschide http://localhost:8000
 ```
 
-Poate fi publicat direct pe GitHub Pages (branch → root).
-
-## Branding
-
-Întregul site este brand-uit exclusiv **Around The Corner** (colaborarea
-Mokum × Around The Corner), fără materiale sau branding de la terți.
+Sau deschide `index.html` direct în browser. Poate fi publicat pe GitHub Pages.
