@@ -361,6 +361,90 @@
   .explain p:last-child { margin-bottom: 0; }
   .explain strong { color: var(--ink); }
 
+  /* ── Busola gustului ── */
+  .compass-svg { width: 100%; max-width: 380px; margin-inline: auto; display: block; }
+  .compass-svg text { font-family: "Avenir Next LT Pro", sans-serif; fill: var(--ink-soft); font-size: 11px; font-weight: 700; }
+  .compass-svg .compass-ring { stroke: var(--line); fill: none; }
+  .compass-svg .compass-tick { stroke: var(--line); }
+  .compass-svg .compass-center { fill: var(--accent-soft); }
+  .compass-svg .compass-center-label { fill: var(--ink); font-size: 12px; font-weight: 900; }
+  #compass-needle { transform-origin: 160px 160px; transition: transform 0.5s ease; }
+  #compass-needle polygon { fill: var(--brand); }
+  .compass-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .compass-chips button {
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 13px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .compass-chips button.far { border-color: var(--bad); color: var(--bad); }
+  .compass-chips button.near { border-color: var(--good); color: var(--good); }
+  .compass-chips button.center-term { border-color: var(--brand); }
+  .compass-chips button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #FFFFFF; }
+  .compass-diag { margin-top: 14px; }
+  .compass-diag h4 { margin: 0 0 4px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .compass-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 10px; }
+  .compass-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+  /* ── Simulator de extracție ── */
+  .sim-root {
+    --surface-1: var(--surface);
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --series-4: #eda100;
+    --series-5: #e87ba4;
+    --series-6: #008300;
+    --series-7: #4a3aa7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .sim-root {
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-4: #c98500;
+      --series-5: #d55181;
+      --series-6: #008300;
+      --series-7: #9085e9;
+    }
+  }
+  :root[data-theme="dark"] .sim-root {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+  }
+  .sim-methods { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-bottom: 14px; }
+  .sim-methods label {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1.5px solid var(--line); border-radius: 999px;
+    padding: 6px 14px; font-size: 14px; font-weight: 700; cursor: pointer;
+    background: var(--surface);
+  }
+  .sim-methods label:has(input:checked) { background: var(--brand); border-color: var(--brand); color: #FFFFFF; }
+  .sim-methods input { accent-color: var(--brand); margin: 0; }
+  .sim-toggles { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13.5px; margin-bottom: 10px; }
+  .sim-toggles label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 700; }
+  .sim-toggles input { accent-color: var(--brand); }
+  .sim-chart-wrap { position: relative; }
+  #sim-canvas { width: 100%; height: 340px; display: block; }
+  .sim-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12.5px; color: var(--ink-soft); }
+  .sim-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sim-legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .sim-sliders {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px 20px; margin-top: 18px;
+  }
+  .sim-sliders .field { margin: 0; }
+  .sim-sliders output { font-weight: 900; font-variant-numeric: tabular-nums; }
+  .sim-tagline { font-size: 13px; color: var(--ink-soft); margin-top: 12px; }
+
   /* ── Statistici ── */
   .stats-tiles { margin-bottom: 18px; }
   .stat-row {
@@ -414,12 +498,14 @@
     <nav class="main-nav" aria-label="Navigare tool-uri">
       <a href="#profil">Bariști</a>
       <a href="#extractie">Extracție</a>
+      <a href="#busola">Busolă</a>
       <a href="#dilutie">Diluție</a>
       <a href="#avansate">Avansate</a>
       <a href="#lapte">Lapte</a>
       <a href="#tds">Degustare TDS</a>
       <a href="#termic">Termic</a>
       <a href="#apa">Apă</a>
+      <a href="#simulator">Simulator</a>
       <a href="#statistici">Statistici</a>
       <a href="#istoric">Istoric</a>
     </nav>
@@ -519,10 +605,56 @@
     </div>
   </section>
 
+  <!-- ══════════ 2. Busola gustului ══════════ -->
+  <section id="busola" class="tool-section wrap" aria-labelledby="busola-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 02 · Busola gustului</div>
+      <h2 id="busola-title">Busola cafelei</h2>
+      <p>Drumul spre un filtru mai bun, pornind de la gust: alege cuvântul care descrie cel mai bine ceașca, iar busola îți arată unde te afli — supraextras sau subextras, prea tare sau prea slab — și exact ce să schimbi la următoarea preparare.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <svg class="compass-svg" viewBox="0 0 320 320" aria-hidden="true">
+          <circle class="compass-ring" cx="160" cy="160" r="140" stroke-width="1.5"></circle>
+          <g id="compass-ticks"></g>
+          <g id="compass-needle" style="transform: rotate(0deg) scale(0.12)">
+            <polygon points="160,44 168,170 160,186 152,170"></polygon>
+          </g>
+          <circle class="compass-center" cx="160" cy="160" r="34"></circle>
+          <text class="compass-center-label" x="160" y="164" text-anchor="middle">Echilibrat</text>
+          <text x="160" y="14" text-anchor="middle">Supraextras</text>
+          <text x="252" y="52" text-anchor="middle">Supra · Slab</text>
+          <text x="310" y="164" text-anchor="end">Slab</text>
+          <text x="252" y="278" text-anchor="middle">Sub · Slab</text>
+          <text x="160" y="314" text-anchor="middle">Subextras</text>
+          <text x="68" y="278" text-anchor="middle">Sub · Tare</text>
+          <text x="10" y="164" text-anchor="start">Tare</text>
+          <text x="68" y="52" text-anchor="middle">Supra · Tare</text>
+        </svg>
+        <div class="compass-diag" role="status" aria-live="polite">
+          <h4 id="compass-zone">Alege un descriptor</h4>
+          <p style="margin:4px 0 0;font-size:14px" id="compass-diagnosis">Apasă pe cuvântul care seamănă cel mai bine cu ce simți în ceașcă.</p>
+          <p class="note" id="compass-fix" hidden></p>
+        </div>
+        <button type="button" class="btn btn-save" data-save="busola" style="margin-top:14px">Salvează diagnosticul în istoric</button>
+        <div class="save-feedback" data-feedback="busola" aria-live="polite"></div>
+      </div>
+      <div class="card">
+        <div class="compass-legend" aria-hidden="true">
+          <span><i style="background:var(--bad)"></i>departe de echilibru</span>
+          <span><i style="background:var(--good)"></i>zona verde — aproape</span>
+          <span><i style="background:var(--brand)"></i>echilibrat</span>
+        </div>
+        <div class="compass-chips" id="compass-chips" role="group" aria-label="Descriptori de gust"></div>
+        <p class="note" style="margin-top:14px">Gândită pentru cafeaua la filtru. Cuvintele roșii cer o corecție de rețetă; cele verzi înseamnă doar caracter — ești aproape de echilibru. Dacă nu găsești cuvântul tău, alege-l pe cel mai apropiat ca senzație.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ══════════ 2. Diluție ══════════ -->
   <section id="dilutie" class="tool-section wrap" aria-labelledby="dilutie-title">
     <div class="section-head">
-      <div class="section-kicker">Tool 02 · Tabelul de diluție</div>
+      <div class="section-kicker">Tool 03 · Tabelul de diluție</div>
       <h2 id="dilutie-title">Diluție</h2>
       <p>Pentru batch brew și espresso lungit: cât bypass adaugi ca să lovești tăria dorită — sau ce tărie obții după apa deja adăugată.</p>
     </div>
@@ -579,7 +711,7 @@
   <!-- ══════════ 3. Avansate ══════════ -->
   <section id="avansate" class="tool-section wrap" aria-labelledby="avansate-title">
     <div class="section-head">
-      <div class="section-kicker">Tool 03 · Calculatoare avansate</div>
+      <div class="section-kicker">Tool 04 · Calculatoare avansate</div>
       <h2 id="avansate-title">Imersie &amp; doză efectivă</h2>
       <p>Pentru metodele prin imersie și cafelele proaspăt prăjite: cât cântărește de fapt băutura și cât din doză chiar extrage.</p>
     </div>
@@ -643,10 +775,18 @@
   <!-- ══════════ 4. Lapte ══════════ -->
   <section id="lapte" class="tool-section wrap" aria-labelledby="lapte-title">
     <div class="section-head">
-      <div class="section-kicker">Tool 04 · Tabelul de lapte</div>
+      <div class="section-kicker">Tool 05 · Tabelul de lapte</div>
       <h2 id="lapte-title">Calculator de lapte</h2>
-      <p>Ce se întâmplă cu tăria espresso-ului când intră laptele: compoziția completă a băuturii finale, pe componente.</p>
+      <p>Trei calculatoare pentru băuturile cu lapte: compoziția completă a băuturii finale, mărimea ceștii pentru o rețetă fixă de espresso și, invers, cât espresso îți trebuie pentru o ceașcă pe care o ai deja.</p>
     </div>
+
+    <div class="water-tabs" role="tablist" aria-label="Calculatoare de lapte">
+      <button type="button" role="tab" id="mt-comp" aria-selected="true" aria-controls="mp-comp">Compoziție</button>
+      <button type="button" role="tab" id="mt-cup" aria-selected="false" aria-controls="mp-cup">Mărimea ceștii</button>
+      <button type="button" role="tab" id="mt-rev" aria-selected="false" aria-controls="mp-rev">Invers</button>
+    </div>
+
+    <div id="mp-comp" role="tabpanel" aria-labelledby="mt-comp">
     <div class="grid-2">
       <div class="card">
         <h3 style="font-size:16px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">Cafea + lapte</h3>
@@ -678,6 +818,16 @@
           <label for="cw-protein">Proteine <span class="hint">%</span></label>
           <input type="number" id="cw-protein" inputmode="decimal" min="0" max="15" step="0.1" value="4">
         </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="cw-cond">Condensare <span class="hint">% · apă din abur</span></label>
+            <input type="number" id="cw-cond" inputmode="decimal" min="0" max="20" step="0.5" value="7.5">
+          </div>
+          <div class="field">
+            <label for="cw-aer">Aerare <span class="hint">% · creștere de volum</span></label>
+            <input type="number" id="cw-aer" inputmode="decimal" min="0" max="100" step="1" value="33">
+          </div>
+        </div>
         <button type="button" class="btn btn-save" data-save="lapte">Salvează în istoric</button>
         <div class="save-feedback" data-feedback="lapte" aria-live="polite"></div>
       </div>
@@ -693,17 +843,142 @@
               <th scope="row">Tăria totală a băuturii</th>
               <td class="num" colspan="2"><strong id="cw-total-str">—</strong></td>
             </tr>
+            <tr>
+              <th scope="row">Volum estimat în ceașcă</th>
+              <td class="num" colspan="2"><strong id="cw-volume">—</strong></td>
+            </tr>
           </tfoot>
         </table>
         <p class="note">Tăria totală = tot ce nu e apă (solubile de cafea + grăsime + lactoză + proteine). Un flat white bun stă de obicei peste ~4% — sub asta, gustul de cafea se pierde în lapte.</p>
       </div>
+    </div>
+    </div>
+
+    <!-- ── Mărimea ceștii ── -->
+    <div id="mp-cup" role="tabpanel" aria-labelledby="mt-cup" hidden>
+      <div class="grid-2">
+        <div class="card">
+          <div class="field-row">
+            <div class="field">
+              <label for="cs-esp">Espresso <span class="hint">grame</span></label>
+              <input type="number" id="cs-esp" inputmode="decimal" min="5" max="200" step="0.5" value="36">
+            </div>
+            <div class="field">
+              <label for="cs-tds">TDS espresso <span class="hint">%</span></label>
+              <input type="number" id="cs-tds" inputmode="decimal" min="1" max="20" step="0.1" value="9">
+            </div>
+          </div>
+          <div class="field">
+            <label for="cs-target">Tăria dorită a băuturii <span class="hint">% · cappuccino ~1,4 · flat white ~2</span></label>
+            <input type="number" id="cs-target" inputmode="decimal" min="0.3" max="8" step="0.1" value="2">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="cs-cond">Condensare <span class="hint">%</span></label>
+              <input type="number" id="cs-cond" inputmode="decimal" min="0" max="20" step="0.5" value="7.5">
+            </div>
+            <div class="field">
+              <label for="cs-aer">Aerare <span class="hint">%</span></label>
+              <input type="number" id="cs-aer" inputmode="decimal" min="0" max="100" step="1" value="33">
+            </div>
+          </div>
+          <button type="button" class="btn btn-save" data-save="ceasca">Salvează în istoric</button>
+          <div class="save-feedback" data-feedback="ceasca" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <div class="result-row" role="status" aria-live="polite">
+            <div class="result-tile">
+              <div class="label">Lapte rece în latieră</div>
+              <div class="value"><span id="cs-milk">—</span> <small>g</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Greutatea băuturii</div>
+              <div class="value"><span id="cs-weight">—</span> <small>g</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Ceașca necesară</div>
+              <div class="value"><span id="cs-vol">—</span> <small>ml</small></div>
+              <div class="hint" style="font-size:12px;color:var(--ink-soft)"><span id="cs-oz">—</span> oz</div>
+            </div>
+          </div>
+          <p class="note" id="cs-warning" hidden>Cu acest espresso, tăria cerută nu lasă loc de lapte — scade ținta sau folosește un espresso mai concentrat.</p>
+          <p class="note">Util când alegi ceștile pentru o cafenea nouă sau pentru concurs: pornești de la rețeta fixă de espresso și de la tăria dorită, iar calculatorul îți spune cât lapte pui în latieră și ce mărime de ceașcă îți trebuie.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Cowculator invers ── -->
+    <div id="mp-rev" role="tabpanel" aria-labelledby="mt-rev" hidden>
+      <div class="grid-2">
+        <div class="card">
+          <div class="field-row">
+            <div class="field">
+              <label for="rv-vol">Mărimea ceștii</label>
+              <input type="number" id="rv-vol" inputmode="decimal" min="30" max="1000" step="5" value="180">
+            </div>
+            <div class="field">
+              <label for="rv-unit">Unitate</label>
+              <select id="rv-unit">
+                <option value="ml" selected>ml</option>
+                <option value="oz">oz</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="rv-tds">TDS espresso <span class="hint">%</span></label>
+              <input type="number" id="rv-tds" inputmode="decimal" min="1" max="20" step="0.1" value="9">
+            </div>
+            <div class="field">
+              <label for="rv-target">Tăria dorită <span class="hint">%</span></label>
+              <input type="number" id="rv-target" inputmode="decimal" min="0.3" max="8" step="0.1" value="1.4">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="rv-cond">Condensare <span class="hint">%</span></label>
+              <input type="number" id="rv-cond" inputmode="decimal" min="0" max="20" step="0.5" value="7.5">
+            </div>
+            <div class="field">
+              <label for="rv-aer">Aerare <span class="hint">%</span></label>
+              <input type="number" id="rv-aer" inputmode="decimal" min="0" max="100" step="1" value="33">
+            </div>
+          </div>
+          <button type="button" class="btn btn-save" data-save="cowinvers">Salvează în istoric</button>
+          <div class="save-feedback" data-feedback="cowinvers" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <div class="result-row" role="status" aria-live="polite">
+            <div class="result-tile">
+              <div class="label">Espresso necesar</div>
+              <div class="value"><span id="rv-esp">—</span> <small>g</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Lapte rece în latieră</div>
+              <div class="value"><span id="rv-milk">—</span> <small>g</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Greutatea băuturii</div>
+              <div class="value"><span id="rv-weight">—</span> <small>g</small></div>
+            </div>
+          </div>
+          <p class="note">Pentru ocaziile rare în care ceașca există deja și rețeta de espresso trebuie construită în jurul ei: ce coșuri de portafiltru cumperi, sau câte shot-uri intră într-un latte uriaș ca să se mai simtă cafeaua. Pornește de la TDS-ul espresso-ului și tăria dorită, iar calculatorul îți dă gramajul de espresso — apoi îți construiești rețeta.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card explain" style="margin-top:18px">
+      <h4>Condensare și aerare</h4>
+      <p>Majoritatea termenilor de aici îi știe orice barist, dar aceștia doi pot încurca. <strong>Condensarea</strong> este apa din abur care se condensează în lapte la texturare — între 5 și 10% din greutatea laptelui, în funcție de mașină. Dacă nu vrei să o măsori, rămâi la valoarea implicită de 7,5%.</p>
+      <p><strong>Aerarea</strong> este creșterea totală de volum a laptelui: spuma, plus apa adăugată prin condensare — deci aerarea nu poate fi mai mică decât condensarea. Recomandarea barului este o aerare de ~33%, dar poți ajusta cifra dacă îți plac cappuccino-urile spumoase sau flat white-urile foarte plate.</p>
+      <p><strong>Repere de tărie:</strong> un cappuccino tipic are ~1,4% (similar cu o cafea la filtru), iar un flat white e adesea mai puternic, în jur de 2%. Volumele estimate presupun densitatea laptelui de ~1,03 g/ml și a espresso-ului de ~1 g/ml — sunt orientative, nu cântărite.</p>
     </div>
   </section>
 
   <!-- ══════════ 5. Degustare TDS ══════════ -->
   <section id="tds" class="tool-section wrap" aria-labelledby="tds-title">
     <div class="section-head">
-      <div class="section-kicker">Tool 05 · Exercițiul de degustare</div>
+      <div class="section-kicker">Tool 06 · Exercițiul de degustare</div>
       <h2 id="tds-title">Degustare TDS în 10 cești</h2>
       <p>Antrenament de calibrare a gustului pentru toată echipa: aceeași cafea, zece tării diferite, în pași egali. Tabelul îți dă exact apa pentru fiecare ceașcă.</p>
     </div>
@@ -753,7 +1028,7 @@
   <!-- ══════════ 6. Echilibru termic ══════════ -->
   <section id="termic" class="tool-section wrap" aria-labelledby="termic-title">
     <div class="section-head">
-      <div class="section-kicker">Tool 06 · Tabelul termic</div>
+      <div class="section-kicker">Tool 07 · Tabelul termic</div>
       <h2 id="termic-title">Echilibru de temperatură</h2>
       <p>Temperatura reală din slurry: unde se întâlnesc apa fierbinte și cafeaua măcinată rece.</p>
     </div>
@@ -795,7 +1070,7 @@
   <!-- ══════════ 7. Calculatorul de apă ══════════ -->
   <section id="apa" class="tool-section wrap" aria-labelledby="apa-title">
     <div class="section-head">
-      <div class="section-kicker">Tool 07 · Calculatorul de apă</div>
+      <div class="section-kicker">Tool 08 · Calculatorul de apă</div>
       <h2 id="apa-title">Apa pentru cafea</h2>
       <p>Tot ce ține de apa barului, într-un singur loc: verifici dacă apa e sigură pentru espressor (LSI), îți construiești propria apă din concentrate (Remineralizare) sau afli GH/KH-ul unei ape îmbuteliate direct de pe etichetă.</p>
     </div>
@@ -1128,6 +1403,83 @@
     </div>
   </section>
 
+  <!-- ══════════ 8. Simulator de extracție ══════════ -->
+  <section id="simulator" class="tool-section wrap sim-root" aria-labelledby="sim-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 09 · Simulatorul barului</div>
+      <h2 id="sim-title">Simulator de extracție</h2>
+      <p>Prepararea cafelei înseamnă alegeri și compromisuri. Aici simulăm procesele-cheie ale extracției ca să vezi, pe curbe, ce efect are fiecare parametru: metoda, temperatura, măcinarea, timpul, volumul de apă și prăjirea.</p>
+    </div>
+
+    <div class="card">
+      <div class="sim-methods" role="radiogroup" aria-label="Metodă de preparare">
+        <label><input type="radio" name="sim-method" value="espresso" checked>Espresso</label>
+        <label><input type="radio" name="sim-method" value="frenchpress">French press</label>
+        <label><input type="radio" name="sim-method" value="aeropress">Aeropress</label>
+        <label><input type="radio" name="sim-method" value="pourover">Pour-over</label>
+        <label><input type="radio" name="sim-method" value="cupping">Cupping</label>
+        <label style="border-style:dashed"><input type="checkbox" id="sim-singlepour">o singură turnare</label>
+      </div>
+      <div class="sim-toggles">
+        <label><input type="checkbox" id="sim-show-tf" checked>Temperatură &amp; Curgere</label>
+        <label><input type="checkbox" id="sim-show-ex" checked>Extracție (Extras / Fructat / Amar)</label>
+      </div>
+      <div class="sim-chart-wrap">
+        <canvas id="sim-canvas" role="img" aria-label="Curbele simulării de extracție în timp"></canvas>
+      </div>
+      <div class="sim-legend" id="sim-legend" aria-hidden="true"></div>
+      <div class="sim-sliders">
+        <div class="field">
+          <label for="sim-temp">Temperatură · <output id="sim-temp-out">90</output> °C</label>
+          <input type="range" id="sim-temp" min="80" max="100" step="1" value="90">
+        </div>
+        <div class="field">
+          <label for="sim-grind">Măcinare 1–5 · <output id="sim-grind-out">3</output> <span class="hint">(fină–grosieră)</span></label>
+          <input type="range" id="sim-grind" min="1" max="5" step="1" value="3">
+        </div>
+        <div class="field">
+          <label for="sim-time">Timp 1–5 · <output id="sim-time-out">3</output> <span class="hint">(scurt–lung)</span></label>
+          <input type="range" id="sim-time" min="1" max="5" step="1" value="3">
+        </div>
+        <div class="field">
+          <label for="sim-vol">Volum 1–5 · <output id="sim-vol-out">3</output> <span class="hint">(mic–mare)</span></label>
+          <input type="range" id="sim-vol" min="1" max="5" step="1" value="3">
+        </div>
+        <div class="field">
+          <label for="sim-roast">Prăjire 1–3 · <output id="sim-roast-out">2</output> <span class="hint">(deschisă–închisă)</span></label>
+          <input type="range" id="sim-roast" min="1" max="3" step="1" value="2">
+        </div>
+      </div>
+      <p class="sim-tagline">Valorile sunt unități relative, nu procente absolute de extracție sau TDS — simulatorul arată tendințele și compromisurile, nu cifre de refractometru. Temperatura e în °C, iar axa timpului se scalează după metodă.</p>
+      <button type="button" class="btn btn-save" data-save="simulator">Salvează setările în istoric</button>
+      <div class="save-feedback" data-feedback="simulator" aria-live="polite"></div>
+    </div>
+
+    <div class="grid-2" style="margin-top:18px">
+      <div class="card explain">
+        <h4>Ce arată curbele</h4>
+        <p><strong>Rata</strong> e viteza extracției în fiecare moment. Pornește rapid — multe componente stau la suprafața particulelor — apoi scade, pentru că rămâne mai puțin de extras și concentrația din lichid reduce gradientul care împinge extracția.</p>
+        <p><strong>Tăria</strong>: cu cât trece mai multă apă prin sistem, cu atât extragi mai mult — dar și diluezi. Uneori compromisul e simplu (obții doar o cafea mai apoasă), alteori există un optim de extracție și tărie.</p>
+        <p><strong>Temperatura &amp; Curgerea</strong>: temperatura variază în timpul procesului, iar efectul ei e modelat să dubleze sau să înjumătățească rata la fiecare 10 °C peste sau sub 90 °C. „Curgerea” descrie amestecarea și turbulența care întrețin extracția — sensul exact diferă pe metodă, dar tendințele sunt firești. Oscilațiile de la pour-over sunt turnările repetate din ibric; bifează „o singură turnare” pentru o turnare lentă continuă, ca la un filtru automat.</p>
+        <p><strong>Extras / Fructat / Amar</strong>: ce se extrage e legat de tărie, dar nu identic. Unele componente ies mai repede decât altele, așa că totalul e împărțit în două: acizii de fructe ies primii — le spunem „fructat” — iar componentele lente, mai grele, dau partea „amară / bogată”.</p>
+      </div>
+      <div class="card explain">
+        <h4>Ce controlează parametrii</h4>
+        <p><strong>Temperatura</strong>: rata de extracție variază cu un factor de ~2 la fiecare 10 °C față de 90 °C. Peste ~90 °C începi să extragi și lucruri mai puțin plăcute — cu boabe proaspete și de calitate, nu urca mult peste.</p>
+        <p><strong>Măcinarea</strong>: la 3 rata e „normală”, la 1 (fină) se dublează, la 5 (grosieră) se înjumătățește. O măcinare prea fină poate fi o catastrofă la metodele cu filtru — canale prin pat sau filtru blocat; astfel de accidente nu sunt incluse în model.</p>
+        <p><strong>Timpul</strong>: veșnicul balans între frica de subextracție și cea de supraextracție. Slider-ul schimbă durata relativă; durata „normală” a fiecărei metode e cea de la Timp = 3.</p>
+        <p><strong>Volumul</strong>: multă apă = extracție bună, dar tărie mică; puțină apă = extracție mai slabă, dar băutură mai concentrată. Tendințe orientative, fără volume absolute.</p>
+        <p><strong>Prăjirea</strong>: mută raportul fructat/amar. O prăjire mai închisă extrage per total mai ușor, dar slider-ul e concentrat pe compromisul fructat–amar pe care îl facem cu toții.</p>
+      </div>
+    </div>
+    <div class="card explain" style="margin-top:18px">
+      <h4>Cafea bună și cafea excepțională</h4>
+      <p>Ce surprinde la modelele astea e cât de ușor pare să faci o cafea <em>bună</em>: o mare parte din extracție se întâmplă foarte repede, iar procesele se limitează natural. Cu boabe proaspete și de calitate, o măcinare rezonabilă și un timp rezonabil, fără să treci mult de 90 °C, obții o ceașcă bună — asta spune și știința, asta arată și experiența. Pentru ceașca <em>excepțională</em> însă nu există scurtătură: toate detaliile mici pe care bariștii buni le-au șlefuit în ani se adună în acel „ceva” în plus. Vestea bună: dovedește că marea cafea cere dedicare, antrenament și experiență — exact ce construim în barul nostru.</p>
+      <p><strong>De ce nu și moka, ibric sau syphon?</strong> Principii noi nu prea ar apărea: moka e foarte variabilă, la ibric cafeaua se macină cu totul altfel, iar syphonul e atât de rapid încât complicația nu s-ar plăti. Dar suntem deschiși la argumente.</p>
+      <p><strong>Legătura cu diagramele de control al extracției:</strong> industria folosește de decenii diagrame pline de linii și puncte care descriu spațiul de preparare. Simulatorul oferă cam aceleași informații, dar arată și ce se întâmplă „în spatele” lor — și îți spune specificul setărilor tale, nu o pădure de linii despre alte setări. Ce nu îți dă: valori absolute de extracție % sau TDS — pentru asta ai tabelele de extracție de mai sus și refractometrul.</p>
+    </div>
+  </section>
+
   <!-- ══════════ Statistici ══════════ -->
   <section id="statistici" class="tool-section wrap" aria-labelledby="statistici-title">
     <div class="section-head">
@@ -1214,6 +1566,10 @@
     lapte: "Calculator de lapte",
     tdstasting: "Degustare TDS",
     termic: "Echilibru termic",
+    busola: "Busola gustului",
+    ceasca: "Lapte · Mărimea ceștii",
+    cowinvers: "Lapte · Invers",
+    simulator: "Simulator de extracție",
     lsi: "Apă · LSI",
     remin: "Apă · Remineralizare",
     retapa: "Apă · Rețetă",
@@ -1630,19 +1986,33 @@
   ["ed-dose", "ed-moist", "ed-co2"].forEach(function (id) { $(id).addEventListener("input", updateED); });
 
   /* ═══ Tool 04: Lapte ═══ */
+  var MILK_DENSITY = 1.03, ML_PER_OZ = 29.5735;
+
+  var milkTabs = ["comp", "cup", "rev"];
+  milkTabs.forEach(function (key) {
+    $("mt-" + key).addEventListener("click", function () {
+      milkTabs.forEach(function (k) {
+        $("mt-" + k).setAttribute("aria-selected", k === key ? "true" : "false");
+        $("mp-" + k).hidden = (k !== key);
+      });
+    });
+  });
+
   var cwLast = {};
   function updateCW() {
     var coffee = num($("cw-coffee")), str = num($("cw-str")) / 100, milk = num($("cw-milk"));
     var fat = num($("cw-fat")) / 100, lactose = num($("cw-lactose")) / 100, protein = num($("cw-protein")) / 100;
+    var cond = num($("cw-cond")) / 100, aer = num($("cw-aer")) / 100;
     var solids = coffee * str, fatG = milk * fat, lacG = milk * lactose, proG = milk * protein;
-    var total = coffee + milk;
+    var condW = milk * cond;
+    var total = coffee + milk + condW;
     var water = total - (solids + fatG + lacG + proG);
     var rows = [
       ["Solubile de cafea", solids],
       ["Grăsime", fatG],
       ["Lactoză", lacG],
       ["Proteine", proG],
-      ["Apă", water],
+      ["Apă (incl. " + fmt(condW, 1) + " g din abur)", water],
       ["Total", total]
     ];
     var tbody = $("cw-table");
@@ -1658,10 +2028,55 @@
       tbody.appendChild(tr);
     });
     var totalStr = total > 0 ? ((solids + fatG + lacG + proG) / total) * 100 : NaN;
+    var volume = coffee + (milk / MILK_DENSITY) * (1 + aer);
     $("cw-total-str").textContent = fmt(totalStr, 2) + " %";
-    cwLast = { coffee: coffee, str: str * 100, milk: milk, totalStr: totalStr };
+    $("cw-volume").textContent = fmt(volume, 0) + " ml · " + fmt(volume / ML_PER_OZ, 1) + " oz";
+    cwLast = { coffee: coffee, str: str * 100, milk: milk, totalStr: totalStr, volume: volume };
   }
-  ["cw-coffee", "cw-str", "cw-milk", "cw-fat", "cw-lactose", "cw-protein"].forEach(function (id) { $(id).addEventListener("input", updateCW); });
+  ["cw-coffee", "cw-str", "cw-milk", "cw-fat", "cw-lactose", "cw-protein", "cw-cond", "cw-aer"].forEach(function (id) { $(id).addEventListener("input", updateCW); });
+
+  /* Mărimea ceștii: de la rețeta de espresso + tăria dorită la lapte și volum */
+  var csLast = {};
+  function updateCS() {
+    var esp = num($("cs-esp")), tds = num($("cs-tds")), target = num($("cs-target"));
+    var cond = num($("cs-cond")) / 100, aer = num($("cs-aer")) / 100;
+    if (aer < cond) aer = cond;
+    var solids = esp * tds / 100;
+    var steamed = target > 0 ? (solids * 100 / target) - esp : NaN;
+    var bad = !(steamed > 0);
+    $("cs-warning").hidden = !bad;
+    var milk = bad ? NaN : steamed / (1 + cond);
+    var weight = bad ? NaN : esp + steamed;
+    var vol = bad ? NaN : esp + (milk / MILK_DENSITY) * (1 + aer);
+    $("cs-milk").textContent = fmt(milk, 0);
+    $("cs-weight").textContent = fmt(weight, 0);
+    $("cs-vol").textContent = fmt(vol, 0);
+    $("cs-oz").textContent = fmt(vol / ML_PER_OZ, 1);
+    csLast = { esp: esp, tds: tds, target: target, milk: milk, weight: weight, vol: vol };
+  }
+  ["cs-esp", "cs-tds", "cs-target", "cs-cond", "cs-aer"].forEach(function (id) { $(id).addEventListener("input", updateCS); });
+
+  /* Cowculator invers: de la ceașcă la gramajul de espresso */
+  var rvLast = {};
+  function updateRV() {
+    var vol = num($("rv-vol"));
+    if ($("rv-unit").value === "oz") vol = vol * ML_PER_OZ;
+    var tds = num($("rv-tds")), target = num($("rv-target"));
+    var cond = num($("rv-cond")) / 100, aer = num($("rv-aer")) / 100;
+    if (aer < cond) aer = cond;
+    var ratio = target > 0 ? tds / target - 1 : NaN;
+    var esp = (isFinite(ratio) && ratio > 0)
+      ? vol / (1 + (ratio / (1 + cond)) * (1 + aer) / MILK_DENSITY)
+      : NaN;
+    var milk = isFinite(esp) ? esp * ratio / (1 + cond) : NaN;
+    var weight = isFinite(esp) ? esp + esp * ratio : NaN;
+    $("rv-esp").textContent = fmt(esp, 1);
+    $("rv-milk").textContent = fmt(milk, 0);
+    $("rv-weight").textContent = fmt(weight, 0);
+    rvLast = { vol: vol, tds: tds, target: target, esp: esp, milk: milk, weight: weight };
+  }
+  ["rv-vol", "rv-tds", "rv-target", "rv-cond", "rv-aer"].forEach(function (id) { $(id).addEventListener("input", updateRV); });
+  $("rv-unit").addEventListener("change", updateRV);
 
   /* ═══ Tool 05: Degustare TDS ═══ */
   var ttLast = {};
@@ -1856,6 +2271,284 @@
   }
   ["bt-ca", "bt-mg", "bt-hco3"].forEach(function (id) { $(id).addEventListener("input", updateBT); });
 
+  /* ═══ Tool 02: Busola gustului ═══ */
+  var COMPASS_ZONES = {
+    oe:   { angle: 0,   name: "Supraextras",
+            diag: "Ai scos prea mult din cafea — au ajuns în ceașcă și componentele amare, lente.",
+            fix: "Extrage mai puțin: măcinare mai grosieră, timp de contact mai scurt sau apă cu câteva grade mai rece." },
+    oe_w: { angle: 45,  name: "Supraextras și slab",
+            diag: "Multă apă a trecut prin puțină cafea: a extras tot, dar a și diluat băutura.",
+            fix: "Scurtează raportul (doză mai mare sau mai puțină apă) și macină mai grosier." },
+    w:    { angle: 90,  name: "Slab",
+            diag: "Extracția pare în regulă, dar băutura e prea apoasă.",
+            fix: "Raport mai scurt: mai puțină apă sau doză mai mare. Nu schimba măcinarea." },
+    ue_w: { angle: 135, name: "Subextras și slab",
+            diag: "Ai scos puțin din cafea și băutura e și diluată — de obicei timp prea scurt sau măcinare mult prea grosieră.",
+            fix: "Macină mai fin și prelungește contactul; verifică și doza." },
+    ue:   { angle: 180, name: "Subextras",
+            diag: "Ai scos prea puțin din cafea — acizii rapizi au ieșit, dulceața și echilibrul nu.",
+            fix: "Extrage mai mult: măcinare mai fină, timp mai lung sau apă mai fierbinte." },
+    ue_s: { angle: 225, name: "Subextras și tare",
+            diag: "Băutura e concentrată dar necoaptă: prea puțină apă prin prea multă cafea.",
+            fix: "Prelungește raportul (mai multă apă de preparare); eventual măcinare puțin mai fină." },
+    s:    { angle: 270, name: "Tare",
+            diag: "Extracția pare în regulă, dar băutura e prea concentrată.",
+            fix: "Diluează cu apă fierbinte (bypass) sau folosește un raport mai lung. Nu schimba măcinarea." },
+    oe_s: { angle: 315, name: "Supraextras și tare",
+            diag: "Prea mult extras și prea concentrat — combinația care obosește cerul gurii.",
+            fix: "Macină mai grosier și prelungește raportul sau diluează cu apă." },
+    bal:  { angle: 0,   name: "Echilibrat",
+            diag: "Ești în echilibru: dulceață, aciditate și corp la locul lor.",
+            fix: "Nu schimba nimic — salvează rețeta în istoric și repet-o." }
+  };
+  var COMPASS_TERMS = [
+    { label: "Amar", zone: "oe", far: true }, { label: "Uscat", zone: "oe", far: true },
+    { label: "Prăfos", zone: "oe", far: true }, { label: "Gol", zone: "oe", far: true },
+    { label: "Dulce", zone: "oe" }, { label: "Aromat", zone: "oe" }, { label: "Plăcut", zone: "oe" },
+    { label: "Astringent", zone: "oe_w", far: true }, { label: "Paios", zone: "oe_w", far: true },
+    { label: "Delicat", zone: "oe_w" }, { label: "Blând", zone: "oe_w" },
+    { label: "Diluat", zone: "w", far: true }, { label: "Șters", zone: "w", far: true },
+    { label: "Firav", zone: "w", far: true }, { label: "Fragil", zone: "w", far: true },
+    { label: "Subțire", zone: "w" }, { label: "Transparent", zone: "w" },
+    { label: "Ca ceaiul slab", zone: "ue_w", far: true }, { label: "Sub așteptări", zone: "ue_w", far: true },
+    { label: "Moale", zone: "ue_w" },
+    { label: "Acru", zone: "ue", far: true }, { label: "Vegetal", zone: "ue", far: true },
+    { label: "Fad", zone: "ue", far: true }, { label: "Nucos crud", zone: "ue", far: true },
+    { label: "Nuanțat", zone: "ue" },
+    { label: "Sărat", zone: "ue_s", far: true }, { label: "Final scurt", zone: "ue_s", far: true },
+    { label: "Plictisitor", zone: "ue_s", far: true },
+    { label: "Untos", zone: "ue_s" }, { label: "Consistent", zone: "ue_s" }, { label: "Plinuț", zone: "ue_s" },
+    { label: "Ca o supă", zone: "s", far: true }, { label: "Masiv", zone: "s", far: true },
+    { label: "Greu", zone: "s" }, { label: "Corpolent", zone: "s" }, { label: "Puternic", zone: "s" }, { label: "Mare", zone: "s" },
+    { label: "Aspru", zone: "oe_s", far: true }, { label: "Copleșitor", zone: "oe_s", far: true },
+    { label: "Sever", zone: "oe_s", far: true }, { label: "Intens", zone: "oe_s", far: true },
+    { label: "Robust", zone: "oe_s" }, { label: "Dens", zone: "oe_s" }, { label: "Bogat", zone: "oe_s" },
+    { label: "Fructat", zone: "bal" }, { label: "Gustos", zone: "bal" }, { label: "Cremos", zone: "bal" },
+    { label: "Catifelat", zone: "bal" }, { label: "Umple gura", zone: "bal" }
+  ];
+  var compassLast = null;
+
+  (function buildCompass() {
+    var ticks = $("compass-ticks");
+    var svgns = "http://www.w3.org/2000/svg";
+    for (var i = 0; i < 48; i++) {
+      var a = (i / 48) * Math.PI * 2;
+      var r1 = 133, r2 = i % 6 === 0 ? 122 : 128;
+      var t = document.createElementNS(svgns, "line");
+      t.setAttribute("x1", 160 + r1 * Math.sin(a)); t.setAttribute("y1", 160 - r1 * Math.cos(a));
+      t.setAttribute("x2", 160 + r2 * Math.sin(a)); t.setAttribute("y2", 160 - r2 * Math.cos(a));
+      t.setAttribute("class", "compass-tick");
+      t.setAttribute("stroke-width", i % 6 === 0 ? "2" : "1");
+      ticks.appendChild(t);
+    }
+    var chipsBox = $("compass-chips");
+    COMPASS_TERMS.forEach(function (term) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = term.label;
+      b.className = term.zone === "bal" ? "center-term" : (term.far ? "far" : "near");
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        chipsBox.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+        b.setAttribute("aria-pressed", "true");
+        var zone = COMPASS_ZONES[term.zone];
+        var needle = $("compass-needle");
+        var scale = term.zone === "bal" ? 0.12 : (term.far ? 1 : 0.62);
+        needle.style.transform = "rotate(" + zone.angle + "deg) scale(" + scale + ")";
+        $("compass-zone").textContent = term.label + " → " + zone.name;
+        var pre = term.zone === "bal" ? "" : (term.far ? "" : "Zona verde — ești aproape de echilibru, doar cu caracter în direcția asta. ");
+        $("compass-diagnosis").textContent = pre + zone.diag;
+        var fix = $("compass-fix");
+        fix.hidden = false;
+        fix.textContent = (term.far || term.zone === "bal" ? "Ce faci: " : "Doar dacă vrei alt profil: ") + zone.fix;
+        compassLast = { term: term.label, zone: zone.name, fix: zone.fix };
+      });
+      chipsBox.appendChild(b);
+    });
+  })();
+
+  /* ═══ Tool 09: Simulator de extracție ═══ */
+  var SIM_METHODS = {
+    espresso:    { dur: 30,  cool: 0.05, label: "Espresso" },
+    frenchpress: { dur: 240, cool: 0.55, label: "French press" },
+    aeropress:   { dur: 150, cool: 0.40, label: "Aeropress" },
+    pourover:    { dur: 180, cool: 0.45, label: "Pour-over" },
+    cupping:     { dur: 480, cool: 0.90, label: "Cupping" }
+  };
+  var SIM_POURS = [[0, 0.07], [0.25, 0.32], [0.5, 0.57], [0.75, 0.82]];
+  var simLast = {};
+
+  function simMethod() {
+    var checked = document.querySelector('input[name="sim-method"]:checked');
+    return checked ? checked.value : "espresso";
+  }
+  function simFlowAt(method, x, single) {
+    if (x > 1) return 0;
+    if (method === "espresso") return 0.9;
+    if (method === "frenchpress") return x < 0.05 ? 0.85 : 0.12;
+    if (method === "aeropress") return x < 0.1 ? 0.6 : (x > 0.88 ? 0.9 : 0.25);
+    if (method === "cupping") return x < 0.04 ? 0.8 : (x > 0.55 && x < 0.62 ? 0.5 : 0.06);
+    if (single) return 0.5;
+    for (var i = 0; i < SIM_POURS.length; i++) {
+      if (x >= SIM_POURS[i][0] && x <= SIM_POURS[i][1]) return 0.85;
+    }
+    return 0.25;
+  }
+  function simRun() {
+    var method = simMethod();
+    var m = SIM_METHODS[method];
+    var single = $("sim-singlepour").checked;
+    var T0 = num($("sim-temp"));
+    var grind = num($("sim-grind")), timeS = num($("sim-time")), vol = num($("sim-vol")), roast = num($("sim-roast"));
+    var durEff = m.dur * (0.6 + 0.2 * (timeS - 1));
+    var axisEnd = durEff * 1.35;
+    var volF = 0.6 + 0.2 * (vol - 1);
+    var grindF = Math.pow(2, (3 - grind) / 2);
+    var fruityCap = 38 + (2 - roast) * 10;
+    var bitterCap = 52 + (roast - 2) * 10;
+    var N = 320;
+    var dt = axisEnd / N;
+    var fRem = fruityCap, bRem = bitterCap;
+    var out = { t: [], rate: [], strength: [], temp: [], flow: [], extracted: [], fruity: [], bitter: [] };
+    var lastPourStart = 0;
+    for (var i = 0; i <= N; i++) {
+      var t = i * dt;
+      var x = t / durEff;
+      var active = x <= 1;
+      var F = active ? simFlowAt(method, x, single) : 0;
+      var xTemp = x;
+      if (method === "pourover" && !single && active) {
+        for (var p = 0; p < SIM_POURS.length; p++) {
+          if (x >= SIM_POURS[p][0]) lastPourStart = SIM_POURS[p][0];
+        }
+        xTemp = x - lastPourStart;
+      }
+      var T = 25 + (T0 - 25) * Math.exp(-m.cool * (active ? xTemp : 1 + (x - 1) * 2));
+      if (method === "espresso" && active) T = T0;
+      var tempF = Math.pow(2, (T - 90) / 10);
+      var mult = active ? tempF * grindF * (0.25 + 0.75 * F) * (0.7 + 0.3 * volF) : 0;
+      var dx = dt / m.dur;
+      var dF = 5.0 * mult * fRem * dx;
+      var dB = 1.1 * mult * bRem * dx;
+      fRem = Math.max(0, fRem - dF);
+      bRem = Math.max(0, bRem - dB);
+      var extracted = ((fruityCap - fRem) + (bitterCap - bRem)) * 0.75;
+      out.t.push(t);
+      out.rate.push(Math.min(100, (dF + dB) / dt * m.dur * 0.45));
+      out.strength.push(Math.min(100, extracted / volF * 1.15));
+      out.temp.push(T);
+      out.flow.push(F * 100);
+      out.extracted.push(extracted);
+      out.fruity.push((fruityCap - fRem) * 0.75);
+      out.bitter.push((bitterCap - bRem) * 0.75);
+    }
+    simLast = {
+      method: m.label, T0: T0, grind: grind, timeS: timeS, vol: vol, roast: roast,
+      extracted: out.extracted[N], strength: out.strength[N], axisEnd: axisEnd
+    };
+    return out;
+  }
+
+  var SIM_SERIES = [
+    { key: "rate",      label: "Rată",        token: "--series-1", group: "base" },
+    { key: "strength",  label: "Tărie",       token: "--series-2", group: "base" },
+    { key: "temp",      label: "Temperatură", token: "--series-3", group: "tf" },
+    { key: "flow",      label: "Curgere",     token: "--series-4", group: "tf" },
+    { key: "extracted", label: "Extras",      token: "--series-5", group: "ex" },
+    { key: "fruity",    label: "Fructat",     token: "--series-6", group: "ex" },
+    { key: "bitter",    label: "Amar",        token: "--series-7", group: "ex" }
+  ];
+
+  function simVisibleSeries() {
+    var tf = $("sim-show-tf").checked, ex = $("sim-show-ex").checked;
+    return SIM_SERIES.filter(function (s) {
+      return s.group === "base" || (s.group === "tf" && tf) || (s.group === "ex" && ex);
+    });
+  }
+
+  function simDraw() {
+    var canvas = $("sim-canvas");
+    var root = document.querySelector(".sim-root");
+    var cs = getComputedStyle(root);
+    var ink = cs.getPropertyValue("--ink").trim() || "#2C2E28";
+    var inkSoft = cs.getPropertyValue("--ink-soft").trim() || "#6D7066";
+    var line = cs.getPropertyValue("--line").trim() || "#D8DAD0";
+    var dpr = window.devicePixelRatio || 1;
+    var W = canvas.clientWidth, H = canvas.clientHeight;
+    if (!W) return;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    var ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, W, H);
+
+    var data = simRun();
+    var padL = 34, padR = 86, padT = 10, padB = 26;
+    var pw = W - padL - padR, ph = H - padT - padB;
+    var xMax = data.t[data.t.length - 1];
+    function X(t) { return padL + (t / xMax) * pw; }
+    function Y(v) { return padT + (1 - Math.min(v, 100) / 100) * ph; }
+
+    ctx.font = "11px 'Avenir Next LT Pro', sans-serif";
+    ctx.strokeStyle = line; ctx.fillStyle = inkSoft; ctx.lineWidth = 1;
+    for (var g = 0; g <= 100; g += 20) {
+      ctx.beginPath(); ctx.moveTo(padL, Y(g)); ctx.lineTo(padL + pw, Y(g)); ctx.stroke();
+      ctx.textAlign = "right"; ctx.textBaseline = "middle";
+      ctx.fillText(String(g), padL - 6, Y(g));
+    }
+    var step = xMax > 300 ? 120 : (xMax > 100 ? 60 : 10);
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (var tx = 0; tx <= xMax; tx += step) {
+      ctx.fillText(xMax > 100 ? fmt(tx / 60, 1) + "m" : fmt(tx, 0) + "s", X(tx), padT + ph + 6);
+    }
+
+    var visible = simVisibleSeries();
+    var endLabels = [];
+    visible.forEach(function (s) {
+      var color = cs.getPropertyValue(s.token).trim();
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = "round";
+      ctx.beginPath();
+      data[s.key].forEach(function (v, i) {
+        var px = X(data.t[i]), py = Y(v);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      });
+      ctx.stroke();
+      endLabels.push({ label: s.label, color: color, y: Y(data[s.key][data[s.key].length - 1]) });
+    });
+    endLabels.sort(function (a, b) { return a.y - b.y; });
+    for (var li = 1; li < endLabels.length; li++) {
+      if (endLabels[li].y - endLabels[li - 1].y < 12) endLabels[li].y = endLabels[li - 1].y + 12;
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.font = "700 11px 'Avenir Next LT Pro', sans-serif";
+    endLabels.forEach(function (l) {
+      ctx.fillStyle = ink;
+      ctx.fillText(l.label, padL + pw + 8, l.y);
+    });
+
+    var legend = $("sim-legend");
+    legend.innerHTML = "";
+    visible.forEach(function (s) {
+      var span = document.createElement("span");
+      var dot = document.createElement("i");
+      dot.style.background = cs.getPropertyValue(s.token).trim();
+      span.appendChild(dot);
+      span.appendChild(document.createTextNode(s.label));
+      legend.appendChild(span);
+    });
+  }
+
+  ["sim-temp", "sim-grind", "sim-time", "sim-vol", "sim-roast"].forEach(function (id) {
+    $(id).addEventListener("input", function () {
+      $(id + "-out").textContent = $(id).value;
+      simDraw();
+    });
+  });
+  document.querySelectorAll('input[name="sim-method"]').forEach(function (r) { r.addEventListener("change", simDraw); });
+  ["sim-singlepour", "sim-show-tf", "sim-show-ex"].forEach(function (id) { $(id).addEventListener("change", simDraw); });
+  window.addEventListener("resize", simDraw);
+  if (window.matchMedia) {
+    try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", simDraw); } catch (e) { /* browsere vechi */ }
+  }
+
   /* ═══ Butoane de salvare ═══ */
   var SAVE_BUILDERS = {
     ey: function () {
@@ -1900,7 +2593,24 @@
       return [
         ["Espresso", fmt(cwLast.coffee, 0) + " g @ " + fmt(cwLast.str, 1) + " %"],
         ["Lapte", fmt(cwLast.milk, 0) + " g"],
-        ["Tărie finală", fmt(cwLast.totalStr, 2) + " %"]
+        ["Tărie finală", fmt(cwLast.totalStr, 2) + " %"],
+        ["Volum", fmt(cwLast.volume, 0) + " ml"]
+      ];
+    },
+    ceasca: function () {
+      return [
+        ["Espresso", fmt(csLast.esp, 0) + " g @ " + fmt(csLast.tds, 1) + " % TDS"],
+        ["Tăria dorită", fmt(csLast.target, 1) + " %"],
+        ["Lapte rece", fmt(csLast.milk, 0) + " g"],
+        ["Ceașcă", fmt(csLast.vol, 0) + " ml"]
+      ];
+    },
+    cowinvers: function () {
+      return [
+        ["Ceașcă", fmt(rvLast.vol, 0) + " ml"],
+        ["Tăria dorită", fmt(rvLast.target, 1) + " % @ TDS " + fmt(rvLast.tds, 1) + " %"],
+        ["Espresso necesar", fmt(rvLast.esp, 1) + " g"],
+        ["Lapte rece", fmt(rvLast.milk, 0) + " g"]
       ];
     },
     tdstasting: function () {
@@ -1915,6 +2625,22 @@
         ["Măcinătură", fmt(teLast.gw, 0) + " g @ " + fmt(teLast.gt, 0) + " °C"],
         ["Apă", fmt(teLast.ww, 0) + " g @ " + fmt(teLast.wt, 0) + " °C"],
         ["Echilibru", fmt(teLast.result, 1) + " °C"]
+      ];
+    },
+    busola: function () {
+      if (!compassLast) return null;
+      return [
+        ["Descriptor", compassLast.term],
+        ["Diagnostic", compassLast.zone],
+        ["Corecție", compassLast.fix]
+      ];
+    },
+    simulator: function () {
+      return [
+        ["Metodă", simLast.method + ($("sim-singlepour").checked && simMethod() === "pourover" ? " (o turnare)" : "")],
+        ["Setări", fmt(simLast.T0, 0) + " °C · măcinare " + simLast.grind + " · timp " + simLast.timeS + " · volum " + simLast.vol + " · prăjire " + simLast.roast],
+        ["Extras (relativ)", fmt(simLast.extracted, 0) + " / 100"],
+        ["Tărie (relativă)", fmt(simLast.strength, 0) + " / 100"]
       ];
     },
     lsi: function () {
@@ -1964,7 +2690,13 @@
   document.querySelectorAll("[data-save]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var key = btn.dataset.save;
-      saveEntry(key, SAVE_BUILDERS[key]());
+      var fields = SAVE_BUILDERS[key]();
+      if (!fields) {
+        var fb = document.querySelector('[data-feedback="' + key + '"]');
+        if (fb) { fb.textContent = "Alege întâi un descriptor de gust."; fb.className = "save-feedback err"; }
+        return;
+      }
+      saveEntry(key, fields);
     });
   });
 
@@ -1973,8 +2705,9 @@
   renderProfiles();
   refreshHistoryFilters();
   renderHistory();
-  updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateTT(); updateTE();
+  updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateCS(); updateRV(); updateTT(); updateTE();
   updateLS(); updateRM(); updateBT(); updateWR(); updateMN();
+  simDraw();
 
   /* ═══ Registru partajat (versiunea publicată) ═══ */
   function setSyncStatus(live, label) {
