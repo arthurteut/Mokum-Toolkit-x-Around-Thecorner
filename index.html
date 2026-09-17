@@ -167,6 +167,16 @@
   .profile-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
   .profile-card h2 { font-size: 17px; text-transform: uppercase; letter-spacing: 0.06em; }
   .profile-hint { font-size: 13px; color: var(--ink-soft); }
+  .sync-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 999px; padding: 3px 12px;
+    font-size: 11.5px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    background: var(--surface-2); color: var(--ink-soft);
+  }
+  .sync-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-soft); }
+  .sync-pill.live { background: var(--accent-soft); color: var(--good); }
+  .sync-pill.live::before { background: var(--good); }
   .profile-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .profile-chip {
     display: inline-flex; align-items: center; gap: 8px;
@@ -371,8 +381,9 @@
     <div class="profile-card">
       <div class="profile-card-head">
         <h2 id="profil-title">Cine e la bar?</h2>
-        <span class="profile-hint">Profilul activ semnează fiecare calcul salvat în istoric.</span>
+        <span class="sync-pill" id="sync-status">Registru local</span>
       </div>
+      <p class="profile-hint" style="margin:6px 0 0">Profilul activ semnează fiecare calcul salvat în istoric. Profilul ales rămâne pe acest dispozitiv.</p>
       <div class="profile-chips" id="profile-chips" role="group" aria-label="Profiluri de bariști"></div>
       <form class="profile-form" id="profile-form">
         <div class="field">
@@ -743,7 +754,7 @@
         <span class="profile-hint" id="history-count"></span>
         <button type="button" class="profile-remove" id="history-clear" style="margin:0">Golește istoricul</button>
       </div>
-      <p class="note">Istoricul se salvează local, în memoria acestui dispozitiv — ideal pe tableta barului, ca registru comun al turei.</p>
+      <p class="note" id="history-note">Istoricul se salvează local, în memoria acestui dispozitiv.</p>
     </div>
   </section>
 </main>
@@ -778,8 +789,9 @@
     termic: "Echilibru termic"
   };
 
-  /* ═══ Profiluri ═══ */
+  /* ═══ Profiluri & registru — local (localStorage) sau partajat (db) ═══ */
   var P_KEY = "atc-baristas", P_ACTIVE = "atc-active-barista", H_KEY = "atc-toolkit-history";
+  var shared = false, db = null, canWrite = null;
 
   function lsGet(key) {
     try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
@@ -794,6 +806,14 @@
     var a = lsGet(P_ACTIVE);
     return profiles.some(function (p) { return p.id === a; }) ? a : profiles[0] && profiles[0].id;
   })();
+
+  function writeError(fb, e) {
+    if (!fb) return;
+    fb.textContent = (e && (e.code === "invalid_argument" || e.code === "not_granted"))
+      ? "Nu ai drepturi de scriere în registrul partajat — cere acces de editare."
+      : "Nu s-a putut salva — încearcă din nou.";
+    fb.className = "save-feedback err";
+  }
 
   function initials(name) {
     return name.trim().split(/\s+/).slice(0, 2).map(function (w) { return w[0] ? w[0].toUpperCase() : ""; }).join("");
@@ -839,22 +859,38 @@
     e.preventDefault();
     var name = $("p-name").value.trim();
     if (!name) return;
-    var prof = { id: "p" + Date.now(), name: name, role: $("p-role").value };
-    profiles.push(prof);
-    activeId = prof.id;
-    lsSet(P_KEY, profiles); lsSet(P_ACTIVE, activeId);
-    $("p-name").value = "";
-    renderProfiles();
+    var role = $("p-role").value;
+    if (shared) {
+      db.collection("baristas").add({ name: name, role: role, createdAt: Date.now() })
+        .then(function (ref) {
+          activeId = ref.id;
+          lsSet(P_ACTIVE, activeId);
+          $("p-name").value = "";
+        })
+        .catch(function (err) { alert("Nu s-a putut adăuga profilul: " + (err && err.message || "eroare")); });
+    } else {
+      var prof = { id: "p" + Date.now(), name: name, role: role };
+      profiles.push(prof);
+      activeId = prof.id;
+      lsSet(P_KEY, profiles); lsSet(P_ACTIVE, activeId);
+      $("p-name").value = "";
+      renderProfiles();
+    }
   });
 
   removeBtn.addEventListener("click", function () {
     var prof = activeProfile();
     if (!prof) return;
     if (!confirm("Ștergi profilul „" + prof.name + "”? Intrările lui din istoric rămân.")) return;
-    profiles = profiles.filter(function (p) { return p.id !== prof.id; });
-    activeId = profiles[0] && profiles[0].id;
-    lsSet(P_KEY, profiles); lsSet(P_ACTIVE, activeId || "");
-    renderProfiles();
+    if (shared) {
+      db.doc("baristas/" + prof.id).delete()
+        .catch(function (err) { alert("Nu s-a putut șterge profilul: " + (err && err.message || "eroare")); });
+    } else {
+      profiles = profiles.filter(function (p) { return p.id !== prof.id; });
+      activeId = profiles[0] && profiles[0].id;
+      lsSet(P_KEY, profiles); lsSet(P_ACTIVE, activeId || "");
+      renderProfiles();
+    }
   });
 
   /* ═══ Istoric ═══ */
@@ -931,9 +967,14 @@
       del.type = "button"; del.className = "he-delete"; del.textContent = "Șterge intrarea";
       del.style.marginTop = "8px";
       del.addEventListener("click", function () {
-        history = history.filter(function (x) { return x.id !== h.id; });
-        lsSet(H_KEY, history);
-        renderHistory();
+        if (shared) {
+          db.doc("history/" + h.id).delete()
+            .catch(function (err) { alert("Nu s-a putut șterge intrarea: " + (err && err.message || "eroare")); });
+        } else {
+          history = history.filter(function (x) { return x.id !== h.id; });
+          lsSet(H_KEY, history);
+          renderHistory();
+        }
       });
       div.appendChild(del);
 
@@ -947,10 +988,22 @@
   $("history-clear").addEventListener("click", function () {
     if (!history.length) return;
     if (!confirm("Golești tot istoricul? Acțiunea nu poate fi anulată.")) return;
-    history = [];
-    lsSet(H_KEY, history);
-    renderHistory();
+    if (shared) {
+      Promise.all(history.map(function (h) { return db.doc("history/" + h.id).delete(); }))
+        .catch(function (err) { alert("Nu s-a putut goli complet registrul: " + (err && err.message || "eroare")); });
+    } else {
+      history = [];
+      lsSet(H_KEY, history);
+      renderHistory();
+    }
   });
+
+  function savedOk(fb, name) {
+    if (!fb) return;
+    fb.textContent = "Salvat în registru pentru " + name + ".";
+    fb.className = "save-feedback ok";
+    setTimeout(function () { fb.textContent = ""; fb.className = "save-feedback"; }, 3500);
+  }
 
   function saveEntry(toolKey, fields) {
     var prof = activeProfile();
@@ -959,14 +1012,16 @@
       if (fb) { fb.textContent = "Alege sau creează întâi un profil de barist (secțiunea „Cine e la bar?”)."; fb.className = "save-feedback err"; }
       return;
     }
-    history.unshift({ id: "h" + Date.now(), ts: Date.now(), barista: prof.name, tool: toolKey, fields: fields });
-    lsSet(H_KEY, history);
-    renderHistory();
-    refreshHistoryFilters();
-    if (fb) {
-      fb.textContent = "Salvat în registru pentru " + prof.name + ".";
-      fb.className = "save-feedback ok";
-      setTimeout(function () { fb.textContent = ""; fb.className = "save-feedback"; }, 3500);
+    if (shared) {
+      db.collection("history").add({ ts: Date.now(), barista: prof.name, tool: toolKey, fields: fields })
+        .then(function () { savedOk(fb, prof.name); })
+        .catch(function (err) { writeError(fb, err); });
+    } else {
+      history.unshift({ id: "h" + Date.now(), ts: Date.now(), barista: prof.name, tool: toolKey, fields: fields });
+      lsSet(H_KEY, history);
+      renderHistory();
+      refreshHistoryFilters();
+      savedOk(fb, prof.name);
     }
   }
 
@@ -1188,6 +1243,65 @@
   refreshHistoryFilters();
   renderHistory();
   updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateTT(); updateTE();
+
+  /* ═══ Registru partajat (versiunea publicată) ═══ */
+  function setSyncStatus(live, label) {
+    var pill = $("sync-status");
+    pill.textContent = label;
+    pill.className = "sync-pill" + (live ? " live" : "");
+  }
+
+  function markReadOnly() {
+    document.querySelectorAll("[data-save]").forEach(function (b) { b.disabled = true; b.style.opacity = "0.55"; });
+    setSyncStatus(true, "Registru partajat · doar citire");
+  }
+
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("db").then(function (sharedDb) {
+      if (!sharedDb) return; // rămânem pe registrul local
+      db = sharedDb;
+      shared = true;
+      profiles = [];
+      history = [];
+      setSyncStatus(true, "Registru partajat · live");
+      $("history-note").textContent = "Registru partajat: toată echipa vede aceleași profiluri și același istoric, live, de pe orice dispozitiv.";
+
+      db.collection("baristas").onSnapshot(function (snap) {
+        profiles = snap.docs.map(function (d) {
+          var body = d.data() || {};
+          return { id: d.id, name: String(body.name || "Barist"), role: String(body.role || "Barista"), createdAt: body.createdAt || 0 };
+        }).sort(function (a, b) { return a.createdAt - b.createdAt; });
+        if (!profiles.some(function (p) { return p.id === activeId; })) {
+          activeId = profiles[0] && profiles[0].id;
+        }
+        renderProfiles();
+      }, function () { setSyncStatus(false, "Registru local (fără conexiune)"); });
+
+      db.collection("history").orderBy("ts", "desc").limit(500).onSnapshot(function (snap) {
+        history = snap.docs.map(function (d) {
+          var body = d.data() || {};
+          return {
+            id: d.id,
+            ts: typeof body.ts === "number" ? body.ts : 0,
+            barista: String(body.barista || "—"),
+            tool: String(body.tool || ""),
+            fields: Array.isArray(body.fields) ? body.fields : [],
+            example: !!body.example
+          };
+        });
+        renderHistory();
+        refreshHistoryFilters();
+      }, function () { setSyncStatus(false, "Registru local (fără conexiune)"); });
+
+      window.claude.use("user").then(function (u) {
+        if (!u) return;
+        Promise.resolve(u.can("data.write")).then(function (cw) {
+          canWrite = cw;
+          if (cw === false) markReadOnly();
+        });
+      });
+    });
+  }
 })();
 </script>
 </body>
