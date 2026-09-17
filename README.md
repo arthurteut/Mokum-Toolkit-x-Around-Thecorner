@@ -13,6 +13,9 @@ Excel, rescrise ca web app brand-uită Around The Corner, cu profile de bariști
 4. **Calculator de lapte** — compoziția completă a băuturii finale (solubile, grăsime, lactoză, proteine, apă) și tăria totală.
 5. **Degustare TDS** — exercițiul celor 10 cești: tabelul de apă per ceașcă pentru pași egali de tărie.
 6. **Echilibru termic** — temperatura de echilibru apă + măcinătură.
+7. **Calculatorul de apă** — LSI (indicele Langelier, la 95/125 °C și temperatura aleasă), remineralizare cu concentrate (sare Epsom + bicarbonat) și conversia analizei minerale de pe eticheta apei îmbuteliate în GH/KH.
+
+Secțiunea **Statistici** arată completările per barist (clasament cu bare, defalcare pe tabele, ultima activitate), calculate live din registru.
 
 ## Profile & istoric
 

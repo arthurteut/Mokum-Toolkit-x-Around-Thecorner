@@ -338,6 +338,29 @@
   .history-empty { color: var(--ink-soft); font-size: 14px; }
   .history-actions { margin-top: 14px; display: flex; gap: 12px; align-items: center; }
 
+  /* ── Apă (taburi) ── */
+  .water-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .water-tabs button {
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .water-tabs button[aria-selected="true"] {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #FFFFFF;
+  }
+  .lsi-scale { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; font-size: 12.5px; }
+  .lsi-scale span { border-radius: 999px; padding: 2px 11px; font-weight: 700; background: var(--surface-2); color: var(--ink-soft); }
+  .explain h4 { margin: 0 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .explain p { margin: 0 0 10px; font-size: 14px; color: var(--ink-soft); }
+  .explain p:last-child { margin-bottom: 0; }
+  .explain strong { color: var(--ink); }
+
   /* ── Statistici ── */
   .stats-tiles { margin-bottom: 18px; }
   .stat-row {
@@ -396,6 +419,7 @@
       <a href="#lapte">Lapte</a>
       <a href="#tds">Degustare TDS</a>
       <a href="#termic">Termic</a>
+      <a href="#apa">Apă</a>
       <a href="#statistici">Statistici</a>
       <a href="#istoric">Istoric</a>
     </nav>
@@ -609,7 +633,7 @@
           <div class="label">Doza efectivă</div>
           <div class="value"><span id="ed-result">57.9</span> <small>g</small></div>
         </div>
-        <p class="note">Umiditatea și CO₂-ul nu extrag: la cafelele foarte proaspete, doza „reală" e mai mică decât arată cântarul.</p>
+        <p class="note">Umiditatea și CO₂-ul nu extrag: la cafelele foarte proaspete, doza „reală” e mai mică decât arată cântarul.</p>
         <button type="button" class="btn btn-save" data-save="dozaefectiva">Salvează în istoric</button>
         <div class="save-feedback" data-feedback="dozaefectiva" aria-live="polite"></div>
       </div>
@@ -768,6 +792,204 @@
     </div>
   </section>
 
+  <!-- ══════════ 7. Calculatorul de apă ══════════ -->
+  <section id="apa" class="tool-section wrap" aria-labelledby="apa-title">
+    <div class="section-head">
+      <div class="section-kicker">Tool 07 · Calculatorul de apă</div>
+      <h2 id="apa-title">Apa pentru cafea</h2>
+      <p>Tot ce ține de apa barului, într-un singur loc: verifici dacă apa e sigură pentru espressor (LSI), îți construiești propria apă din concentrate (Remineralizare) sau afli GH/KH-ul unei ape îmbuteliate direct de pe etichetă.</p>
+    </div>
+
+    <div class="water-tabs" role="tablist" aria-label="Calculatoare de apă">
+      <button type="button" role="tab" id="wt-lsi" aria-selected="true" aria-controls="wp-lsi">LSI</button>
+      <button type="button" role="tab" id="wt-remin" aria-selected="false" aria-controls="wp-remin">Remineralizare</button>
+      <button type="button" role="tab" id="wt-sticla" aria-selected="false" aria-controls="wp-sticla">Apă îmbuteliată</button>
+    </div>
+
+    <!-- ── LSI ── -->
+    <div id="wp-lsi" role="tabpanel" aria-labelledby="wt-lsi">
+      <div class="grid-2">
+        <div class="card">
+          <div class="field-row">
+            <div class="field">
+              <label for="ls-tds">TDS <span class="hint">ppm</span></label>
+              <input type="number" id="ls-tds" inputmode="decimal" min="1" max="2000" step="1" value="120">
+            </div>
+            <div class="field">
+              <label for="ls-ph">pH <span class="hint">măsurat la 25 °C</span></label>
+              <input type="number" id="ls-ph" inputmode="decimal" min="4" max="11" step="0.05" value="7.5">
+            </div>
+          </div>
+          <div class="field">
+            <label for="ls-unit">Unitate pentru GH și KH</label>
+            <select id="ls-unit">
+              <option value="ppm" selected>ppm (echivalent CaCO₃)</option>
+              <option value="dh">°dH (grade germane / picături kit)</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="ls-gh">GH — duritate <span class="hint">din calciu</span></label>
+              <input type="number" id="ls-gh" inputmode="decimal" min="0.1" max="1000" step="0.5" value="60">
+            </div>
+            <div class="field">
+              <label for="ls-kh">KH — alcalinitate</label>
+              <input type="number" id="ls-kh" inputmode="decimal" min="0.1" max="1000" step="0.5" value="40">
+            </div>
+          </div>
+          <div class="field">
+            <label for="ls-temp">Temperatura ta <span class="hint">°C</span></label>
+            <input type="number" id="ls-temp" inputmode="decimal" min="0" max="150" step="1" value="25">
+          </div>
+          <button type="button" class="btn btn-save" data-save="lsi">Salvează în istoric</button>
+          <div class="save-feedback" data-feedback="lsi" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <div class="result-row" role="status" aria-live="polite">
+            <div class="result-tile">
+              <div class="label">LSI la <span id="ls-temp-label">25</span> °C</div>
+              <div class="value" id="ls-custom">—</div>
+            </div>
+            <div class="result-tile">
+              <div class="label">LSI la 95 °C (boiler cafea)</div>
+              <div class="value" id="ls-95">—</div>
+            </div>
+            <div class="result-tile">
+              <div class="label">LSI la 125 °C (boiler abur)</div>
+              <div class="value" id="ls-125">—</div>
+            </div>
+          </div>
+          <div class="lsi-scale" aria-hidden="true">
+            <span>&lt; 0,2 · risc de coroziune</span>
+            <span>0,2 – 0,7 · fereastra sigură</span>
+            <span>&gt; 0,7 · risc de calcar</span>
+          </div>
+          <p class="note" style="margin-top:12px"><span class="pill" id="ls-verdict">—</span> <span id="ls-verdict-text">Completează valorile apei.</span></p>
+        </div>
+      </div>
+      <div class="card explain" style="margin-top:18px">
+        <h4>Cum funcționează LSI</h4>
+        <p><strong>LSI (indicele de saturație Langelier)</strong> îți spune dacă apa ta tinde să depună calcar sau să corodeze metalul din espressor. Un LSI peste 0 înseamnă că se poate forma calcar; sub 0, coroziunea devine mai probabilă. Un strat foarte subțire de calcar protejează mașina împotriva coroziunii, așa că ținta barului este un <strong>LSI între 0,2 și 0,7</strong> — calculat aici și la 95 °C (boilerul de cafea) și la 125 °C (boilerul de abur), unde riscul de calcar e cel mai mare.</p>
+        <p>Calculatorul presupune că toată duritatea (GH) vine din <strong>calciu</strong> — pentru majoritatea apelor e o aproximare bună. Dacă știi separat calciul și magneziul, introdu doar GH-ul din calciu pentru un rezultat mai precis; dacă tratarea apei include un pas de mineralizare cu magneziu, măsurarea separată a calciului devine esențială.</p>
+        <p><strong>Atenție:</strong> dacă îți faci apa doar cu săruri de magneziu (de exemplu sare Epsom, ca la Remineralizare), LSI nu se aplică — nu există calciu, deci nu se formează stratul protector. Nu recomandăm acest tip de apă în espressoare.</p>
+      </div>
+    </div>
+
+    <!-- ── Remineralizare ── -->
+    <div id="wp-remin" role="tabpanel" aria-labelledby="wt-remin" hidden>
+      <div class="grid-2">
+        <div class="card">
+          <div class="field">
+            <label for="rm-unit">Unitate pentru GH și KH</label>
+            <select id="rm-unit">
+              <option value="ppm" selected>ppm (echivalent CaCO₃)</option>
+              <option value="dh">°dH (grade germane / picături kit)</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="rm-gh0">Apa de pornire — GH</label>
+              <input type="number" id="rm-gh0" inputmode="decimal" min="0" max="1000" step="0.5" value="0">
+            </div>
+            <div class="field">
+              <label for="rm-kh0">Apa de pornire — KH</label>
+              <input type="number" id="rm-kh0" inputmode="decimal" min="0" max="1000" step="0.5" value="0">
+            </div>
+          </div>
+          <div class="field">
+            <label for="rm-preset">Rețeta țintă</label>
+            <select id="rm-preset">
+              <option value="">Aleg manual</option>
+              <option value="68,40">Standard bar · GH 68 / KH 40</option>
+              <option value="80,40">Filtru clasic · GH 80 / KH 40</option>
+              <option value="60,25">Fructat &amp; limpede · GH 60 / KH 25</option>
+              <option value="100,50">Corp plin · GH 100 / KH 50</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="rm-ght">Ținta — GH</label>
+              <input type="number" id="rm-ght" inputmode="decimal" min="0" max="1000" step="0.5" value="68">
+            </div>
+            <div class="field">
+              <label for="rm-kht">Ținta — KH</label>
+              <input type="number" id="rm-kht" inputmode="decimal" min="0" max="1000" step="0.5" value="40">
+            </div>
+          </div>
+          <div class="field">
+            <label for="rm-amount">Cantitate de preparat <span class="hint">litri</span></label>
+            <input type="number" id="rm-amount" inputmode="decimal" min="0.1" max="100" step="0.5" value="2">
+          </div>
+          <button type="button" class="btn btn-save" data-save="remin">Salvează în istoric</button>
+          <div class="save-feedback" data-feedback="remin" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <div class="result-row" role="status" aria-live="polite">
+            <div class="result-tile">
+              <div class="label">Concentrat de duritate</div>
+              <div class="value"><span id="rm-hard">—</span> <small>ml</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Concentrat tampon (buffer)</div>
+              <div class="value"><span id="rm-buff">—</span> <small>ml</small></div>
+            </div>
+          </div>
+          <p class="note" id="rm-warning" hidden>Ținta e sub apa de pornire: cu concentrate poți doar adăuga minerale, nu scoate. Pornește de la o apă mai slab mineralizată (RO / distilată).</p>
+          <p class="note">Adaugă volumele de concentrat în cantitatea de apă de pornire, amestecă și ai apa țintă. 1 ml de concentrat la 1 L crește valoarea cu ~1 ppm.</p>
+        </div>
+      </div>
+      <div class="card explain" style="margin-top:18px">
+        <h4>Cum îți faci concentratele</h4>
+        <p>Rețetele de concentrat ale barului, fiecare la <strong>1 litru de apă</strong>:</p>
+        <p><strong>Duritate:</strong> 2,45 g sare Epsom (sulfat de magneziu) la 1 L de apă.<br>
+           <strong>Tampon (buffer):</strong> 1,68 g bicarbonat de sodiu la 1 L de apă.</p>
+        <p>Important: fă concentratele cu <strong>aceeași apă</strong> pe care o remineralizezi — dacă experimentezi cu o apă de izvor, folosește tot apa aceea și pentru concentrate. Apoi introdu GH/KH-ul apei de pornire (pentru RO sau distilată: 0/0 — sau află-le cu tabul „Apă îmbuteliată”), alege ținta și cantitatea, iar calculatorul îți dă exact câți mililitri din fiecare concentrat să adaugi. Așa poți folosi o apă slab mineralizată ca bază pentru apa personalizată a barului, în loc să cumperi apă distilată.</p>
+      </div>
+    </div>
+
+    <!-- ── Apă îmbuteliată ── -->
+    <div id="wp-sticla" role="tabpanel" aria-labelledby="wt-sticla" hidden>
+      <div class="grid-2">
+        <div class="card">
+          <div class="field">
+            <label for="bt-ca">Calciu (Ca²⁺) <span class="hint">mg/L, de pe etichetă</span></label>
+            <input type="number" id="bt-ca" inputmode="decimal" min="0" max="600" step="0.1" value="12">
+          </div>
+          <div class="field">
+            <label for="bt-mg">Magneziu (Mg²⁺) <span class="hint">mg/L</span></label>
+            <input type="number" id="bt-mg" inputmode="decimal" min="0" max="300" step="0.1" value="3">
+          </div>
+          <div class="field">
+            <label for="bt-hco3">Bicarbonat (HCO₃⁻) <span class="hint">mg/L</span></label>
+            <input type="number" id="bt-hco3" inputmode="decimal" min="0" max="1500" step="0.1" value="45">
+          </div>
+          <button type="button" class="btn btn-save" data-save="sticla">Salvează în istoric</button>
+          <div class="save-feedback" data-feedback="sticla" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <div class="result-row" role="status" aria-live="polite">
+            <div class="result-tile">
+              <div class="label">GH — duritate totală</div>
+              <div class="value"><span id="bt-gh">—</span> <small>ppm</small></div>
+              <div class="hint" style="font-size:12px;color:var(--ink-soft)"><span id="bt-gh-dh">—</span> °dH</div>
+            </div>
+            <div class="result-tile">
+              <div class="label">KH — alcalinitate</div>
+              <div class="value"><span id="bt-kh">—</span> <small>ppm</small></div>
+              <div class="hint" style="font-size:12px;color:var(--ink-soft)"><span id="bt-kh-dh">—</span> °dH</div>
+            </div>
+          </div>
+          <p class="note">Valorile ies în echivalent CaCO₃ — exact ce introduci la LSI sau la Remineralizare ca „apă de pornire”.</p>
+        </div>
+      </div>
+      <div class="card explain" style="margin-top:18px">
+        <h4>Cum citești eticheta</h4>
+        <p>Nu trebuie să măsori GH-ul și KH-ul apei tale îmbuteliate preferate: caută pe etichetă <strong>„analiza minerală”</strong> sau „compoziția”, care listează mineralele în miligrame pe litru. Ne interesează trei valori: <strong>calciul, magneziul și bicarbonatul</strong>. Introdu-le aici și calculatorul le traduce în GH și KH.</p>
+        <p>Dacă folosești un kit cu picături, o picătură echivalează de regulă cu 1 °dH (grad german) ≈ 17,9 ppm CaCO₃ — de-asta rezultatele apar în ambele unități.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ══════════ Statistici ══════════ -->
   <section id="statistici" class="tool-section wrap" aria-labelledby="statistici-title">
     <div class="section-head">
@@ -853,7 +1075,10 @@
     dozaefectiva: "Doză efectivă",
     lapte: "Calculator de lapte",
     tdstasting: "Degustare TDS",
-    termic: "Echilibru termic"
+    termic: "Echilibru termic",
+    lsi: "Apă · LSI",
+    remin: "Apă · Remineralizare",
+    sticla: "Apă · Îmbuteliată"
   };
 
   /* ═══ Profiluri & registru — local (localStorage) sau partajat (db) ═══ */
@@ -1341,6 +1566,101 @@
   }
   ["te-gt", "te-gw", "te-wt", "te-ww"].forEach(function (id) { $(id).addEventListener("input", updateTE); });
 
+  /* ═══ Tool 07: Calculatorul de apă ═══ */
+  var DH_TO_PPM = 17.86;
+
+  var waterTabs = ["lsi", "remin", "sticla"];
+  waterTabs.forEach(function (key) {
+    $("wt-" + key).addEventListener("click", function () {
+      waterTabs.forEach(function (k) {
+        $("wt-" + k).setAttribute("aria-selected", k === key ? "true" : "false");
+        $("wp-" + k).hidden = (k !== key);
+      });
+    });
+  });
+
+  function unitToPpm(val, unitSel) { return unitSel.value === "dh" ? val * DH_TO_PPM : val; }
+
+  var lsLast = {};
+  function lsiAt(tds, ph, ghPpm, khPpm, tempC) {
+    if (!(tds > 0 && ghPpm > 0 && khPpm > 0)) return NaN;
+    var A = (Math.log10(tds) - 1) / 10;
+    var B = -13.12 * Math.log10(tempC + 273) + 34.55;
+    var C = Math.log10(ghPpm) - 0.4;
+    var D = Math.log10(khPpm);
+    var pHs = (9.3 + A + B) - (C + D);
+    return ph - pHs;
+  }
+  function updateLS() {
+    var tds = num($("ls-tds")), ph = num($("ls-ph")), temp = num($("ls-temp"));
+    var gh = unitToPpm(num($("ls-gh")), $("ls-unit"));
+    var kh = unitToPpm(num($("ls-kh")), $("ls-unit"));
+    var lCustom = lsiAt(tds, ph, gh, kh, temp);
+    var l95 = lsiAt(tds, ph, gh, kh, 95);
+    var l125 = lsiAt(tds, ph, gh, kh, 125);
+    $("ls-temp-label").textContent = fmt(temp, 0);
+    $("ls-custom").textContent = fmt(lCustom, 2);
+    $("ls-95").textContent = fmt(l95, 2);
+    $("ls-125").textContent = fmt(l125, 2);
+    lsLast = { tds: tds, ph: ph, gh: gh, kh: kh, temp: temp, custom: lCustom, l95: l95, l125: l125 };
+    var v = $("ls-verdict"), vt = $("ls-verdict-text");
+    if (!isFinite(l95)) {
+      v.textContent = "—"; v.className = "pill";
+      vt.textContent = "Completează valorile apei.";
+    } else if (l95 < 0.2) {
+      v.textContent = "Sub 0,2 la 95 °C"; v.className = "pill pill-warn";
+      vt.textContent = "Risc de coroziune: apa e prea „agresivă” pentru boiler — crește ușor KH-ul sau GH-ul.";
+    } else if (l95 <= 0.7) {
+      v.textContent = "În fereastra sigură"; v.className = "pill pill-good";
+      vt.textContent = "Între 0,2 și 0,7 la 95 °C: stratul subțire de calcar protejează mașina fără să o înfunde.";
+    } else {
+      v.textContent = "Peste 0,7 la 95 °C"; v.className = "pill pill-bad";
+      vt.textContent = "Risc de calcar: apa va depune piatră în boiler — redu KH-ul (sau diluează cu apă RO).";
+    }
+  }
+  ["ls-tds", "ls-ph", "ls-gh", "ls-kh", "ls-temp"].forEach(function (id) { $(id).addEventListener("input", updateLS); });
+  $("ls-unit").addEventListener("change", updateLS);
+
+  var rmLast = {};
+  function updateRM() {
+    var u = $("rm-unit");
+    var gh0 = unitToPpm(num($("rm-gh0")), u), kh0 = unitToPpm(num($("rm-kh0")), u);
+    var ght = unitToPpm(num($("rm-ght")), u), kht = unitToPpm(num($("rm-kht")), u);
+    var amount = num($("rm-amount"));
+    var dGH = ght - gh0, dKH = kht - kh0;
+    var neg = dGH < 0 || dKH < 0;
+    $("rm-warning").hidden = !neg;
+    var hard = neg || amount <= 0 ? NaN : dGH * amount;
+    var buff = neg || amount <= 0 ? NaN : dKH * amount;
+    $("rm-hard").textContent = fmt(hard, 1);
+    $("rm-buff").textContent = fmt(buff, 1);
+    rmLast = { gh0: gh0, kh0: kh0, ght: ght, kht: kht, amount: amount, hard: hard, buff: buff };
+  }
+  ["rm-gh0", "rm-kh0", "rm-ght", "rm-kht", "rm-amount"].forEach(function (id) { $(id).addEventListener("input", updateRM); });
+  $("rm-unit").addEventListener("change", updateRM);
+  $("rm-preset").addEventListener("change", function () {
+    var v = $("rm-preset").value;
+    if (!v) return;
+    var parts = v.split(",");
+    $("rm-unit").value = "ppm";
+    $("rm-ght").value = parts[0];
+    $("rm-kht").value = parts[1];
+    updateRM();
+  });
+
+  var btLast = {};
+  function updateBT() {
+    var ca = num($("bt-ca")), mg = num($("bt-mg")), hco3 = num($("bt-hco3"));
+    var gh = ca * 2.497 + mg * 4.118;
+    var kh = hco3 * 0.8202;
+    $("bt-gh").textContent = fmt(gh, 0);
+    $("bt-kh").textContent = fmt(kh, 0);
+    $("bt-gh-dh").textContent = fmt(gh / DH_TO_PPM, 1);
+    $("bt-kh-dh").textContent = fmt(kh / DH_TO_PPM, 1);
+    btLast = { ca: ca, mg: mg, hco3: hco3, gh: gh, kh: kh };
+  }
+  ["bt-ca", "bt-mg", "bt-hco3"].forEach(function (id) { $(id).addEventListener("input", updateBT); });
+
   /* ═══ Butoane de salvare ═══ */
   var SAVE_BUILDERS = {
     ey: function () {
@@ -1401,6 +1721,31 @@
         ["Apă", fmt(teLast.ww, 0) + " g @ " + fmt(teLast.wt, 0) + " °C"],
         ["Echilibru", fmt(teLast.result, 1) + " °C"]
       ];
+    },
+    lsi: function () {
+      return [
+        ["TDS", fmt(lsLast.tds, 0) + " ppm"],
+        ["pH", fmt(lsLast.ph, 2)],
+        ["GH / KH", fmt(lsLast.gh, 0) + " / " + fmt(lsLast.kh, 0) + " ppm"],
+        ["LSI @95 °C", fmt(lsLast.l95, 2)],
+        ["LSI @125 °C", fmt(lsLast.l125, 2)]
+      ];
+    },
+    remin: function () {
+      return [
+        ["Pornire", "GH " + fmt(rmLast.gh0, 0) + " / KH " + fmt(rmLast.kh0, 0) + " ppm"],
+        ["Țintă", "GH " + fmt(rmLast.ght, 0) + " / KH " + fmt(rmLast.kht, 0) + " ppm"],
+        ["Cantitate", fmt(rmLast.amount, 1) + " L"],
+        ["Duritate", fmt(rmLast.hard, 1) + " ml"],
+        ["Buffer", fmt(rmLast.buff, 1) + " ml"]
+      ];
+    },
+    sticla: function () {
+      return [
+        ["Ca / Mg / HCO₃", fmt(btLast.ca, 1) + " / " + fmt(btLast.mg, 1) + " / " + fmt(btLast.hco3, 1) + " mg/L"],
+        ["GH", fmt(btLast.gh, 0) + " ppm"],
+        ["KH", fmt(btLast.kh, 0) + " ppm"]
+      ];
     }
   };
 
@@ -1417,6 +1762,7 @@
   refreshHistoryFilters();
   renderHistory();
   updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateTT(); updateTE();
+  updateLS(); updateRM(); updateBT();
 
   /* ═══ Registru partajat (versiunea publicată) ═══ */
   function setSyncStatus(live, label) {
