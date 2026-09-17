@@ -338,6 +338,42 @@
   .history-empty { color: var(--ink-soft); font-size: 14px; }
   .history-actions { margin-top: 14px; display: flex; gap: 12px; align-items: center; }
 
+  /* ── Statistici ── */
+  .stats-tiles { margin-bottom: 18px; }
+  .stat-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 200px) 1fr;
+    gap: 8px 16px;
+    align-items: center;
+    padding-block: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  @media (max-width: 560px) { .stat-row { grid-template-columns: 1fr; } }
+  .stat-who { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .stat-who .he-avatar { flex: none; }
+  .stat-name { font-weight: 900; font-size: 14.5px; overflow-wrap: anywhere; }
+  .stat-role { display: block; font-weight: 400; font-size: 12px; color: var(--ink-soft); }
+  .stat-bar-line { display: flex; align-items: center; gap: 10px; }
+  .stat-bar-track {
+    flex: 1 1 auto; height: 10px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .stat-bar-fill { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .stat-count {
+    flex: none; font-weight: 900; font-size: 14px;
+    font-variant-numeric: tabular-nums; min-width: 2.5ch; text-align: right;
+  }
+  .stat-detail { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink-soft); }
+  @media (max-width: 560px) { .stat-detail { grid-column: 1; } }
+  .stat-detail span.tool-chip {
+    background: var(--surface-2); border-radius: 999px; padding: 1px 9px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stats-empty { color: var(--ink-soft); font-size: 14px; }
+
   /* ── Footer ── */
   .site-footer { background: var(--brand); color: rgba(255,255,255,0.85); margin-top: 44px; padding-block: 26px; font-size: 13.5px; }
   .site-footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
@@ -360,6 +396,7 @@
       <a href="#lapte">Lapte</a>
       <a href="#tds">Degustare TDS</a>
       <a href="#termic">Termic</a>
+      <a href="#statistici">Statistici</a>
       <a href="#istoric">Istoric</a>
     </nav>
   </div>
@@ -731,6 +768,36 @@
     </div>
   </section>
 
+  <!-- ══════════ Statistici ══════════ -->
+  <section id="statistici" class="tool-section wrap" aria-labelledby="statistici-title">
+    <div class="section-head">
+      <div class="section-kicker">Registrul barului</div>
+      <h2 id="statistici-title">Statistici per barist</h2>
+      <p>Cine a lucrat cel mai mult cu toolkit-ul și pe ce tabele — calculat live din istoricul completărilor.</p>
+    </div>
+    <div class="result-row stats-tiles" role="status" aria-live="polite">
+      <div class="result-tile">
+        <div class="label">Completări în total</div>
+        <div class="value" id="st-total">0</div>
+      </div>
+      <div class="result-tile">
+        <div class="label">Bariști activi</div>
+        <div class="value" id="st-active">0</div>
+      </div>
+      <div class="result-tile">
+        <div class="label">Tabelul preferat al barului</div>
+        <div class="value" id="st-toptool" style="font-size:16px;line-height:1.3;padding-top:4px">—</div>
+      </div>
+      <div class="result-tile">
+        <div class="label">Ultimele 7 zile</div>
+        <div class="value" id="st-week">0</div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="stats-list" aria-live="polite"></div>
+    </div>
+  </section>
+
   <!-- ══════════ Istoric ══════════ -->
   <section id="istoric" class="tool-section wrap" aria-labelledby="istoric-title">
     <div class="section-head">
@@ -853,6 +920,7 @@
     removeBtn.hidden = !activeProfile();
     removeBtn.textContent = activeProfile() ? "Șterge profilul „" + activeProfile().name + "”" : "";
     refreshHistoryFilters();
+    renderStats();
   }
 
   $("profile-form").addEventListener("submit", function (e) {
@@ -981,6 +1049,112 @@
       histList.appendChild(div);
     });
     histCount.textContent = rows.length + (rows.length === 1 ? " intrare" : " intrări") + (fB || fT ? " (filtrat)" : "");
+    renderStats();
+  }
+
+  /* ═══ Statistici per barist ═══ */
+  function renderStats() {
+    var perB = {};
+    var toolTotals = {};
+    var week = 0;
+    history.forEach(function (h) {
+      var b = perB[h.barista] || (perB[h.barista] = { count: 0, tools: {}, last: 0 });
+      b.count++;
+      b.tools[h.tool] = (b.tools[h.tool] || 0) + 1;
+      if (h.ts > b.last) b.last = h.ts;
+      toolTotals[h.tool] = (toolTotals[h.tool] || 0) + 1;
+      if (Date.now() - h.ts < 7 * 864e5) week++;
+    });
+    profiles.forEach(function (p) {
+      if (!perB[p.name]) perB[p.name] = { count: 0, tools: {}, last: 0 };
+    });
+
+    var activeCount = Object.keys(perB).filter(function (n) { return perB[n].count > 0; }).length;
+    var topTool = Object.keys(toolTotals).sort(function (a, b) { return toolTotals[b] - toolTotals[a]; })[0];
+    $("st-total").textContent = String(history.length);
+    $("st-active").textContent = String(activeCount);
+    $("st-toptool").textContent = topTool ? (TOOL_NAMES[topTool] || topTool) : "—";
+    $("st-week").textContent = String(week);
+
+    var list = $("stats-list");
+    list.innerHTML = "";
+    var names = Object.keys(perB).sort(function (a, b) {
+      return perB[b].count - perB[a].count || a.localeCompare(b, "ro");
+    });
+    if (!names.length) {
+      var empty = document.createElement("p");
+      empty.className = "stats-empty";
+      empty.textContent = "Încă nu există bariști sau completări — statisticile apar odată cu primul calcul salvat.";
+      list.appendChild(empty);
+      return;
+    }
+    var max = names.reduce(function (m, n) { return Math.max(m, perB[n].count); }, 1);
+
+    names.forEach(function (name) {
+      var b = perB[name];
+      var prof = profiles.find(function (p) { return p.name === name; });
+
+      var row = document.createElement("div");
+      row.className = "stat-row";
+
+      var who = document.createElement("div");
+      who.className = "stat-who";
+      var av = document.createElement("span");
+      av.className = "he-avatar"; av.setAttribute("aria-hidden", "true");
+      av.textContent = initials(name);
+      var nm = document.createElement("span");
+      nm.className = "stat-name";
+      nm.textContent = name;
+      if (prof) {
+        var rl = document.createElement("span");
+        rl.className = "stat-role";
+        rl.textContent = prof.role;
+        nm.appendChild(rl);
+      }
+      who.appendChild(av); who.appendChild(nm);
+      row.appendChild(who);
+
+      var barLine = document.createElement("div");
+      barLine.className = "stat-bar-line";
+      var track = document.createElement("div");
+      track.className = "stat-bar-track";
+      track.setAttribute("role", "img");
+      track.setAttribute("aria-label", b.count + (b.count === 1 ? " completare" : " completări"));
+      var fill = document.createElement("div");
+      fill.className = "stat-bar-fill";
+      if (b.count === 0) { fill.style.display = "none"; }
+      else { fill.style.width = Math.max(4, (b.count / max) * 100) + "%"; }
+      track.appendChild(fill);
+      var cnt = document.createElement("span");
+      cnt.className = "stat-count";
+      cnt.textContent = String(b.count);
+      barLine.appendChild(track); barLine.appendChild(cnt);
+      row.appendChild(barLine);
+
+      var detail = document.createElement("div");
+      detail.className = "stat-detail";
+      var toolKeys = Object.keys(b.tools).sort(function (x, y) { return b.tools[y] - b.tools[x]; });
+      toolKeys.slice(0, 3).forEach(function (t) {
+        var chip = document.createElement("span");
+        chip.className = "tool-chip";
+        chip.textContent = (TOOL_NAMES[t] || t) + " × " + b.tools[t];
+        detail.appendChild(chip);
+      });
+      if (toolKeys.length > 3) {
+        var more = document.createElement("span");
+        more.className = "tool-chip";
+        more.textContent = "+" + (toolKeys.length - 3) + " alte tabele";
+        detail.appendChild(more);
+      }
+      var last = document.createElement("span");
+      last.textContent = b.last
+        ? "Ultima activitate: " + new Date(b.last).toLocaleString("ro-RO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+        : "Nicio completare încă";
+      detail.appendChild(last);
+      row.appendChild(detail);
+
+      list.appendChild(row);
+    });
   }
 
   histBarista.addEventListener("change", renderHistory);
