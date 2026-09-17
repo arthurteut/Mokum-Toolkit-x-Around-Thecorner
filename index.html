@@ -432,7 +432,7 @@
     <h1>Toolkit avansat de cafea</h1>
     <p>
       Toate calculatoarele avansate de preparare — extracție, diluție, doză efectivă, lapte,
-      degustare TDS și echilibru termic — rescrise pentru barul Around The Corner.
+      degustare TDS și echilibru termic — rescrise pentru Mokum.
       Alege-ți profilul, lucrează pe cifre reale și salvează fiecare calcul în istoricul echipei.
     </p>
   </section>
@@ -802,7 +802,9 @@
 
     <div class="water-tabs" role="tablist" aria-label="Calculatoare de apă">
       <button type="button" role="tab" id="wt-lsi" aria-selected="true" aria-controls="wp-lsi">LSI</button>
-      <button type="button" role="tab" id="wt-remin" aria-selected="false" aria-controls="wp-remin">Remineralizare</button>
+      <button type="button" role="tab" id="wt-retapa" aria-selected="false" aria-controls="wp-retapa">Rețete de apă</button>
+      <button type="button" role="tab" id="wt-remin" aria-selected="false" aria-controls="wp-remin">Remineralizare țintă</button>
+      <button type="button" role="tab" id="wt-mineral" aria-selected="false" aria-controls="wp-mineral">Mineralizare liberă</button>
       <button type="button" role="tab" id="wt-sticla" aria-selected="false" aria-controls="wp-sticla">Apă îmbuteliată</button>
     </div>
 
@@ -875,6 +877,77 @@
       </div>
     </div>
 
+    <!-- ── Rețete de apă (DIY pe apă distilată) ── -->
+    <div id="wp-retapa" role="tabpanel" aria-labelledby="wt-retapa" hidden>
+      <div class="grid-2">
+        <div class="card">
+          <div class="field">
+            <label for="wr-preset">Rețeta casei</label>
+            <select id="wr-preset">
+              <option value="">Țintă proprie</option>
+              <option value="r1">01 · Moale de tot — GH 23,7 / KH 11,5</option>
+              <option value="r2">02 · Cupă de concurs — GH 51,2 / KH 40,1</option>
+              <option value="r3" selected>03 · Standard clasic — GH 68,6 / KH 40,1</option>
+              <option value="r4">04 · Rețeta originală — GH 80,7 / KH 40,1</option>
+              <option value="r5">05 · Balans bogat — GH 75,7 / KH 50,1</option>
+              <option value="r6">06 · Zona ideală — GH 99,9 / KH 30,8</option>
+              <option value="r7">07 · Destul de dură — GH 126,1 / KH 35,1</option>
+              <option value="r8">08 · Dură rău — GH 176,8 / KH 45,2</option>
+            </select>
+          </div>
+          <p class="note" id="wr-desc">Standardul istoric al industriei de cafea de specialitate. Specificațiile clasice acceptă durități totale între ~17 și 85 ppm, deci poți ține bufferul constant și varia duritatea în această plajă.</p>
+          <div class="field-row">
+            <div class="field">
+              <label for="wr-gh">Ținta — GH <span class="hint">ppm CaCO₃</span></label>
+              <input type="number" id="wr-gh" inputmode="decimal" min="0" max="500" step="0.1" value="68.6">
+            </div>
+            <div class="field">
+              <label for="wr-kh">Ținta — KH <span class="hint">ppm CaCO₃</span></label>
+              <input type="number" id="wr-kh" inputmode="decimal" min="0" max="500" step="0.1" value="40.1">
+            </div>
+          </div>
+          <div class="field">
+            <label for="wr-amount">Cantitate de preparat <span class="hint">litri</span></label>
+            <input type="number" id="wr-amount" inputmode="decimal" min="0.1" max="100" step="0.5" value="1">
+          </div>
+          <button type="button" class="btn btn-save" data-save="retapa">Salvează în istoric</button>
+          <div class="save-feedback" data-feedback="retapa" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <div class="result-row" role="status" aria-live="polite">
+            <div class="result-tile">
+              <div class="label">Soluție de duritate</div>
+              <div class="value"><span id="wr-hard">—</span> <small>g</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Soluție tampon (buffer)</div>
+              <div class="value"><span id="wr-buff">—</span> <small>g</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Apă distilată</div>
+              <div class="value"><span id="wr-water">—</span> <small>g</small></div>
+            </div>
+          </div>
+          <p class="note" id="wr-warning" hidden>Ținta e prea mare pentru volumul ales — soluțiile ar depăși cantitatea totală. Redu GH/KH sau prepară mai mult.</p>
+          <p class="note">Cântărește soluțiile în apa distilată până la greutatea totală (1 L ≈ 1000 g). 1 g de soluție ≈ 1 ml.</p>
+        </div>
+      </div>
+      <div class="card explain" style="margin-top:18px">
+        <h4>Ce îți trebuie</h4>
+        <p>• <strong>Bicarbonat de sodiu</strong> (NaHCO₃ — nu praf de copt!) • <strong>Sare Epsom</strong> (sulfat de magneziu, MgSO₄·7H₂O)¹ • <strong>Apă distilată / deionizată</strong> • <strong>Cântar</strong> cu precizie de 0,01 g • <strong>3 recipiente de ~1 L</strong> (ideal sticlă, fără mirosuri) — două pentru soluții, unul pentru apa finală.</p>
+        <h4 style="margin-top:14px">Soluțiile de lucru</h4>
+        <p><strong>Tampon (buffer):</strong> dizolvă 1,68 g bicarbonat de sodiu în 1 L apă deionizată → KH ≈ 1000 ppm (ca CaCO₃).<br>
+           <strong>Duritate:</strong> dizolvă 2,45 g sare Epsom în 1 L apă deionizată → GH ≈ 1000 ppm (ca CaCO₃).</p>
+        <p>Cu apă distilată, calculul e simplu: pentru GH-ul și KH-ul dorit folosești exact atâția ml din fiecare soluție, apoi completezi cu apă distilată până la volumul total. Rețetele de mai sus sunt punctele de pornire ale barului, de la apă foarte moale (extracții lungi, prăjiri închise) până la apă foarte dură (extracții scurte, care „trag” tot din cafea — adaptează măcinarea și randamentul).</p>
+        <h4 style="margin-top:14px">De ce țintim GH și KH, nu ioni</h4>
+        <p>Duritatea (GH) și alcalinitatea (KH) se măsoară de obicei în <strong>echivalent carbonat de calciu</strong>: câte ppm de CaCO₃ ai avea dacă toată duritatea ar veni doar din calciu. Kiturile simple cu picături nu disting calciul de magneziu, așa că totul se exprimă în această unitate comună — iar rețetele de mai sus țintesc direct GH/KH, fără conversii.</p>
+        <h4 style="margin-top:14px">Avertismente</h4>
+        <p><strong>Nu pune apă remineralizată în espressor</strong> decât dacă știi exact ce faci. O apă foarte dură face calcar și în fierbător — se curăță ușor acolo, dar detartrarea unui espressor nu e deloc distractivă. Verifică întâi apa cu tabul LSI.</p>
+        <p><strong>Despre TDS:</strong> TDS-ul calculat poate să difere de ce arată un TDS-metru — aparatele presupun un anumit raport între ionii din apă, iar soluțiile noastre schimbă acest raport.</p>
+        <p>¹ <em>„·7H₂O"</em> înseamnă că fiecare moleculă de sulfat de magneziu e înconjurată de șapte molecule de apă în cristalele din comerț (sarea Epsom) — greutatea apei din cristal contează în calcule, de-asta rețeta cere exact această formă.</p>
+      </div>
+    </div>
+
     <!-- ── Remineralizare ── -->
     <div id="wp-remin" role="tabpanel" aria-labelledby="wt-remin" hidden>
       <div class="grid-2">
@@ -944,6 +1017,71 @@
         <p><strong>Duritate:</strong> 2,45 g sare Epsom (sulfat de magneziu) la 1 L de apă.<br>
            <strong>Tampon (buffer):</strong> 1,68 g bicarbonat de sodiu la 1 L de apă.</p>
         <p>Important: fă concentratele cu <strong>aceeași apă</strong> pe care o remineralizezi — dacă experimentezi cu o apă de izvor, folosește tot apa aceea și pentru concentrate. Apoi introdu GH/KH-ul apei de pornire (pentru RO sau distilată: 0/0 — sau află-le cu tabul „Apă îmbuteliată”), alege ținta și cantitatea, iar calculatorul îți dă exact câți mililitri din fiecare concentrat să adaugi. Așa poți folosi o apă slab mineralizată ca bază pentru apa personalizată a barului, în loc să cumperi apă distilată.</p>
+      </div>
+    </div>
+
+    <!-- ── Mineralizare liberă ── -->
+    <div id="wp-mineral" role="tabpanel" aria-labelledby="wt-mineral" hidden>
+      <div class="grid-2">
+        <div class="card">
+          <div class="field-row">
+            <div class="field">
+              <label for="mn-gh0">Apa de pornire — GH <span class="hint">ppm</span></label>
+              <input type="number" id="mn-gh0" inputmode="decimal" min="0" max="1000" step="0.5" value="80">
+            </div>
+            <div class="field">
+              <label for="mn-kh0">Apa de pornire — KH <span class="hint">ppm</span></label>
+              <input type="number" id="mn-kh0" inputmode="decimal" min="0" max="1000" step="0.5" value="40">
+            </div>
+          </div>
+          <div class="field">
+            <label for="mn-tds0">Apa de pornire — TDS <span class="hint">ppm · opțional</span></label>
+            <input type="number" id="mn-tds0" inputmode="decimal" min="0" max="2000" step="1" value="100">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="mn-hard">Soluție de duritate folosită <span class="hint">ml</span></label>
+              <input type="number" id="mn-hard" inputmode="decimal" min="0" max="1000" step="1" value="45">
+            </div>
+            <div class="field">
+              <label for="mn-buff">Soluție tampon folosită <span class="hint">ml</span></label>
+              <input type="number" id="mn-buff" inputmode="decimal" min="0" max="1000" step="1" value="40">
+            </div>
+          </div>
+          <div class="field">
+            <label for="mn-water">Apă de pornire adăugată <span class="hint">ml</span></label>
+            <input type="number" id="mn-water" inputmode="decimal" min="0" max="20000" step="1" value="915">
+          </div>
+          <button type="button" class="btn btn-save" data-save="mineral">Salvează în istoric</button>
+          <div class="save-feedback" data-feedback="mineral" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <div class="result-row" role="status" aria-live="polite">
+            <div class="result-tile">
+              <div class="label">GH rezultat</div>
+              <div class="value"><span id="mn-gh">—</span> <small>ppm</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">KH rezultat</div>
+              <div class="value"><span id="mn-kh">—</span> <small>ppm</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">TDS estimat</div>
+              <div class="value"><span id="mn-tds">—</span> <small>ppm</small></div>
+            </div>
+            <div class="result-tile">
+              <div class="label">Volum total</div>
+              <div class="value"><span id="mn-vol">—</span> <small>ml</small></div>
+            </div>
+          </div>
+          <p class="note">Vei observa că 10 ml de soluție nu cresc GH-ul sau KH-ul fix cu 10, ca la apa distilată: soluțiile diluează la rândul lor apa de pornire. Ajustează cantitățile până lovești ținta.</p>
+        </div>
+      </div>
+      <div class="card explain" style="margin-top:18px">
+        <h4>Când folosești mineralizarea liberă</h4>
+        <p>Dacă preferi să adaugi duritate sau buffer <strong>peste o apă existentă</strong> — ca să profiți de calciul și mineralele deja prezente — acest calculator îți spune ce GH, KH și TDS va avea apa finală. E util când vrei să „împingi” duritatea apei tale îmbuteliate preferate sau să mineralizezi apa de la robinet într-o zonă cu apă moale.</p>
+        <p>Măsoară întâi GH-ul și KH-ul apei tale (sau ia-le din tabul „Apă îmbuteliată”), introdu câți ml din fiecare soluție vrei să folosești și câtă apă de pornire adaugi — soluțiile sunt cele standard, făcute cu apă deionizată (1,68 g bicarbonat / 1 L și 2,45 g sare Epsom / 1 L).</p>
+        <p><strong>TDS-ul e o estimare</strong> pe baza sărurilor dizolvate (fără apa de cristalizare a sării Epsom) — un TDS-metru poate arăta ușor diferit, pentru că aparatele presupun un anumit amestec de ioni.</p>
       </div>
     </div>
 
@@ -1078,6 +1216,8 @@
     termic: "Echilibru termic",
     lsi: "Apă · LSI",
     remin: "Apă · Remineralizare",
+    retapa: "Apă · Rețetă",
+    mineral: "Apă · Mineralizare",
     sticla: "Apă · Îmbuteliată"
   };
 
@@ -1569,7 +1709,7 @@
   /* ═══ Tool 07: Calculatorul de apă ═══ */
   var DH_TO_PPM = 17.86;
 
-  var waterTabs = ["lsi", "remin", "sticla"];
+  var waterTabs = ["lsi", "retapa", "remin", "mineral", "sticla"];
   waterTabs.forEach(function (key) {
     $("wt-" + key).addEventListener("click", function () {
       waterTabs.forEach(function (k) {
@@ -1647,6 +1787,61 @@
     $("rm-kht").value = parts[1];
     updateRM();
   });
+
+  var WATER_RECIPES = {
+    r1: { gh: 23.7, kh: 11.5, desc: "Apă foarte moale, cu minerale puține. Bună pentru extracții lungi la filtru sau degustări întinse pe 5–10 minute și pentru prăjirile mai închise de espresso, care nu au nevoie de ajutor la extracție." },
+    r2: { gh: 51.2, kh: 40.1, desc: "În plaja de concurs a marilor campionate de filtru. Într-un oraș real duritatea ar veni și din calciu, și din magneziu, cu alt profil de gust — de testat cu cap." },
+    r3: { gh: 68.6, kh: 40.1, desc: "Standardul istoric al industriei de cafea de specialitate. Specificațiile clasice acceptă durități totale între ~17 și 85 ppm, deci poți ține bufferul constant și varia duritatea în această plajă." },
+    r4: { gh: 80.7, kh: 40.1, desc: "Rețeta originală de la care a pornit totul — echilibrată, la limita de sus a specificațiilor clasice. Punctul de start preferat al barului pentru filtru." },
+    r5: { gh: 75.7, kh: 50.1, desc: "Chimie de apă recomandată pentru cafea aromată și echilibrată: duritate și buffer puțin peste standardul clasic, cu ceva mai mult tampon decât rețeta originală." },
+    r6: { gh: 99.9, kh: 30.8, desc: "Aproape de centrul zonei ideale de extracție din cercetările despre apă. Dacă vrei să „dial-in-ezi” apa pentru o anumită prăjire, de aici e bine să pornești." },
+    r7: { gh: 126.1, kh: 35.1, desc: "Începe urcușul spre apă dură — potrivită mai degrabă extracțiilor scurte la filtru. Trage mult din cafea, deci rețetele de preparare cer adaptare: măcinare și randament ajustate după prăjire." },
+    r8: { gh: 176.8, kh: 45.2, desc: "Nivel mineral împins la maximum — amplificatorul dat la 11. Parametrii de preparare din rețetele mai moi trebuie schimbați serios aici." }
+  };
+  var wrLast = {};
+  function updateWR() {
+    var gh = num($("wr-gh")), kh = num($("wr-kh")), amount = num($("wr-amount"));
+    var hard = gh * amount, buff = kh * amount;
+    var water = 1000 * amount - hard - buff;
+    var bad = water < 0 || amount <= 0;
+    $("wr-warning").hidden = !bad;
+    $("wr-hard").textContent = bad ? "—" : fmt(hard, 1);
+    $("wr-buff").textContent = bad ? "—" : fmt(buff, 1);
+    $("wr-water").textContent = bad ? "—" : fmt(water, 1);
+    wrLast = { gh: gh, kh: kh, amount: amount, hard: hard, buff: buff, water: water };
+  }
+  ["wr-gh", "wr-kh"].forEach(function (id) { $(id).addEventListener("input", function () {
+    $("wr-preset").value = "";
+    $("wr-desc").textContent = "Țintă proprie: alege GH-ul și KH-ul dorit, iar calculatorul îți dă gramajele pentru volumul ales.";
+    updateWR();
+  }); });
+  $("wr-amount").addEventListener("input", updateWR);
+  $("wr-preset").addEventListener("change", function () {
+    var r = WATER_RECIPES[$("wr-preset").value];
+    if (!r) return;
+    $("wr-gh").value = r.gh;
+    $("wr-kh").value = r.kh;
+    $("wr-desc").textContent = r.desc;
+    updateWR();
+  });
+
+  /* TDS: doar sărurile dizolvate — MgSO₄ anhidru 1,197 mg/ml, NaHCO₃ 1,68 mg/ml */
+  var MN_TDS_HARD = 1.197, MN_TDS_BUFF = 1.68;
+  var mnLast = {};
+  function updateMN() {
+    var gh0 = num($("mn-gh0")), kh0 = num($("mn-kh0")), tds0 = num($("mn-tds0"));
+    var h = num($("mn-hard")), b = num($("mn-buff")), w = num($("mn-water"));
+    var vol = h + b + w;
+    var gh = vol > 0 ? (gh0 * w + 1000 * h) / vol : NaN;
+    var kh = vol > 0 ? (kh0 * w + 1000 * b) / vol : NaN;
+    var tds = vol > 0 ? (tds0 * w + h * MN_TDS_HARD * 1000 + b * MN_TDS_BUFF * 1000) / vol : NaN;
+    $("mn-gh").textContent = fmt(gh, 0);
+    $("mn-kh").textContent = fmt(kh, 0);
+    $("mn-tds").textContent = fmt(tds, 0);
+    $("mn-vol").textContent = fmt(vol, 0);
+    mnLast = { gh0: gh0, kh0: kh0, tds0: tds0, h: h, b: b, w: w, gh: gh, kh: kh, tds: tds, vol: vol };
+  }
+  ["mn-gh0", "mn-kh0", "mn-tds0", "mn-hard", "mn-buff", "mn-water"].forEach(function (id) { $(id).addEventListener("input", updateMN); });
 
   var btLast = {};
   function updateBT() {
@@ -1740,6 +1935,23 @@
         ["Buffer", fmt(rmLast.buff, 1) + " ml"]
       ];
     },
+    retapa: function () {
+      var presetSel = $("wr-preset");
+      var presetName = presetSel.value ? presetSel.options[presetSel.selectedIndex].text : "Țintă proprie";
+      return [
+        ["Rețetă", presetName],
+        ["Țintă", "GH " + fmt(wrLast.gh, 1) + " / KH " + fmt(wrLast.kh, 1) + " ppm"],
+        ["Cantitate", fmt(wrLast.amount, 1) + " L"],
+        ["Duritate / Buffer / Apă", fmt(wrLast.hard, 1) + " / " + fmt(wrLast.buff, 1) + " / " + fmt(wrLast.water, 1) + " g"]
+      ];
+    },
+    mineral: function () {
+      return [
+        ["Pornire", "GH " + fmt(mnLast.gh0, 0) + " / KH " + fmt(mnLast.kh0, 0) + " / TDS " + fmt(mnLast.tds0, 0)],
+        ["Soluții", fmt(mnLast.h, 0) + " ml duritate + " + fmt(mnLast.b, 0) + " ml buffer + " + fmt(mnLast.w, 0) + " ml apă"],
+        ["Rezultat", "GH " + fmt(mnLast.gh, 0) + " / KH " + fmt(mnLast.kh, 0) + " / TDS " + fmt(mnLast.tds, 0) + " ppm"]
+      ];
+    },
     sticla: function () {
       return [
         ["Ca / Mg / HCO₃", fmt(btLast.ca, 1) + " / " + fmt(btLast.mg, 1) + " / " + fmt(btLast.hco3, 1) + " mg/L"],
@@ -1762,7 +1974,7 @@
   refreshHistoryFilters();
   renderHistory();
   updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateTT(); updateTE();
-  updateLS(); updateRM(); updateBT();
+  updateLS(); updateRM(); updateBT(); updateWR(); updateMN();
 
   /* ═══ Registru partajat (versiunea publicată) ═══ */
   function setSyncStatus(live, label) {
