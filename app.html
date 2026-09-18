@@ -177,6 +177,22 @@
   .sync-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-soft); }
   .sync-pill.live { background: var(--accent-soft); color: var(--good); }
   .sync-pill.live::before { background: var(--good); }
+
+  /* ── Conturi de cafenea ── */
+  #account-panel { margin-top: 16px; border-top: 1px dashed var(--line); padding-top: 14px; }
+  .acc-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .acc-tabs button {
+    border: 1.5px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-weight: 700;
+    font-size: 13.5px;
+  }
+  .acc-tabs button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #FFFFFF; }
+  .acc-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+  .profile-chip.pending { opacity: 0.55; border-style: dashed; }
   .profile-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .profile-chip {
     display: inline-flex; align-items: center; gap: 8px;
@@ -530,12 +546,57 @@
         <h2 id="profil-title">Cine e la bar?</h2>
         <span class="sync-pill" id="sync-status">Registru local</span>
       </div>
-      <p class="profile-hint" style="margin:6px 0 0">Profilul activ semnează fiecare calcul salvat în istoric. Profilul ales rămâne pe acest dispozitiv.</p>
+      <p class="profile-hint" style="margin:6px 0 0" id="profile-hint-text">Profilul activ semnează fiecare calcul salvat în istoric. Profilul ales rămâne pe acest dispozitiv.</p>
+
+      <div id="account-panel" hidden>
+        <div id="acc-signedout" hidden>
+          <div class="acc-tabs">
+            <button type="button" id="acc-tab-login" aria-pressed="true">Intră în cont</button>
+            <button type="button" id="acc-tab-signup" aria-pressed="false">Cont nou de cafenea</button>
+          </div>
+          <form id="acc-login-form" class="profile-form" style="margin-top:12px">
+            <div class="field">
+              <label for="al-email">Email</label>
+              <input type="email" id="al-email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="al-pass">Parolă</label>
+              <input type="password" id="al-pass" autocomplete="current-password" required minlength="6">
+            </div>
+            <button type="submit" class="btn">Intră în cont</button>
+          </form>
+          <form id="acc-signup-form" class="profile-form" style="margin-top:12px" hidden>
+            <div class="field">
+              <label for="as-name">Numele cafenelei</label>
+              <input type="text" id="as-name" maxlength="60" required placeholder="ex. Cafeneaua din colț">
+            </div>
+            <div class="field">
+              <label for="as-email">Email</label>
+              <input type="email" id="as-email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="as-pass">Parolă <span class="hint">min. 6 caractere</span></label>
+              <input type="password" id="as-pass" autocomplete="new-password" required minlength="6">
+            </div>
+            <button type="submit" class="btn">Creează contul cafenelei</button>
+          </form>
+          <p class="profile-hint" style="margin-top:10px">Contul cafenelei devine administrator: din el îți inviți bariștii prin email de activare. Fără cont, aplicația funcționează în continuare local, pe acest dispozitiv.</p>
+        </div>
+        <div id="acc-signedin" class="acc-bar" hidden>
+          <span>☑ <strong id="acc-cafe-name">—</strong> · <span id="acc-user-email">—</span> <span class="pill pill-good" id="acc-role-pill" style="margin-left:6px">barist</span></span>
+          <button type="button" class="profile-remove" id="acc-logout" style="margin:0">Ieși din cont</button>
+        </div>
+        <div class="save-feedback" id="acc-feedback" aria-live="polite"></div>
+      </div>
       <div class="profile-chips" id="profile-chips" role="group" aria-label="Profiluri de bariști"></div>
       <form class="profile-form" id="profile-form">
         <div class="field">
           <label for="p-name">Barist nou</label>
           <input type="text" id="p-name" placeholder="ex. Arthur" maxlength="30" required>
+        </div>
+        <div class="field" id="p-email-field" hidden>
+          <label for="p-email">Emailul baristului <span class="hint">primește linkul de activare</span></label>
+          <input type="email" id="p-email" autocomplete="off" maxlength="120">
         </div>
         <div class="field">
           <label for="p-role">Rol</label>
@@ -1545,6 +1606,7 @@
   </div>
 </footer>
 
+<script src="assets/firebase-config.js"></script>
 <script>
 (function () {
   "use strict";
@@ -1580,6 +1642,7 @@
   /* ═══ Profiluri & registru — local (localStorage) sau partajat (db) ═══ */
   var P_KEY = "atc-baristas", P_ACTIVE = "atc-active-barista", H_KEY = "atc-toolkit-history";
   var shared = false, db = null, canWrite = null;
+  var cloudActive = false, cloudUid = null, cloudRole = null, cloudInvite = null, cloudRemoveMember = null;
 
   function lsGet(key) {
     try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
@@ -1623,22 +1686,39 @@
     profiles.forEach(function (prof) {
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "profile-chip";
+      b.className = "profile-chip" + (prof.pending ? " pending" : "");
+      if (prof.pending) b.title = "Invitație trimisă — așteaptă activarea din email";
+      else if (cloudActive && prof.id !== cloudUid) b.title = "Fiecare barist se conectează cu propriul cont";
       b.setAttribute("aria-pressed", prof.id === activeId ? "true" : "false");
       var av = document.createElement("span");
       av.className = "avatar"; av.setAttribute("aria-hidden", "true");
       av.textContent = initials(prof.name);
       var nm = document.createElement("span"); nm.textContent = prof.name;
-      var rl = document.createElement("span"); rl.className = "role"; rl.textContent = prof.role;
+      var rl = document.createElement("span"); rl.className = "role";
+      rl.textContent = prof.role + (prof.pending ? " · în așteptare" : "");
       b.appendChild(av); b.appendChild(nm); b.appendChild(rl);
+      if (cloudActive && cloudRole === "admin" && prof.id !== cloudUid) {
+        var rm = document.createElement("span");
+        rm.textContent = " ✕";
+        rm.setAttribute("role", "button");
+        rm.setAttribute("aria-label", "Scoate pe " + prof.name + " din echipă");
+        rm.style.opacity = "0.7";
+        rm.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          if (cloudRemoveMember) cloudRemoveMember(prof);
+        });
+        b.appendChild(rm);
+      }
       b.addEventListener("click", function () {
+        if (prof.pending) return;
+        if (cloudActive && prof.id !== cloudUid) return;
         activeId = prof.id;
         lsSet(P_ACTIVE, activeId);
         renderProfiles();
       });
       chipsBox.appendChild(b);
     });
-    removeBtn.hidden = !activeProfile();
+    removeBtn.hidden = !activeProfile() || cloudActive;
     removeBtn.textContent = activeProfile() ? "Șterge profilul „" + activeProfile().name + "”" : "";
     refreshHistoryFilters();
     renderStats();
@@ -1649,6 +1729,12 @@
     var name = $("p-name").value.trim();
     if (!name) return;
     var role = $("p-role").value;
+    if (cloudActive) {
+      var email = $("p-email").value.trim();
+      if (!email) return;
+      if (cloudInvite) cloudInvite(name, role, email);
+      return;
+    }
     if (shared) {
       db.collection("baristas").add({ name: name, role: role, createdAt: Date.now() })
         .then(function (ref) {
@@ -1670,6 +1756,10 @@
   removeBtn.addEventListener("click", function () {
     var prof = activeProfile();
     if (!prof) return;
+    if (cloudActive) {
+      if (cloudRemoveMember) cloudRemoveMember(prof);
+      return;
+    }
     if (!confirm("Ștergi profilul „" + prof.name + "”? Intrările lui din istoric rămân.")) return;
     if (shared) {
       db.doc("baristas/" + prof.id).delete()
@@ -1908,7 +1998,9 @@
       return;
     }
     if (shared) {
-      db.collection("history").add({ ts: Date.now(), barista: prof.name, tool: toolKey, fields: fields })
+      var entry = { ts: Date.now(), barista: prof.name, tool: toolKey, fields: fields };
+      if (cloudActive && cloudUid) entry.uid = cloudUid;
+      db.collection("history").add(entry)
         .then(function () { savedOk(fb, prof.name); })
         .catch(function (err) { writeError(fb, err); });
     } else {
@@ -2721,7 +2813,275 @@
     setSyncStatus(true, "Registru partajat · doar citire");
   }
 
-  if (window.claude && typeof window.claude.use === "function") {
+  /* ═══ Conturi de cafenea (Firebase) — activ doar când există configurarea ═══ */
+  (function initCloud() {
+    var cfg = window.ATC_FIREBASE_CONFIG;
+    if (!cfg) return;
+    var auth = null, fs = null, cafeId = null, myName = null;
+    var unsubMembers = null, unsubHistory = null, unsubInvites = null;
+    var pendingCafeName = null, pendingInvites = [];
+
+    var SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
+    (function loadNext(i) {
+      var files = ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"];
+      if (i >= files.length) return startCloud();
+      var s = document.createElement("script");
+      s.src = SDK + files[i];
+      s.onload = function () { loadNext(i + 1); };
+      s.onerror = function () { setSyncStatus(false, "Conturi indisponibile (offline)"); };
+      document.head.appendChild(s);
+    })(0);
+
+    function accFeedback(msg, ok) {
+      var fb = $("acc-feedback");
+      fb.textContent = msg || "";
+      fb.className = "save-feedback" + (msg ? (ok ? " ok" : " err") : "");
+    }
+    var ERR = {
+      "auth/email-already-in-use": "Există deja un cont cu acest email.",
+      "auth/invalid-email": "Adresa de email nu e validă.",
+      "auth/weak-password": "Parola e prea scurtă (minimum 6 caractere).",
+      "auth/invalid-credential": "Email sau parolă greșite.",
+      "auth/wrong-password": "Email sau parolă greșite.",
+      "auth/user-not-found": "Nu există un cont cu acest email.",
+      "auth/too-many-requests": "Prea multe încercări — așteaptă puțin și reîncearcă.",
+      "auth/invalid-action-code": "Linkul de activare a expirat sau a fost deja folosit — cere o invitație nouă.",
+      "permission-denied": "Nu ai drepturile necesare pentru această acțiune."
+    };
+    function accError(err) {
+      var code = err && err.code ? String(err.code) : "";
+      accFeedback(ERR[code] || ("Nu a mers: " + (err && err.message ? err.message : "eroare necunoscută")), false);
+    }
+    function emailKey(email) {
+      return email.trim().toLowerCase().replace(/\./g, ",");
+    }
+    function returnUrl() {
+      return window.location.origin + window.location.pathname;
+    }
+
+    function startCloud() {
+      firebase.initializeApp(cfg);
+      auth = firebase.auth();
+      fs = firebase.firestore();
+      $("account-panel").hidden = false;
+
+      if (auth.isSignInWithEmailLink(window.location.href)) {
+        var email = null;
+        try { email = localStorage.getItem("atc-invite-email"); } catch (e) { /* fără memorie */ }
+        if (!email) email = window.prompt("Confirmă adresa de email pe care ai primit invitația:");
+        if (email) {
+          auth.signInWithEmailLink(email.trim(), window.location.href)
+            .then(function () {
+              try { localStorage.removeItem("atc-invite-email"); } catch (e) { /* ignorăm */ }
+              if (window.history && history.replaceState) {
+                history.replaceState(null, "", window.location.pathname);
+              }
+            })
+            .catch(accError);
+        }
+      }
+
+      $("acc-tab-login").addEventListener("click", function () { switchTab(true); });
+      $("acc-tab-signup").addEventListener("click", function () { switchTab(false); });
+      function switchTab(login) {
+        $("acc-tab-login").setAttribute("aria-pressed", login ? "true" : "false");
+        $("acc-tab-signup").setAttribute("aria-pressed", login ? "false" : "true");
+        $("acc-login-form").hidden = !login;
+        $("acc-signup-form").hidden = login;
+        accFeedback("");
+      }
+      $("acc-login-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        accFeedback("Se conectează…", true);
+        auth.signInWithEmailAndPassword($("al-email").value.trim(), $("al-pass").value)
+          .then(function () { accFeedback(""); })
+          .catch(accError);
+      });
+      $("acc-signup-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        pendingCafeName = $("as-name").value.trim();
+        if (!pendingCafeName) return;
+        accFeedback("Se creează contul…", true);
+        auth.createUserWithEmailAndPassword($("as-email").value.trim(), $("as-pass").value)
+          .catch(function (err) { pendingCafeName = null; accError(err); });
+      });
+      $("acc-logout").addEventListener("click", function () {
+        auth.signOut().catch(accError);
+      });
+
+      auth.onAuthStateChanged(onAuth);
+    }
+
+    function onAuth(user) {
+      if (!user) return deactivate();
+      fs.doc("members/" + user.uid).get().then(function (snap) {
+        if (snap.exists) return activate(user, snap.data());
+        // cont nou: fie owner de cafenea (semnup în curs), fie invitat cu email-link
+        if (pendingCafeName) {
+          var cafeName = pendingCafeName;
+          pendingCafeName = null;
+          var member = { cafeId: user.uid, name: cafeName, role: "admin", email: user.email || "" };
+          return fs.doc("cafes/" + user.uid).set({ name: cafeName, createdAt: Date.now() })
+            .then(function () { return fs.doc("members/" + user.uid).set(member); })
+            .then(function () { return activate(user, member); });
+        }
+        if (!user.email) throw { code: "permission-denied" };
+        var key = emailKey(user.email);
+        return fs.doc("invites/" + key).get().then(function (inv) {
+          if (!inv.exists) {
+            accFeedback("Contul tău nu aparține (încă) niciunei cafenele — cere administratorului o invitație.", false);
+            return auth.signOut();
+          }
+          var d = inv.data();
+          var member = { cafeId: d.cafeId, name: d.name || "Barist", role: d.role || "Barista", email: user.email };
+          return fs.doc("members/" + user.uid).set(member)
+            .then(function () { return fs.doc("invites/" + key).delete(); })
+            .then(function () { return activate(user, member); });
+        });
+      }).catch(accError);
+    }
+
+    function activate(user, member) {
+      cloudActive = true;
+      shared = true;
+      cloudUid = user.uid;
+      cloudRole = member.role === "admin" ? "admin" : "barist";
+      cafeId = member.cafeId;
+      myName = member.name;
+      activeId = user.uid;
+      db = {
+        collection: function (name) {
+          if (name === "history") return fs.collection("cafes/" + cafeId + "/history");
+          return null;
+        },
+        doc: function (path) {
+          var parts = path.split("/");
+          if (parts[0] === "history") return fs.doc("cafes/" + cafeId + "/history/" + parts[1]);
+          if (parts[0] === "baristas") return fs.doc("members/" + parts[1]);
+          return null;
+        }
+      };
+
+      $("acc-signedout").hidden = true;
+      $("acc-signedin").hidden = false;
+      $("acc-user-email").textContent = user.email || "";
+      $("acc-role-pill").textContent = cloudRole === "admin" ? "administrator" : "barist";
+      fs.doc("cafes/" + cafeId).get().then(function (c) {
+        $("acc-cafe-name").textContent = c.exists ? (c.data().name || "Cafeneaua mea") : "Cafeneaua mea";
+      });
+      $("p-email-field").hidden = false;
+      $("p-email").required = true;
+      $("profile-form").querySelector("button[type=submit]").textContent = "Trimite invitația";
+      $("profile-form").hidden = cloudRole !== "admin";
+      $("profile-hint-text").textContent = cloudRole === "admin"
+        ? "Bariștii se adaugă prin invitație: primesc un email de activare și intră cu propriul cont."
+        : "Ești conectat cu contul tău — calculele salvate poartă semnătura ta.";
+      setSyncStatus(true, "Cont cafenea · sincronizat");
+      $("history-note").textContent = "Registrul cafenelei: toată echipa vede aceleași profiluri și același istoric, de pe orice dispozitiv, cu contul propriu.";
+      accFeedback("");
+
+      if (unsubMembers) unsubMembers();
+      unsubMembers = fs.collection("members").where("cafeId", "==", cafeId)
+        .onSnapshot(function (snap) {
+          var members = snap.docs.map(function (d) {
+            var body = d.data() || {};
+            var role = String(body.role || "Barista");
+            return { id: d.id, name: String(body.name || "Barist"), role: role === "admin" ? "Administrator" : role };
+          }).sort(function (a, b) { return a.name.localeCompare(b.name, "ro"); });
+          profiles = members.concat(pendingInvites);
+          renderProfiles();
+        }, function (err) { accError(err); });
+
+      if (cloudRole === "admin") {
+        if (unsubInvites) unsubInvites();
+        unsubInvites = fs.collection("invites").where("cafeId", "==", cafeId)
+          .onSnapshot(function (snap) {
+            pendingInvites = snap.docs.map(function (d) {
+              var body = d.data() || {};
+              return { id: "inv:" + d.id, name: String(body.name || body.email || "Invitat"), role: String(body.role || "Barista"), pending: true, inviteId: d.id };
+            });
+            profiles = profiles.filter(function (p) { return !p.pending; }).concat(pendingInvites);
+            renderProfiles();
+          }, function () { /* fără drept de citire — ignorăm */ });
+      }
+
+      if (unsubHistory) unsubHistory();
+      unsubHistory = fs.collection("cafes/" + cafeId + "/history").orderBy("ts", "desc").limit(500)
+        .onSnapshot(function (snap) {
+          history = snap.docs.map(function (d) {
+            var body = d.data() || {};
+            return {
+              id: d.id,
+              ts: typeof body.ts === "number" ? body.ts : 0,
+              barista: String(body.barista || "—"),
+              tool: String(body.tool || ""),
+              fields: Array.isArray(body.fields) ? body.fields : [],
+              example: false
+            };
+          });
+          renderHistory();
+          refreshHistoryFilters();
+        }, function (err) { accError(err); });
+    }
+
+    function deactivate() {
+      if (unsubMembers) { unsubMembers(); unsubMembers = null; }
+      if (unsubInvites) { unsubInvites(); unsubInvites = null; }
+      if (unsubHistory) { unsubHistory(); unsubHistory = null; }
+      cloudActive = false;
+      cloudUid = null;
+      cloudRole = null;
+      shared = false;
+      db = null;
+      cafeId = null;
+      pendingInvites = [];
+      $("acc-signedout").hidden = false;
+      $("acc-signedin").hidden = true;
+      $("p-email-field").hidden = true;
+      $("p-email").required = false;
+      $("profile-form").hidden = false;
+      $("profile-form").querySelector("button[type=submit]").textContent = "Adaugă profil";
+      $("profile-hint-text").textContent = "Fără cont, profilurile și istoricul rămân pe acest dispozitiv. Conectează-te ca echipa să împartă același registru.";
+      setSyncStatus(false, "Neconectat · registru local");
+      $("history-note").textContent = "Istoricul se salvează local, în memoria acestui dispozitiv.";
+      profiles = lsGet(P_KEY) || [];
+      history = lsGet(H_KEY) || [];
+      activeId = (function () {
+        var a = lsGet(P_ACTIVE);
+        return profiles.some(function (p) { return p.id === a; }) ? a : profiles[0] && profiles[0].id;
+      })();
+      renderProfiles();
+      renderHistory();
+      refreshHistoryFilters();
+    }
+
+    cloudInvite = function (name, role, email) {
+      var key = emailKey(email);
+      fs.doc("invites/" + key).set({ cafeId: cafeId, name: name, role: role, email: email.trim().toLowerCase(), invitedBy: cloudUid, ts: Date.now() })
+        .then(function () {
+          return auth.sendSignInLinkToEmail(email.trim(), { url: returnUrl(), handleCodeInApp: true });
+        })
+        .then(function () {
+          accFeedback("Invitație trimisă către " + email.trim() + " — baristul o activează din email.", true);
+          $("p-name").value = "";
+          $("p-email").value = "";
+        })
+        .catch(accError);
+    };
+
+    cloudRemoveMember = function (prof) {
+      if (prof.pending && prof.inviteId) {
+        if (!confirm("Retragi invitația pentru „" + prof.name + "”?")) return;
+        fs.doc("invites/" + prof.inviteId).delete().catch(accError);
+        return;
+      }
+      if (cloudRole !== "admin") return;
+      if (!confirm("Îl scoți pe „" + prof.name + "” din echipa cafenelei? Intrările lui din registru rămân.")) return;
+      fs.doc("members/" + prof.id).delete().catch(accError);
+    };
+  })();
+
+  if (!window.ATC_FIREBASE_CONFIG && window.claude && typeof window.claude.use === "function") {
     window.claude.use("db").then(function (sharedDb) {
       if (!sharedDb) return; // rămânem pe registrul local
       db = sharedDb;

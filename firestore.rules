@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function myMember() {
+      return get(/databases/$(database)/documents/members/$(request.auth.uid)).data;
+    }
+    function isMemberOf(cafeId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/members/$(request.auth.uid))
+        && myMember().cafeId == cafeId;
+    }
+    function isAdminOf(cafeId) {
+      return isMemberOf(cafeId) && myMember().role == 'admin';
+    }
+    function emailKey() {
+      // id-ul documentului de invitație: emailul cu '.' inlocuit cu ','
+      return request.auth.token.email.lower().replace('\\.', ',');
+    }
+
+    // Cafeneaua: documentul e creat de contul cafenelei (cafeId == uid-ul owner-ului)
+    match /cafes/{cafeId} {
+      allow read: if isMemberOf(cafeId);
+      allow create: if signedIn() && request.auth.uid == cafeId;
+      allow update, delete: if isAdminOf(cafeId);
+
+      // Registrul (istoricul completărilor) cafenelei
+      match /history/{entryId} {
+        allow read, create: if isMemberOf(cafeId);
+        allow delete: if isAdminOf(cafeId)
+                      || (isMemberOf(cafeId) && resource.data.uid == request.auth.uid);
+      }
+    }
+
+    // Membrii (bariștii cu cont). Documentul are id-ul = uid-ul utilizatorului.
+    match /members/{uid} {
+      // membrii aceleiași cafenele se văd între ei
+      allow read: if signedIn()
+        && (request.auth.uid == uid || resource.data.cafeId == myMember().cafeId);
+      // owner-ul cafenelei își creează propriul membru admin (cafeId == uid-ul lui),
+      // iar un barist invitat își creează membrul pe baza invitației de pe emailul lui
+      allow create: if signedIn() && request.auth.uid == uid && (
+        request.resource.data.cafeId == request.auth.uid
+        || (
+          exists(/databases/$(database)/documents/invites/$(emailKey()))
+          && get(/databases/$(database)/documents/invites/$(emailKey())).data.cafeId
+             == request.resource.data.cafeId
+        )
+      );
+      // adminul cafenelei poate scoate un barist; oricine își poate șterge propriul cont
+      allow delete: if signedIn()
+        && (request.auth.uid == uid || isAdminOf(resource.data.cafeId));
+      allow update: if isAdminOf(resource.data.cafeId);
+    }
+
+    // Invitațiile: create de adminul cafenelei, citite/consumate de invitat
+    match /invites/{inviteId} {
+      allow create: if signedIn() && isAdminOf(request.resource.data.cafeId);
+      allow read: if signedIn()
+        && (inviteId == emailKey() || isAdminOf(resource.data.cafeId));
+      allow delete: if signedIn()
+        && (inviteId == emailKey() || isAdminOf(resource.data.cafeId));
+    }
+  }
+}
