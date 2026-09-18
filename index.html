@@ -123,19 +123,12 @@
 
   /* ── Hero ── */
   .hero {
-    background: var(--brand);
+    background:
+      linear-gradient(105deg, rgba(45,48,41,0.95) 0%, rgba(64,67,58,0.88) 52%, rgba(58,61,53,0.72) 100%),
+      var(--brand) url("assets/img/pour.jpg") right 35%/cover no-repeat;
     color: var(--on-brand);
     padding-block: 26px 84px;
     position: relative;
-    overflow: hidden;
-  }
-  .hero::after {
-    content: "";
-    position: absolute;
-    inset: auto -10% -55% -10%;
-    height: 70%;
-    background: radial-gradient(ellipse at center, rgba(255,255,255,0.07), transparent 65%);
-    pointer-events: none;
   }
   .hero-topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 72px; }
   .hero-topbar img { height: 46px; width: auto; display: block; }
@@ -263,8 +256,28 @@
   .team-card h3 { font-size: 17px; text-transform: uppercase; margin-bottom: 8px; }
   .team-card p { margin: 0; color: var(--ink-soft); font-size: 15px; }
 
+  /* split layouts with photos */
+  .split { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 48px; align-items: center; }
+  .split.reverse { grid-template-columns: 1.15fr 0.85fr; }
+  @media (max-width: 860px) { .split, .split.reverse { grid-template-columns: 1fr; } }
+  .split-photo {
+    width: 100%;
+    height: 100%;
+    max-height: 540px;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 16px 44px rgba(44, 46, 40, 0.22);
+    display: block;
+  }
+  @media (max-width: 860px) { .split-photo { max-height: 340px; } }
+
   /* steps */
-  .steps-section { background: var(--brand); color: var(--on-brand); }
+  .steps-section {
+    background:
+      linear-gradient(rgba(58,61,53,0.92), rgba(45,48,41,0.94)),
+      var(--brand) url("assets/img/beans.jpg") center/cover no-repeat;
+    color: var(--on-brand);
+  }
   .steps-section .section-kicker { color: var(--on-brand-soft); }
   .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 40px; counter-reset: step; }
   @media (max-width: 820px) { .steps-grid { grid-template-columns: 1fr; } }
@@ -303,10 +316,18 @@
   details p { margin: 0 0 16px; color: var(--ink-soft); font-size: 15px; max-width: 66ch; }
 
   /* final CTA */
-  .final-cta { text-align: center; }
+  .final-cta {
+    text-align: center;
+    background:
+      linear-gradient(rgba(45,48,41,0.88), rgba(45,48,41,0.9)),
+      var(--brand-darker) url("assets/img/cup-hand.jpg") center 30%/cover no-repeat;
+    color: var(--on-brand);
+    padding-block: 96px;
+  }
+  .final-cta .section-kicker { color: var(--on-brand-soft); }
   .final-cta h2 { max-width: 24ch; margin-inline: auto; }
-  .final-cta .btn-olive { margin-top: 30px; }
-  .final-note { margin-top: 16px; font-size: 13.5px; color: var(--ink-soft); }
+  .final-cta .btn-primary { margin-top: 30px; }
+  .final-note { margin-top: 16px; font-size: 13.5px; color: var(--on-brand-soft); }
 
   /* footer */
   .site-footer { background: var(--brand-darker); color: var(--on-brand-soft); padding-block: 34px; font-size: 14px; }
@@ -327,7 +348,7 @@
     <div class="hero-grid">
       <div>
         <span class="hero-eyebrow">Mokum × Around The Corner</span>
-        <h1>Toolkit-ul de cafea al cafenelei tale</h1>
+        <h1>Brew by numbers</h1>
         <p class="hero-lead">
           Nouă instrumente profesionale de preparare — de la randamentul de extracție și chimia apei
           până la busola gustului și simulatorul de extracție — într-o singură aplicație în română,
@@ -380,20 +401,20 @@
 
 <section id="pentru-cine">
   <div class="wrap">
-    <span class="section-kicker">Pentru cine</span>
-    <h2>Făcut în bar, pentru baruri</h2>
+    <span class="section-kicker">Who it's for</span>
+    <h2>Built behind the bar</h2>
     <p class="section-lead">Toolkit-ul a crescut din munca zilnică a barului nostru. L-am deschis pentru orice cafenea care vrea să lucreze pe cifre, nu pe ochi.</p>
     <div class="aud-grid">
       <div class="aud-card">
-        <h3>Proprietari de cafenele</h3>
+        <h3>Café owners</h3>
         <p>Standardizezi rețetele între ture și locații, alegi ceștile și apa pe criterii clare și vezi în istoric cum lucrează echipa — totul fără abonamente sau hardware nou.</p>
       </div>
       <div class="aud-card">
-        <h3>Head barista &amp; traineri</h3>
+        <h3>Head baristas &amp; trainers</h3>
         <p>Dial-in pe cifre, exerciții de calibrare a gustului în 10 cești și un registru comun al calculelor: instrumentele cu care crești o echipă, nu doar o rețetă.</p>
       </div>
       <div class="aud-card">
-        <h3>Bariști curioși</h3>
+        <h3>Curious baristas</h3>
         <p>De la primul V60 corect până la chimia apei și simulatorul de extracție: fiecare tool vine cu explicațiile de rigoare, în română, fără jargon inutil.</p>
       </div>
     </div>
@@ -402,8 +423,8 @@
 
 <section id="tooluri" class="tools-section">
   <div class="wrap">
-    <span class="section-kicker">Cele 9 tool-uri</span>
-    <h2>Tot barul, într-o singură pagină</h2>
+    <span class="section-kicker">The toolkit</span>
+    <h2>Nine tools. One page.</h2>
     <p class="section-lead">Fiecare card se deschide direct în aplicație, la tool-ul respectiv.</p>
     <div class="tool-grid">
       <a class="tool-card" href="app.html#extractie">
@@ -456,22 +477,25 @@
 </section>
 
 <section id="echipa">
-  <div class="wrap">
-    <span class="section-kicker">Pentru echipă</span>
-    <h2>Un registru comun al barului</h2>
-    <p class="section-lead">Toolkit-ul nu e doar o colecție de calculatoare — e memoria barului tău.</p>
-    <div class="team-grid">
-      <div class="team-card">
-        <h3>Profile de bariști</h3>
-        <p>Fiecare coleg își are profilul lui. Profilul activ semnează fiecare calcul salvat, ca să știi mereu cine a lucrat rețeta.</p>
-      </div>
-      <div class="team-card">
-        <h3>Istoricul completărilor</h3>
-        <p>Fiecare calcul salvat rămâne în registru, cu barist, dată și valori — filtrabil pe coleg și pe tool. Rețeta bună de azi nu se mai pierde mâine.</p>
-      </div>
-      <div class="team-card">
-        <h3>Statistici per barist</h3>
-        <p>Cine a exersat cu ce tool și cât de des — clasament cu bare, defalcare pe tabele și ultima activitate, calculate live din registru.</p>
+  <div class="wrap split">
+    <img class="split-photo" src="assets/img/flat-white.jpg" alt="Flat white cu latte art într-o ceașcă de ceramică verde Around The Corner">
+    <div>
+      <span class="section-kicker">For the team</span>
+      <h2>Your bar's memory</h2>
+      <p class="section-lead">Toolkit-ul nu e doar o colecție de calculatoare — e memoria barului tău.</p>
+      <div class="team-grid" style="grid-template-columns:1fr">
+        <div class="team-card">
+          <h3>Barista profiles</h3>
+          <p>Fiecare coleg își are profilul lui. Profilul activ semnează fiecare calcul salvat, ca să știi mereu cine a lucrat rețeta.</p>
+        </div>
+        <div class="team-card">
+          <h3>Shift history</h3>
+          <p>Fiecare calcul salvat rămâne în registru, cu barist, dată și valori — filtrabil pe coleg și pe tool. Rețeta bună de azi nu se mai pierde mâine.</p>
+        </div>
+        <div class="team-card">
+          <h3>Barista stats</h3>
+          <p>Cine a exersat cu ce tool și cât de des — clasament cu bare, defalcare pe tabele și ultima activitate, calculate live din registru.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -479,19 +503,19 @@
 
 <section id="start" class="steps-section">
   <div class="wrap">
-    <span class="section-kicker">Cum începi</span>
-    <h2>Gata de bar în două minute</h2>
+    <span class="section-kicker">Getting started</span>
+    <h2>From zero to dialed-in</h2>
     <div class="steps-grid">
       <div class="step">
-        <h3>Deschide aplicația</h3>
+        <h3>Open the app</h3>
         <p>Direct din browser, pe tableta barului, pe laptop sau pe telefon. Fără cont, fără instalare, fără costuri.</p>
       </div>
       <div class="step">
-        <h3>Creează profilurile echipei</h3>
+        <h3>Add your crew</h3>
         <p>Adaugă bariștii tăi în secțiunea „Cine e la bar?". Datele rămân pe dispozitivul cafenelei — registrul e al tău.</p>
       </div>
       <div class="step">
-        <h3>Lucrează pe cifre</h3>
+        <h3>Dial in. Log it. Repeat.</h3>
         <p>Dial-in cu tabelul de extracție, apa după LSI și rețete, gustul cu busola — și fiecare calcul salvat în istoricul echipei.</p>
       </div>
     </div>
@@ -502,9 +526,10 @@
 </section>
 
 <section id="faq">
-  <div class="wrap">
-    <span class="section-kicker">Întrebări frecvente</span>
-    <h2>Ce mai trebuie să știi</h2>
+  <div class="wrap split reverse">
+    <div>
+    <span class="section-kicker">FAQ</span>
+    <h2>Good to know</h2>
     <div class="faq-list">
       <details open>
         <summary>Cât costă?</summary>
@@ -531,14 +556,16 @@
         <p>Totul e în română — inclusiv explicațiile de teorie de la fiecare tool: extracție, chimia apei, condensare și aerare la lapte, busola gustului.</p>
       </details>
     </div>
+    </div>
+    <img class="split-photo" src="assets/img/bar-cups.jpg" alt="Cappuccino cu latte art și espresso pe barul cafenelei">
   </div>
 </section>
 
 <section class="final-cta">
   <div class="wrap">
     <span class="section-kicker">Around The Corner · Mokum Development</span>
-    <h2>Barul tău merită cifre, nu ghicit</h2>
-    <a class="btn-olive" href="app.html">Deschide toolkit-ul gratuit</a>
+    <h2>Stop guessing. Start brewing.</h2>
+    <a class="btn-primary" href="app.html">Deschide toolkit-ul gratuit</a>
     <p class="final-note">Fără cont · Fără instalare · În română · Pe orice dispozitiv</p>
   </div>
 </section>
