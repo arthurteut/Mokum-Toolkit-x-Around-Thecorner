@@ -1,5 +1,15 @@
 # Mokum × Around The Corner — Barista Hub
 
+Site-ul are două pagini:
+
+- **`index.html`** — landing-ul public premium: prezentarea toolkit-ului pentru
+  proprietarii de cafenele și bariști, cu demo live, cele 9 tool-uri, pași de
+  start și FAQ. Către această pagină direcționezi cafenelele.
+- **`app.html`** — aplicația propriu-zisă (toolkit-ul complet).
+
+Pentru publicare: GitHub Pages (Settings → Pages → branch → root); landing-ul
+se servește automat ca pagină principală, iar aplicația la `/app.html`.
+
 Aplicația internă **Around The Corner** pentru bariștii Mokum, construită în
 jurul toolkit-ului avansat de preparare a cafelei: calculatoarele din tabelele
 Excel, rescrise ca web app brand-uită Around The Corner, cu profile de bariști
