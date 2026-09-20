@@ -691,6 +691,10 @@
             <div class="label">Temperatura</div>
             <div class="value"><span id="dl-r-temp">92</span> <small>°C</small></div>
           </div>
+          <div class="result-tile" id="dl-tile-bars">
+            <div class="label">Presiunea</div>
+            <div class="value"><span id="dl-r-bars">9</span> <small>bar</small></div>
+          </div>
           <div class="result-tile">
             <div class="label">Timp țintă</div>
             <div class="value" style="font-size:19px;padding-top:3px" id="dl-r-time">25–30 s</div>
@@ -713,6 +717,10 @@
           <label for="dl-time">Timpul de extracție <span class="hint">secunde · espresso de la prima picătură, filtru totalul</span></label>
           <input type="number" id="dl-time" inputmode="decimal" min="5" max="900" step="1" value="27">
         </div>
+        <div class="field" id="dl-f-bars">
+          <label for="dl-bars">Presiunea de extracție <span class="hint">bar · de pe manometru</span></label>
+          <input type="number" id="dl-bars" inputmode="decimal" min="1" max="15" step="0.5" value="9">
+        </div>
         <div class="field">
           <label for="dl-tds">TDS <span class="hint">% · opțional, dacă ai refractometru</span></label>
           <input type="number" id="dl-tds" inputmode="decimal" min="0" max="30" step="0.05" placeholder="—">
@@ -732,7 +740,16 @@
         <div id="dl-log" aria-live="polite"></div>
         <button type="button" class="btn btn-save" data-save="dialin">Salvează dial-in-ul în istoric</button>
         <div class="save-feedback" data-feedback="dialin" aria-live="polite"></div>
+        <button type="button" class="profile-remove" id="dl-new" style="margin-top:10px">Începe un dial-in nou (cafea nouă)</button>
       </div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3 style="margin:0;font-size:16px">Jurnalul dial-in-urilor</h3>
+        <button type="button" class="profile-remove" id="dl-journal-clear" style="margin:0">Golește jurnalul</button>
+      </div>
+      <p class="profile-hint" style="margin:6px 0 0">Fiecare încercare se înregistrează automat aici, pe cafea, semnată de baristul activ — jurnalul complet al setării rețetei, cu timpi, bari, EY și apă. Când ajungi în țintă, dial-in-ul se salvează singur și în registrul echipei.</p>
+      <div id="dl-journal" aria-live="polite"></div>
     </div>
     <div class="grid-2" style="margin-top:18px">
       <div class="card explain">
@@ -2158,6 +2175,9 @@
     amar: "Amară / astringentă", greu: "Prea intensă / grea"
   };
   var dlAttempts = [], dlDone = false;
+  var DL_J_KEY = "atc-dialin-journal";
+  var dlJournal = lsGet(DL_J_KEY) || [];
+  var dlSessionId = null, dlAutoSaved = false;
 
   function dlRecipe() {
     var m = $("dl-method").value, roast = $("dl-roast").value;
@@ -2177,6 +2197,8 @@
     var m = $("dl-method").value, r = dlRecipe();
     $("dl-f-dose").hidden = m !== "espresso";
     $("dl-f-water").hidden = m !== "filtru";
+    $("dl-f-bars").hidden = m !== "espresso";
+    $("dl-tile-bars").hidden = m !== "espresso";
     $("dl-r-dose-label").textContent = m === "espresso" ? "Doza de pornire" : "Doza (60 g/L)";
     $("dl-r-bev-label").textContent = m === "espresso" ? "Băutura țintă (1:2)" : "Băutura estimată";
     $("dl-r-dose").textContent = fmt(r.dose, 1);
@@ -2201,6 +2223,71 @@
     if (w.kh > 100) return "KH-ul mare (" + fmt(w.kh, 0) + " ppm) taie aciditatea — dacă ceașca pare plată, coboară bufferul.";
     if (w.ph > 0 && (w.ph < 6 || w.ph > 8.5)) return "pH-ul apei (" + fmt(w.ph, 1) + ") e în afara zonei uzuale de 6,5–8 — verifică sursa înainte să dai vina pe râșniță.";
     return "";
+  }
+
+  function dlBarsHint(bars) {
+    if (!bars) return "";
+    if (bars > 10) return "Presiunea e mare (" + fmt(bars, 1) + " bar) — peste 9–10 bar crește riscul de canale prin pat; adu-o spre 9.";
+    if (bars < 6) return "Presiunea e mică (" + fmt(bars, 1) + " bar) — curgere lentă și corp subțire; verifică pompa sau setarea, ținta uzuală e 9 bar.";
+    return "";
+  }
+
+  function dlJournalSession(r, coffee) {
+    var prof = activeProfile();
+    var cur = null;
+    if (dlSessionId) cur = dlJournal.find(function (s) { return s.id === dlSessionId; }) || null;
+    if (cur && (cur.method !== r.method || (cur.done && cur.coffee !== coffee))) cur = null;
+    if (!cur) {
+      cur = { id: "j" + Date.now(), ts: Date.now(), coffee: coffee, method: r.method,
+              barista: prof ? prof.name : "—", attempts: [], done: false };
+      dlJournal.unshift(cur);
+      if (dlJournal.length > 40) dlJournal.length = 40;
+      dlSessionId = cur.id;
+      dlAutoSaved = false;
+    } else {
+      cur.coffee = coffee;
+    }
+    return cur;
+  }
+
+  function dlAttemptLine(a, i) {
+    return "#" + (i + 1) + " · " + DL_TASTE[a.taste] +
+      (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
+      (a.bars ? " · " + fmt(a.bars, 1) + " bar" : "") +
+      (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "") +
+      (a.water ? " · apă: " + a.water : "") +
+      (a.minerals ? " · " + a.minerals : "");
+  }
+
+  function dlRenderJournal() {
+    var box = $("dl-journal");
+    box.innerHTML = "";
+    if (!dlJournal.length) {
+      var e = document.createElement("p");
+      e.className = "stats-empty"; e.style.marginTop = "10px";
+      e.textContent = "Încă nimic aici — jurnalul se completează singur la prima încercare.";
+      box.appendChild(e);
+      return;
+    }
+    dlJournal.forEach(function (s) {
+      var d = document.createElement("div");
+      d.className = "dl-log-item";
+      var head = document.createElement("strong");
+      head.textContent = s.coffee;
+      d.appendChild(head);
+      var when = new Date(s.ts);
+      d.appendChild(document.createTextNode(
+        " · " + (s.method === "espresso" ? "espresso" : "filtru") + " · " + s.barista +
+        " · " + when.toLocaleDateString("ro-RO") + " — " +
+        s.attempts.length + (s.attempts.length === 1 ? " încercare" : " încercări") +
+        (s.done ? " · în țintă ✓" : " · în lucru")
+      ));
+      s.attempts.forEach(function (a, i) {
+        d.appendChild(document.createElement("br"));
+        d.appendChild(document.createTextNode(dlAttemptLine(a, i) + " → " + a.advice));
+      });
+      box.appendChild(d);
+    });
   }
 
   function dlAdvice(taste, t, r) {
@@ -2234,16 +2321,7 @@
     dlAttempts.forEach(function (a, i) {
       var d = document.createElement("div");
       d.className = "dl-log-item";
-      var head = document.createElement("strong");
-      head.textContent = "#" + (i + 1);
-      d.appendChild(head);
-      d.appendChild(document.createTextNode(
-        " · " + DL_TASTE[a.taste] +
-        (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
-        (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "") +
-        (a.water ? " · apă: " + a.water : "") +
-        (a.minerals ? " · " + a.minerals : "")
-      ));
+      d.appendChild(document.createTextNode(dlAttemptLine(a, i)));
       d.appendChild(document.createElement("br"));
       d.appendChild(document.createTextNode("→ " + a.advice));
       box.appendChild(d);
@@ -2251,7 +2329,7 @@
   }
 
   function dlReset() {
-    dlAttempts = []; dlDone = false;
+    dlAttempts = []; dlDone = false; dlAutoSaved = false;
     dlRenderLog();
     var v = $("dl-verdict");
     v.textContent = "Nicio încercare încă"; v.className = "pill";
@@ -2267,8 +2345,15 @@
     var ey = (tds > 0 && r.dose > 0) ? tds * r.bev / r.dose : 0;
     var adv = dlAdvice(taste, t, r);
     var w = dlWater();
+    var bars = r.method === "espresso" ? num($("dl-bars")) : 0;
     dlDone = !!adv.done;
-    dlAttempts.push({ taste: taste, time: t, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals });
+    var attempt = { ts: Date.now(), taste: taste, time: t, bars: bars, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals };
+    dlAttempts.push(attempt);
+    var sess = dlJournalSession(r, $("dl-coffee").value.trim() || "Cafea fără nume");
+    sess.attempts.push(attempt);
+    sess.done = dlDone;
+    lsSet(DL_J_KEY, dlJournal);
+    dlRenderJournal();
     var v = $("dl-verdict"), n = dlAttempts.length;
     if (dlDone) {
       v.textContent = "În țintă după " + n + (n === 1 ? " încercare" : " încercări");
@@ -2292,7 +2377,19 @@
       advBox.appendChild(wLbl);
       advBox.appendChild(document.createTextNode(wHint));
     }
+    var bHint = dlBarsHint(bars);
+    if (bHint) {
+      advBox.appendChild(document.createElement("br"));
+      var bLbl = document.createElement("strong");
+      bLbl.textContent = "Presiunea: ";
+      advBox.appendChild(bLbl);
+      advBox.appendChild(document.createTextNode(bHint));
+    }
     dlRenderLog();
+    if (dlDone && !dlAutoSaved && activeProfile()) {
+      saveEntry("dialin", SAVE_BUILDERS.dialin());
+      dlAutoSaved = true;
+    }
   });
 
   ["dl-roast", "dl-dose", "dl-water"].forEach(function (id) {
@@ -2301,7 +2398,20 @@
   $("dl-method").addEventListener("change", function () {
     updateDL();
     $("dl-time").value = $("dl-method").value === "espresso" ? 27 : 210;
+    dlSessionId = null;
     dlReset();
+  });
+  $("dl-new").addEventListener("click", function () {
+    dlSessionId = null;
+    $("dl-coffee").value = "";
+    $("dl-tds").value = "";
+    dlReset();
+    $("dl-coffee").focus();
+  });
+  $("dl-journal-clear").addEventListener("click", function () {
+    dlJournal = []; dlSessionId = null;
+    lsSet(DL_J_KEY, dlJournal);
+    dlRenderJournal();
   });
 
   /* ═══ Tool 01: Extracție ═══ */
@@ -2948,10 +3058,14 @@
       if (w.summary) f.push(["Apă", w.summary]);
       if (w.minerals) f.push(["Minerale", w.minerals]);
       if (dlAttempts.length) {
+        dlAttempts.forEach(function (a, i) {
+          f.push(["Încercarea " + (i + 1), DL_TASTE[a.taste] +
+            (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
+            (a.bars ? " · " + fmt(a.bars, 1) + " bar" : "") +
+            (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "")]);
+        });
         var last = dlAttempts[dlAttempts.length - 1];
-        f.push(["Încercări", String(dlAttempts.length)]);
-        if (last.ey) f.push(["EY final", fmt(last.ey, 1) + " %"]);
-        f.push(["Stadiu", dlDone ? "În țintă" : "În lucru — " + last.advice]);
+        f.push(["Stadiu", dlDone ? "În țintă după " + dlAttempts.length + (dlAttempts.length === 1 ? " încercare" : " încercări") : "În lucru — " + last.advice]);
       } else {
         f.push(["Stadiu", "Rețetă de pornire generată"]);
       }
@@ -3112,6 +3226,7 @@
   refreshHistoryFilters();
   renderHistory();
   updateDL();
+  dlRenderJournal();
   updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateCS(); updateRV(); updateTT(); updateTE();
   updateLS(); updateRM(); updateBT(); updateWR(); updateMN();
   simDraw();
