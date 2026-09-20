@@ -749,6 +749,26 @@
         <button type="button" class="profile-remove" id="dl-journal-clear" style="margin:0">Golește jurnalul</button>
       </div>
       <p class="profile-hint" style="margin:6px 0 0">Fiecare încercare se înregistrează automat aici, pe cafea, semnată de baristul activ — jurnalul complet al setării rețetei, cu timpi, bari, EY și apă. Când ajungi în țintă, dial-in-ul se salvează singur și în registrul echipei.</p>
+      <div class="result-row stats-tiles" role="status" aria-live="polite" style="margin-top:14px">
+        <div class="result-tile">
+          <div class="label">Dial-in-uri</div>
+          <div class="value" id="dst-total">0</div>
+        </div>
+        <div class="result-tile">
+          <div class="label">Cafele lucrate</div>
+          <div class="value" id="dst-coffees">0</div>
+        </div>
+        <div class="result-tile">
+          <div class="label">Medie încercări până în țintă</div>
+          <div class="value" id="dst-avg">—</div>
+        </div>
+        <div class="result-tile">
+          <div class="label">Rata de reușită</div>
+          <div class="value" id="dst-rate">—</div>
+        </div>
+      </div>
+      <div id="dl-stats" aria-live="polite"></div>
+      <p class="profile-hint" style="margin:14px 0 0;font-weight:700">Jurnal detaliat</p>
       <div id="dl-journal" aria-live="polite"></div>
     </div>
     <div class="grid-2" style="margin-top:18px">
@@ -2259,7 +2279,87 @@
       (a.minerals ? " · " + a.minerals : "");
   }
 
+  function dlRenderStats() {
+    var perC = {};
+    dlJournal.forEach(function (s) {
+      var c = perC[s.coffee] || (perC[s.coffee] = { sessions: 0, attempts: 0, done: 0, last: 0, methods: {}, eySum: 0, eyN: 0 });
+      c.sessions++;
+      c.attempts += s.attempts.length;
+      if (s.done) c.done++;
+      if (s.ts > c.last) c.last = s.ts;
+      c.methods[s.method] = true;
+      s.attempts.forEach(function (a) { if (a.ey) { c.eySum += a.ey; c.eyN++; } });
+    });
+    var names = Object.keys(perC);
+    var doneSessions = dlJournal.filter(function (s) { return s.done; });
+    $("dst-total").textContent = String(dlJournal.length);
+    $("dst-coffees").textContent = String(names.length);
+    var avg = doneSessions.length
+      ? doneSessions.reduce(function (m, s) { return m + s.attempts.length; }, 0) / doneSessions.length : 0;
+    $("dst-avg").textContent = avg ? fmt(avg, 1) : "—";
+    $("dst-rate").textContent = dlJournal.length
+      ? fmt(doneSessions.length / dlJournal.length * 100, 0) + " %" : "—";
+
+    var list = $("dl-stats");
+    list.innerHTML = "";
+    if (!names.length) return;
+    var max = names.reduce(function (m, n) { return Math.max(m, perC[n].attempts); }, 1);
+    names.sort(function (a, b) { return perC[b].attempts - perC[a].attempts || a.localeCompare(b, "ro"); });
+
+    names.forEach(function (name) {
+      var c = perC[name];
+      var row = document.createElement("div");
+      row.className = "stat-row";
+
+      var who = document.createElement("div");
+      who.className = "stat-who";
+      var av = document.createElement("span");
+      av.className = "he-avatar"; av.setAttribute("aria-hidden", "true");
+      av.textContent = initials(name);
+      var nm = document.createElement("span");
+      nm.className = "stat-name";
+      nm.textContent = name;
+      who.appendChild(av); who.appendChild(nm);
+      row.appendChild(who);
+
+      var barLine = document.createElement("div");
+      barLine.className = "stat-bar-line";
+      var track = document.createElement("div");
+      track.className = "stat-bar-track";
+      track.setAttribute("role", "img");
+      track.setAttribute("aria-label", c.attempts + (c.attempts === 1 ? " încercare" : " încercări"));
+      var fill = document.createElement("div");
+      fill.className = "stat-bar-fill";
+      fill.style.width = Math.max(4, (c.attempts / max) * 100) + "%";
+      track.appendChild(fill);
+      var cnt = document.createElement("span");
+      cnt.className = "stat-count";
+      cnt.textContent = String(c.attempts);
+      barLine.appendChild(track); barLine.appendChild(cnt);
+      row.appendChild(barLine);
+
+      var detail = document.createElement("div");
+      detail.className = "stat-detail";
+      var chips = [
+        c.sessions + (c.sessions === 1 ? " dial-in" : " dial-in-uri"),
+        "în țintă " + c.done + "/" + c.sessions,
+        Object.keys(c.methods).map(function (m) { return m === "espresso" ? "espresso" : "filtru"; }).join(" + ")
+      ];
+      if (c.eyN) chips.push("EY mediu " + fmt(c.eySum / c.eyN, 1) + " %");
+      chips.push("ultima: " + new Date(c.last).toLocaleDateString("ro-RO"));
+      chips.forEach(function (txt) {
+        var chip = document.createElement("span");
+        chip.className = "tool-chip";
+        chip.textContent = txt;
+        detail.appendChild(chip);
+      });
+      row.appendChild(detail);
+      list.appendChild(row);
+    });
+  }
+
   function dlRenderJournal() {
+    dlRenderStats();
     var box = $("dl-journal");
     box.innerHTML = "";
     if (!dlJournal.length) {
