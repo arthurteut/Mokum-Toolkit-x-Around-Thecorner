@@ -655,6 +655,29 @@
           <label for="dl-water">Apa de preparare <span class="hint">g · mărimea preparării</span></label>
           <input type="number" id="dl-water" inputmode="decimal" min="100" max="5000" step="10" value="500">
         </div>
+        <p class="profile-hint" style="margin:2px 0 6px;font-weight:700">Apa folosită la acest dial-in <span class="hint" style="font-weight:400">— măsori cu TDS-metrul / pH-metrul; lasă gol ce nu măsori</span></p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px">
+          <div class="field">
+            <label for="dl-wtds">TDS apă <span class="hint">ppm</span></label>
+            <input type="number" id="dl-wtds" inputmode="decimal" min="0" max="1000" step="1" placeholder="—">
+          </div>
+          <div class="field">
+            <label for="dl-wph">pH apă</label>
+            <input type="number" id="dl-wph" inputmode="decimal" min="0" max="14" step="0.1" placeholder="—">
+          </div>
+          <div class="field">
+            <label for="dl-wgh">GH <span class="hint">ppm CaCO₃</span></label>
+            <input type="number" id="dl-wgh" inputmode="decimal" min="0" max="500" step="1" placeholder="—">
+          </div>
+          <div class="field">
+            <label for="dl-wkh">KH <span class="hint">ppm CaCO₃</span></label>
+            <input type="number" id="dl-wkh" inputmode="decimal" min="0" max="500" step="1" placeholder="—">
+          </div>
+        </div>
+        <div class="field">
+          <label for="dl-wmin">Minerale adăugate <span class="hint">produs · dozaj</span></label>
+          <input type="text" id="dl-wmin" maxlength="80" placeholder="ex. APAx LAB · 2 ml/L">
+        </div>
         <div class="result-row" role="status" aria-live="polite">
           <div class="result-tile">
             <div class="label" id="dl-r-dose-label">Doza de pornire</div>
@@ -673,7 +696,7 @@
             <div class="value" style="font-size:19px;padding-top:3px" id="dl-r-time">25–30 s</div>
           </div>
         </div>
-        <p class="note" id="dl-recipe-note">Rețeta de pornire, nu cea finală: pornește râșnița de la setarea cafelei anterioare și lasă gustul să te ducă spre țintă. Purjează câteva grame după fiecare ajustare.</p>
+        <p class="note" id="dl-recipe-note">Rețeta de pornire, nu cea finală: pornește râșnița de la setarea cafelei anterioare și lasă gustul să te ducă spre țintă. Purjează câteva grame după fiecare ajustare. Pentru rețete complete de apă și remineralizare, folosește tool-ul <a href="#apa">Apa pentru cafea</a> — aici notezi doar apa cu care lucrezi, ca să rămână în jurnal.</p>
       </div>
       <div class="card">
         <div class="field">
@@ -2162,6 +2185,24 @@
     $("dl-r-time").textContent = r.time;
   }
 
+  function dlWater() {
+    var tds = num($("dl-wtds")), ph = num($("dl-wph")), gh = num($("dl-wgh")), kh = num($("dl-wkh"));
+    var minerals = $("dl-wmin").value.trim();
+    var parts = [];
+    if (tds > 0) parts.push("TDS " + fmt(tds, 0) + " ppm");
+    if (ph > 0) parts.push("pH " + fmt(ph, 1));
+    if (gh > 0 || kh > 0) parts.push("GH " + fmt(gh, 0) + " / KH " + fmt(kh, 0) + " ppm");
+    return { tds: tds, ph: ph, gh: gh, kh: kh, minerals: minerals, summary: parts.join(" · ") };
+  }
+
+  function dlWaterHint(w) {
+    if (w.tds > 250) return "Apa e puternic mineralizată (TDS " + fmt(w.tds, 0) + " ppm) — aplatizează aciditatea și îngreunează ceașca; țintește 75–150 ppm.";
+    if (w.tds > 0 && w.tds < 50) return "Apa e foarte slab mineralizată (TDS " + fmt(w.tds, 0) + " ppm) — extracția devine agresivă și acidă; adaugă minerale spre 75–150 ppm.";
+    if (w.kh > 100) return "KH-ul mare (" + fmt(w.kh, 0) + " ppm) taie aciditatea — dacă ceașca pare plată, coboară bufferul.";
+    if (w.ph > 0 && (w.ph < 6 || w.ph > 8.5)) return "pH-ul apei (" + fmt(w.ph, 1) + ") e în afara zonei uzuale de 6,5–8 — verifică sursa înainte să dai vina pe râșniță.";
+    return "";
+  }
+
   function dlAdvice(taste, t, r) {
     var fast = t > 0 && t < r.timeLo, slow = t > 0 && t > r.timeHi;
     if (taste === "tinta") {
@@ -2199,7 +2240,9 @@
       d.appendChild(document.createTextNode(
         " · " + DL_TASTE[a.taste] +
         (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
-        (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "")
+        (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "") +
+        (a.water ? " · apă: " + a.water : "") +
+        (a.minerals ? " · " + a.minerals : "")
       ));
       d.appendChild(document.createElement("br"));
       d.appendChild(document.createTextNode("→ " + a.advice));
@@ -2223,8 +2266,9 @@
     var tds = num($("dl-tds"));
     var ey = (tds > 0 && r.dose > 0) ? tds * r.bev / r.dose : 0;
     var adv = dlAdvice(taste, t, r);
+    var w = dlWater();
     dlDone = !!adv.done;
-    dlAttempts.push({ taste: taste, time: t, ey: ey, advice: adv.text });
+    dlAttempts.push({ taste: taste, time: t, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals });
     var v = $("dl-verdict"), n = dlAttempts.length;
     if (dlDone) {
       v.textContent = "În țintă după " + n + (n === 1 ? " încercare" : " încercări");
@@ -2240,6 +2284,14 @@
     lbl.textContent = "Următoarea mișcare: ";
     advBox.appendChild(lbl);
     advBox.appendChild(document.createTextNode(adv.text));
+    var wHint = dlWaterHint(w);
+    if (wHint) {
+      advBox.appendChild(document.createElement("br"));
+      var wLbl = document.createElement("strong");
+      wLbl.textContent = "Apa: ";
+      advBox.appendChild(wLbl);
+      advBox.appendChild(document.createTextNode(wHint));
+    }
     dlRenderLog();
   });
 
@@ -2892,6 +2944,9 @@
         ["Metodă", (r.method === "espresso" ? "Espresso" : "Filtru") + " · prăjire " + roastSel.options[roastSel.selectedIndex].text.toLowerCase()],
         ["Rețeta de pornire", fmt(r.dose, 1) + " g → " + fmt(r.bev, 0) + " g @ " + fmt(r.temp, 0) + " °C · " + r.time]
       ];
+      var w = dlWater();
+      if (w.summary) f.push(["Apă", w.summary]);
+      if (w.minerals) f.push(["Minerale", w.minerals]);
       if (dlAttempts.length) {
         var last = dlAttempts[dlAttempts.length - 1];
         f.push(["Încercări", String(dlAttempts.length)]);
