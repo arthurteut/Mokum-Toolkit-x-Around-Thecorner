@@ -497,6 +497,11 @@
   }
   .stats-empty { color: var(--ink-soft); font-size: 14px; }
 
+  /* ── Dial-in ── */
+  #dl-log { margin-top: 10px; }
+  .dl-log-item { border-top: 1px solid var(--surface-2); padding: 8px 0; font-size: 13.5px; color: var(--ink-soft); }
+  .dl-log-item strong { color: var(--ink); }
+
   /* ── Footer ── */
   .site-footer { background: var(--brand); color: rgba(255,255,255,0.85); margin-top: 44px; padding-block: 26px; font-size: 13.5px; }
   .site-footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
@@ -513,6 +518,7 @@
     </div>
     <nav class="main-nav" aria-label="Navigare tool-uri">
       <a href="#profil">Bariști</a>
+      <a href="#dialin">Dial-in</a>
       <a href="#extractie">Extracție</a>
       <a href="#busola">Busolă</a>
       <a href="#dilutie">Diluție</a>
@@ -610,6 +616,112 @@
         <button type="submit" class="btn">Adaugă profil</button>
       </form>
       <button type="button" class="profile-remove" id="profile-remove" hidden>Șterge profilul selectat</button>
+    </div>
+  </section>
+
+  <!-- ══════════ Dial-in ghidat ══════════ -->
+  <section id="dialin" class="tool-section wrap" aria-labelledby="dialin-title">
+    <div class="section-head">
+      <div class="section-kicker">Rutina barului · Cafea nouă la râșniță</div>
+      <h2 id="dialin-title">Dial-in ghidat</h2>
+      <p>Ai pus o cafea nouă la râșnița de espresso sau ai schimbat cafeaua de filtru? Rutina de mai jos îți dă rețeta de pornire, apoi transformă fiecare încercare în următoarea ajustare — până ești în țintă. Dial-in-ul se salvează în registru, cu numele cafelei și drumul până la rețeta finală.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="field">
+          <label for="dl-coffee">Cafeaua <span class="hint">nume / origine</span></label>
+          <input type="text" id="dl-coffee" maxlength="60" placeholder="ex. Etiopia Guji">
+        </div>
+        <div class="field">
+          <label for="dl-method">Metoda</label>
+          <select id="dl-method">
+            <option value="espresso" selected>Espresso</option>
+            <option value="filtru">Filtru (pour-over / batch)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dl-roast">Prăjirea</label>
+          <select id="dl-roast">
+            <option value="deschisa">Deschisă (light)</option>
+            <option value="medie" selected>Medie</option>
+            <option value="inchisa">Închisă (dark)</option>
+          </select>
+        </div>
+        <div class="field" id="dl-f-dose">
+          <label for="dl-dose">Doza <span class="hint">g · cât ține coșul portafiltrului</span></label>
+          <input type="number" id="dl-dose" inputmode="decimal" min="5" max="30" step="0.5" value="18">
+        </div>
+        <div class="field" id="dl-f-water" hidden>
+          <label for="dl-water">Apa de preparare <span class="hint">g · mărimea preparării</span></label>
+          <input type="number" id="dl-water" inputmode="decimal" min="100" max="5000" step="10" value="500">
+        </div>
+        <div class="result-row" role="status" aria-live="polite">
+          <div class="result-tile">
+            <div class="label" id="dl-r-dose-label">Doza de pornire</div>
+            <div class="value"><span id="dl-r-dose">18</span> <small>g</small></div>
+          </div>
+          <div class="result-tile">
+            <div class="label" id="dl-r-bev-label">Băutura țintă</div>
+            <div class="value"><span id="dl-r-bev">36</span> <small>g</small></div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Temperatura</div>
+            <div class="value"><span id="dl-r-temp">92</span> <small>°C</small></div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Timp țintă</div>
+            <div class="value" style="font-size:19px;padding-top:3px" id="dl-r-time">25–30 s</div>
+          </div>
+        </div>
+        <p class="note" id="dl-recipe-note">Rețeta de pornire, nu cea finală: pornește râșnița de la setarea cafelei anterioare și lasă gustul să te ducă spre țintă. Purjează câteva grame după fiecare ajustare.</p>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label for="dl-taste">Cum e ceașca?</label>
+          <select id="dl-taste">
+            <option value="acru">Acră / înțepătoare / verde</option>
+            <option value="slab">Echilibrată, dar slabă / apoasă</option>
+            <option value="tinta" selected>În țintă — dulce, echilibrată</option>
+            <option value="amar">Amară / astringentă / uscată</option>
+            <option value="greu">Prea intensă / grea / noroioasă</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dl-time">Timpul de extracție <span class="hint">secunde · espresso de la prima picătură, filtru totalul</span></label>
+          <input type="number" id="dl-time" inputmode="decimal" min="5" max="900" step="1" value="27">
+        </div>
+        <div class="field">
+          <label for="dl-tds">TDS <span class="hint">% · opțional, dacă ai refractometru</span></label>
+          <input type="number" id="dl-tds" inputmode="decimal" min="0" max="30" step="0.05" placeholder="—">
+        </div>
+        <button type="button" class="btn" id="dl-add">Adaugă încercarea</button>
+        <div class="result-row" role="status" aria-live="polite" style="margin-top:14px">
+          <div class="result-tile">
+            <div class="label">Stadiu</div>
+            <div class="value" style="font-size:15px;padding-top:4px"><span class="pill" id="dl-verdict">Nicio încercare încă</span></div>
+          </div>
+          <div class="result-tile">
+            <div class="label">EY estimat</div>
+            <div class="value"><span id="dl-ey">—</span> <small>%</small></div>
+          </div>
+        </div>
+        <div class="note" id="dl-advice" aria-live="polite">Fă prima extracție cu rețeta de pornire, gustă, apoi spune-i toolkit-ului cum a ieșit.</div>
+        <div id="dl-log" aria-live="polite"></div>
+        <button type="button" class="btn btn-save" data-save="dialin">Salvează dial-in-ul în istoric</button>
+        <div class="save-feedback" data-feedback="dialin" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:18px">
+      <div class="card explain">
+        <h4>De ce gustul decide, nu cronometrul</h4>
+        <p>Timpul de extracție e doar un simptom — gustul e diagnosticul. Rutina îți cere întâi <strong>cum e ceașca</strong> (acră = subextrasă, amară = supraextrasă) și abia apoi folosește timpul ca să dozeze cât de mare să fie ajustarea. Două cafele diferite pot fi perfecte la timpi diferiți.</p>
+        <p>Dacă ai refractometru, trece și TDS-ul: rutina calculează randamentul de extracție (EY) cu formula tabelului de extracție și îți confirmă pe cifre ce spune gustul. Fereastra de echilibru rămâne <strong>18–22%</strong>.</p>
+      </div>
+      <div class="card explain">
+        <h4>Regulile de aur ale dial-in-ului</h4>
+        <p><strong>Schimbă un singur parametru</strong> între două încercări — altfel nu știi ce a mișcat gustul. Râșnița e volanul principal; doza, ratio-ul și temperatura sunt reglaje fine.</p>
+        <p><strong>Purjează</strong> după fiecare schimbare de măcinare: primele grame ies cu setarea veche. Iar când ai ajuns în țintă, <strong>notează setarea râșniței</strong> în numele cafelei (ex. „Etiopia Guji · râșnița 2,4”) și salvează dial-in-ul — mâine pornești de acolo, nu de la zero.</p>
+      </div>
     </div>
   </section>
 
@@ -1620,6 +1732,7 @@
   }
 
   var TOOL_NAMES = {
+    dialin: "Dial-in ghidat",
     ey: "Randament de extracție",
     dilutie: "Diluție țintă",
     postdilutie: "Post-diluție",
@@ -2011,6 +2124,133 @@
       savedOk(fb, prof.name);
     }
   }
+
+  /* ═══ Rutina barului: Dial-in ghidat ═══ */
+  var DL_TEMPS = {
+    espresso: { deschisa: 94, medie: 92, inchisa: 90 },
+    filtru:   { deschisa: 96, medie: 93, inchisa: 90 }
+  };
+  var DL_TASTE = {
+    acru: "Acră / înțepătoare", slab: "Slabă / apoasă", tinta: "În țintă",
+    amar: "Amară / astringentă", greu: "Prea intensă / grea"
+  };
+  var dlAttempts = [], dlDone = false;
+
+  function dlRecipe() {
+    var m = $("dl-method").value, roast = $("dl-roast").value;
+    var temp = DL_TEMPS[m][roast];
+    if (m === "espresso") {
+      var dose = num($("dl-dose"));
+      return { method: m, dose: dose, bev: dose * 2, temp: temp, time: "25–30 s", timeLo: 25, timeHi: 30 };
+    }
+    var w = num($("dl-water"));
+    var doseF = w * 0.06;
+    var lo = w <= 350 ? 120 : 180, hi = w <= 350 ? 180 : 240;
+    return { method: m, dose: doseF, bev: w - doseF * 2, water: w, temp: temp,
+             time: (lo / 60) + "–" + (hi / 60) + " min", timeLo: lo, timeHi: hi };
+  }
+
+  function updateDL() {
+    var m = $("dl-method").value, r = dlRecipe();
+    $("dl-f-dose").hidden = m !== "espresso";
+    $("dl-f-water").hidden = m !== "filtru";
+    $("dl-r-dose-label").textContent = m === "espresso" ? "Doza de pornire" : "Doza (60 g/L)";
+    $("dl-r-bev-label").textContent = m === "espresso" ? "Băutura țintă (1:2)" : "Băutura estimată";
+    $("dl-r-dose").textContent = fmt(r.dose, 1);
+    $("dl-r-bev").textContent = fmt(r.bev, 0);
+    $("dl-r-temp").textContent = fmt(r.temp, 0);
+    $("dl-r-time").textContent = r.time;
+  }
+
+  function dlAdvice(taste, t, r) {
+    var fast = t > 0 && t < r.timeLo, slow = t > 0 && t > r.timeHi;
+    if (taste === "tinta") {
+      return { done: true, text: "În țintă! Blochează setarea râșniței, trece-o în numele cafelei și salvează dial-in-ul în registru. De mâine pornești direct de aici." };
+    }
+    if (r.method === "espresso") {
+      if (taste === "acru") return { text: fast
+        ? "Subextracție clară (a și curs prea repede): macină vizibil mai fin și verifică distribuția și tamparea. Restul parametrilor rămân pe loc."
+        : "Subextracție: macină un pas mai fin. Dacă ești deja la limita fină a râșniței, ridică temperatura cu 1 °C." };
+      if (taste === "amar") return { text: slow
+        ? "Supraextracție (a și curs prea încet): macină vizibil mai grosier. Dacă patul de cafea arată canale, verifică și distribuția."
+        : "Supraextracție: macină un pas mai grosier sau coboară temperatura cu 1 °C." };
+      if (taste === "slab") return { text: "Echilibru bun, dar corp puțin: scurtează ratio-ul — oprește shot-ul mai devreme, spre 1:1,8 — sau macină ușor mai fin și păstrează timpul." };
+      return { text: "Prea concentrată: lungește ratio-ul spre 1:2,3–1:2,5 (las-o să mai curgă câteva grame) sau scade doza cu 0,5 g." };
+    }
+    if (taste === "acru") return { text: fast
+      ? "Subextracție (a și curs prea repede): macină mai fin — turnările vor dura natural mai mult."
+      : "Subextracție: macină un pas mai fin sau ridică temperatura cu 2 °C." };
+    if (taste === "amar") return { text: slow
+      ? "Supraextracție (a și durat prea mult): macină mai grosier ca să scurtezi contactul."
+      : "Supraextracție: macină un pas mai grosier sau coboară temperatura cu 2 °C." };
+    if (taste === "slab") return { text: "Ceașcă subțire: urcă doza spre 65 g/L sau macină ușor mai fin. Nu lungi turnările — doar diluezi." };
+    return { text: "Prea grea / noroioasă: coboară doza spre 55 g/L sau macină mai grosier." };
+  }
+
+  function dlRenderLog() {
+    var box = $("dl-log");
+    box.innerHTML = "";
+    dlAttempts.forEach(function (a, i) {
+      var d = document.createElement("div");
+      d.className = "dl-log-item";
+      var head = document.createElement("strong");
+      head.textContent = "#" + (i + 1);
+      d.appendChild(head);
+      d.appendChild(document.createTextNode(
+        " · " + DL_TASTE[a.taste] +
+        (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
+        (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "")
+      ));
+      d.appendChild(document.createElement("br"));
+      d.appendChild(document.createTextNode("→ " + a.advice));
+      box.appendChild(d);
+    });
+  }
+
+  function dlReset() {
+    dlAttempts = []; dlDone = false;
+    dlRenderLog();
+    var v = $("dl-verdict");
+    v.textContent = "Nicio încercare încă"; v.className = "pill";
+    $("dl-ey").textContent = "—";
+    $("dl-advice").textContent = "Fă prima extracție cu rețeta de pornire, gustă, apoi spune-i toolkit-ului cum a ieșit.";
+  }
+
+  $("dl-add").addEventListener("click", function () {
+    var r = dlRecipe();
+    var taste = $("dl-taste").value;
+    var t = num($("dl-time"));
+    var tds = num($("dl-tds"));
+    var ey = (tds > 0 && r.dose > 0) ? tds * r.bev / r.dose : 0;
+    var adv = dlAdvice(taste, t, r);
+    dlDone = !!adv.done;
+    dlAttempts.push({ taste: taste, time: t, ey: ey, advice: adv.text });
+    var v = $("dl-verdict"), n = dlAttempts.length;
+    if (dlDone) {
+      v.textContent = "În țintă după " + n + (n === 1 ? " încercare" : " încercări");
+      v.className = "pill pill-good";
+    } else if (taste === "acru") { v.textContent = "Subextras · încercarea " + n; v.className = "pill pill-warn"; }
+    else if (taste === "amar") { v.textContent = "Supraextras · încercarea " + n; v.className = "pill pill-bad"; }
+    else if (taste === "slab") { v.textContent = "Slab · încercarea " + n; v.className = "pill pill-warn"; }
+    else { v.textContent = "Prea intens · încercarea " + n; v.className = "pill pill-bad"; }
+    $("dl-ey").textContent = ey ? fmt(ey, 1) : "—";
+    var advBox = $("dl-advice");
+    advBox.innerHTML = "";
+    var lbl = document.createElement("strong");
+    lbl.textContent = "Următoarea mișcare: ";
+    advBox.appendChild(lbl);
+    advBox.appendChild(document.createTextNode(adv.text));
+    dlRenderLog();
+  });
+
+  ["dl-roast", "dl-dose", "dl-water"].forEach(function (id) {
+    $(id).addEventListener("input", updateDL);
+  });
+  $("dl-method").addEventListener("change", function () {
+    updateDL();
+    $("dl-time").value = $("dl-method").value === "espresso" ? 27 : 210;
+    dlReset();
+  });
 
   /* ═══ Tool 01: Extracție ═══ */
   var eyMode = $("ey-mode");
@@ -2643,6 +2883,25 @@
 
   /* ═══ Butoane de salvare ═══ */
   var SAVE_BUILDERS = {
+    dialin: function () {
+      var r = dlRecipe();
+      var name = $("dl-coffee").value.trim() || "Cafea fără nume";
+      var roastSel = $("dl-roast");
+      var f = [
+        ["Cafea", name],
+        ["Metodă", (r.method === "espresso" ? "Espresso" : "Filtru") + " · prăjire " + roastSel.options[roastSel.selectedIndex].text.toLowerCase()],
+        ["Rețeta de pornire", fmt(r.dose, 1) + " g → " + fmt(r.bev, 0) + " g @ " + fmt(r.temp, 0) + " °C · " + r.time]
+      ];
+      if (dlAttempts.length) {
+        var last = dlAttempts[dlAttempts.length - 1];
+        f.push(["Încercări", String(dlAttempts.length)]);
+        if (last.ey) f.push(["EY final", fmt(last.ey, 1) + " %"]);
+        f.push(["Stadiu", dlDone ? "În țintă" : "În lucru — " + last.advice]);
+      } else {
+        f.push(["Stadiu", "Rețetă de pornire generată"]);
+      }
+      return f;
+    },
     ey: function () {
       var f = [];
       ["tds", "bev", "dose", "ey"].forEach(function (k) {
@@ -2797,6 +3056,7 @@
   renderProfiles();
   refreshHistoryFilters();
   renderHistory();
+  updateDL();
   updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateCS(); updateRV(); updateTT(); updateTE();
   updateLS(); updateRM(); updateBT(); updateWR(); updateMN();
   simDraw();
