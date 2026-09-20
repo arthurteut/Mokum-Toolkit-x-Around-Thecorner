@@ -684,20 +684,12 @@
             <div class="value"><span id="dl-r-dose">18</span> <small>g</small></div>
           </div>
           <div class="result-tile">
-            <div class="label" id="dl-r-bev-label">Băutura țintă</div>
-            <div class="value"><span id="dl-r-bev">36</span> <small>g</small></div>
-          </div>
-          <div class="result-tile">
             <div class="label">Temperatura</div>
             <div class="value"><span id="dl-r-temp">92</span> <small>°C</small></div>
           </div>
           <div class="result-tile" id="dl-tile-bars">
             <div class="label">Presiunea</div>
             <div class="value"><span id="dl-r-bars">9</span> <small>bar</small></div>
-          </div>
-          <div class="result-tile">
-            <div class="label">Timp țintă</div>
-            <div class="value" style="font-size:19px;padding-top:3px" id="dl-r-time">25–30 s</div>
           </div>
         </div>
         <p class="note" id="dl-recipe-note">Rețeta de pornire, nu cea finală: pornește râșnița de la setarea cafelei anterioare și lasă gustul să te ducă spre țintă. Purjează câteva grame după fiecare ajustare. Pentru rețete complete de apă și remineralizare, folosește tool-ul <a href="#apa">Apa pentru cafea</a> — aici notezi doar apa cu care lucrezi, ca să rămână în jurnal.</p>
@@ -716,6 +708,10 @@
         <div class="field">
           <label for="dl-time">Timpul de extracție <span class="hint">secunde · espresso de la prima picătură, filtru totalul</span></label>
           <input type="number" id="dl-time" inputmode="decimal" min="5" max="900" step="1" value="27">
+        </div>
+        <div class="field">
+          <label for="dl-bev">Băutura obținută <span class="hint">g · cântărește ceașca; opțional</span></label>
+          <input type="number" id="dl-bev" inputmode="decimal" min="0" max="5000" step="1" placeholder="—">
         </div>
         <div class="field" id="dl-f-bars">
           <label for="dl-bars">Presiunea de extracție <span class="hint">bar · de pe manometru</span></label>
@@ -2220,11 +2216,8 @@
     $("dl-f-bars").hidden = m !== "espresso";
     $("dl-tile-bars").hidden = m !== "espresso";
     $("dl-r-dose-label").textContent = m === "espresso" ? "Doza de pornire" : "Doza (60 g/L)";
-    $("dl-r-bev-label").textContent = m === "espresso" ? "Băutura țintă (1:2)" : "Băutura estimată";
     $("dl-r-dose").textContent = fmt(r.dose, 1);
-    $("dl-r-bev").textContent = fmt(r.bev, 0);
     $("dl-r-temp").textContent = fmt(r.temp, 0);
-    $("dl-r-time").textContent = r.time;
   }
 
   function dlWater() {
@@ -2273,6 +2266,7 @@
   function dlAttemptLine(a, i) {
     return "#" + (i + 1) + " · " + DL_TASTE[a.taste] +
       (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
+      (a.bev ? " · " + fmt(a.bev, 0) + " g" : "") +
       (a.bars ? " · " + fmt(a.bars, 1) + " bar" : "") +
       (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "") +
       (a.water ? " · apă: " + a.water : "") +
@@ -2442,12 +2436,14 @@
     var taste = $("dl-taste").value;
     var t = num($("dl-time"));
     var tds = num($("dl-tds"));
-    var ey = (tds > 0 && r.dose > 0) ? tds * r.bev / r.dose : 0;
+    var bevIn = num($("dl-bev"));
+    var bev = bevIn > 0 ? bevIn : r.bev;
+    var ey = (tds > 0 && r.dose > 0) ? tds * bev / r.dose : 0;
     var adv = dlAdvice(taste, t, r);
     var w = dlWater();
     var bars = r.method === "espresso" ? num($("dl-bars")) : 0;
     dlDone = !!adv.done;
-    var attempt = { ts: Date.now(), taste: taste, time: t, bars: bars, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals };
+    var attempt = { ts: Date.now(), taste: taste, time: t, bev: bevIn, bars: bars, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals };
     dlAttempts.push(attempt);
     var sess = dlJournalSession(r, $("dl-coffee").value.trim() || "Cafea fără nume");
     sess.attempts.push(attempt);
@@ -2505,6 +2501,7 @@
     dlSessionId = null;
     $("dl-coffee").value = "";
     $("dl-tds").value = "";
+    $("dl-bev").value = "";
     dlReset();
     $("dl-coffee").focus();
   });
@@ -3152,7 +3149,7 @@
       var f = [
         ["Cafea", name],
         ["Metodă", (r.method === "espresso" ? "Espresso" : "Filtru") + " · prăjire " + roastSel.options[roastSel.selectedIndex].text.toLowerCase()],
-        ["Rețeta de pornire", fmt(r.dose, 1) + " g → " + fmt(r.bev, 0) + " g @ " + fmt(r.temp, 0) + " °C · " + r.time]
+        ["Pornire", fmt(r.dose, 1) + " g @ " + fmt(r.temp, 0) + " °C"]
       ];
       var w = dlWater();
       if (w.summary) f.push(["Apă", w.summary]);
