@@ -2226,7 +2226,10 @@
       return;
     }
     if (shared) {
-      var entry = { ts: Date.now(), barista: prof.name, tool: toolKey, fields: fields };
+      // Firestore nu acceptă array în array — perechile [etichetă, valoare]
+      // se salvează ca obiecte {l, v} și se refac la citire.
+      var entry = { ts: Date.now(), barista: prof.name, tool: toolKey,
+        fields: fields.map(function (f) { return { l: String(f[0]), v: String(f[1]) }; }) };
       if (cloudActive && cloudUid) entry.uid = cloudUid;
       db.collection("history").add(entry)
         .then(function () { savedOk(fb, prof.name); })
@@ -3657,7 +3660,9 @@
               ts: typeof body.ts === "number" ? body.ts : 0,
               barista: String(body.barista || "—"),
               tool: String(body.tool || ""),
-              fields: Array.isArray(body.fields) ? body.fields : [],
+              fields: Array.isArray(body.fields) ? body.fields.map(function (f) {
+                return Array.isArray(f) ? f : [String(f && f.l || ""), String(f && f.v || "")];
+              }) : [],
               example: false
             };
           });
@@ -3752,7 +3757,9 @@
             ts: typeof body.ts === "number" ? body.ts : 0,
             barista: String(body.barista || "—"),
             tool: String(body.tool || ""),
-            fields: Array.isArray(body.fields) ? body.fields : [],
+            fields: Array.isArray(body.fields) ? body.fields.map(function (f) {
+                return Array.isArray(f) ? f : [String(f && f.l || ""), String(f && f.v || "")];
+              }) : [],
             example: !!body.example
           };
         });
