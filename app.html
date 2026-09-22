@@ -1006,14 +1006,12 @@
     <div class="section-head">
       <div class="section-kicker">Tool 05 · Tabelul de lapte</div>
       <h2 id="lapte-title">Calculator de lapte</h2>
-      <p>Patru calculatoare pentru băuturile cu lapte: compoziția completă a băuturii finale, mărimea ceștii pentru o rețetă fixă de espresso, inversul ei — cât espresso îți trebuie pentru o ceașcă pe care o ai deja — și frotarea: din temperaturile de început și de final, condensarea se calculează automat, cu masa câștigată, volumul texturat și nota de dulceață.</p>
+      <p>Două calculatoare pentru băuturile cu lapte: compoziția completă a băuturii finale — cu frotarea inclusă: din temperaturile de început și de final, condensarea se calculează automat, iar temperatura de final îți dă nota de dulceață — și mărimea ceștii pentru o rețetă fixă de espresso.</p>
     </div>
 
     <div class="water-tabs" role="tablist" aria-label="Calculatoare de lapte">
       <button type="button" role="tab" id="mt-comp" aria-selected="true" aria-controls="mp-comp">Compoziție</button>
       <button type="button" role="tab" id="mt-cup" aria-selected="false" aria-controls="mp-cup">Mărimea ceștii</button>
-      <button type="button" role="tab" id="mt-rev" aria-selected="false" aria-controls="mp-rev">Invers</button>
-      <button type="button" role="tab" id="mt-steam" aria-selected="false" aria-controls="mp-steam">Frotare</button>
     </div>
 
     <div id="mp-comp" role="tabpanel" aria-labelledby="mt-comp">
@@ -1050,13 +1048,17 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label for="cw-cond">Condensare <span class="hint">% · apă din abur</span></label>
-            <input type="number" id="cw-cond" inputmode="decimal" min="0" max="20" step="0.5" value="7.5">
+            <label for="cw-t0">Temp. la început <span class="hint">°C · frigider ~4</span></label>
+            <input type="number" id="cw-t0" inputmode="decimal" min="0" max="40" step="0.5" value="4">
           </div>
           <div class="field">
-            <label for="cw-aer">Aerare <span class="hint">% · creștere de volum</span></label>
-            <input type="number" id="cw-aer" inputmode="decimal" min="0" max="100" step="1" value="33">
+            <label for="cw-t1">Temp. la final <span class="hint">°C · de pe termometru</span></label>
+            <input type="number" id="cw-t1" inputmode="decimal" min="30" max="95" step="0.5" value="60">
           </div>
+        </div>
+        <div class="field">
+          <label for="cw-aer">Aerare <span class="hint">% volum aer · flat white ~15 · latte ~25 · cappuccino ~50</span></label>
+          <input type="number" id="cw-aer" inputmode="decimal" min="0" max="100" step="1" value="33">
         </div>
         <button type="button" class="btn btn-save" data-save="lapte">Salvează în istoric</button>
         <div class="save-feedback" data-feedback="lapte" aria-live="polite"></div>
@@ -1080,6 +1082,18 @@
           </tfoot>
         </table>
         <p class="note">Tăria totală = tot ce nu e apă (solubile de cafea + grăsime + lactoză + proteine). Un flat white bun stă de obicei peste ~4% — sub asta, gustul de cafea se pierde în lapte.</p>
+        <div class="result-row" role="status" aria-live="polite" style="margin-top:14px">
+          <div class="result-tile">
+            <div class="label">Condensare (calculată)</div>
+            <div class="value"><span id="cw-condr">—</span> <small>%</small></div>
+            <div class="hint" style="font-size:12px;color:var(--ink-soft)">+<span id="cw-condg">—</span> g apă din abur</div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Nota de dulceață</div>
+            <div class="value" style="font-size:15px;padding-top:4px"><span class="pill" id="cw-sweet">—</span></div>
+          </div>
+        </div>
+        <div class="note" id="cw-sweet-note" aria-live="polite"></div>
       </div>
     </div>
     </div>
@@ -1137,127 +1151,12 @@
       </div>
     </div>
 
-    <!-- ── Cowculator invers ── -->
-    <div id="mp-rev" role="tabpanel" aria-labelledby="mt-rev" hidden>
-      <div class="grid-2">
-        <div class="card">
-          <div class="field-row">
-            <div class="field">
-              <label for="rv-vol">Mărimea ceștii</label>
-              <input type="number" id="rv-vol" inputmode="decimal" min="30" max="1000" step="5" value="180">
-            </div>
-            <div class="field">
-              <label for="rv-unit">Unitate</label>
-              <select id="rv-unit">
-                <option value="ml" selected>ml</option>
-                <option value="oz">oz</option>
-              </select>
-            </div>
-          </div>
-          <div class="field-row">
-            <div class="field">
-              <label for="rv-tds">TDS espresso <span class="hint">%</span></label>
-              <input type="number" id="rv-tds" inputmode="decimal" min="1" max="20" step="0.1" value="9">
-            </div>
-            <div class="field">
-              <label for="rv-target">Tăria dorită <span class="hint">%</span></label>
-              <input type="number" id="rv-target" inputmode="decimal" min="0.3" max="8" step="0.1" value="1.4">
-            </div>
-          </div>
-          <div class="field-row">
-            <div class="field">
-              <label for="rv-cond">Condensare <span class="hint">%</span></label>
-              <input type="number" id="rv-cond" inputmode="decimal" min="0" max="20" step="0.5" value="7.5">
-            </div>
-            <div class="field">
-              <label for="rv-aer">Aerare <span class="hint">%</span></label>
-              <input type="number" id="rv-aer" inputmode="decimal" min="0" max="100" step="1" value="33">
-            </div>
-          </div>
-          <button type="button" class="btn btn-save" data-save="cowinvers">Salvează în istoric</button>
-          <div class="save-feedback" data-feedback="cowinvers" aria-live="polite"></div>
-        </div>
-        <div class="card">
-          <div class="result-row" role="status" aria-live="polite">
-            <div class="result-tile">
-              <div class="label">Espresso necesar</div>
-              <div class="value"><span id="rv-esp">—</span> <small>g</small></div>
-            </div>
-            <div class="result-tile">
-              <div class="label">Lapte rece în latieră</div>
-              <div class="value"><span id="rv-milk">—</span> <small>g</small></div>
-            </div>
-            <div class="result-tile">
-              <div class="label">Greutatea băuturii</div>
-              <div class="value"><span id="rv-weight">—</span> <small>g</small></div>
-            </div>
-          </div>
-          <p class="note">Pentru ocaziile rare în care ceașca există deja și rețeta de espresso trebuie construită în jurul ei: ce coșuri de portafiltru cumperi, sau câte shot-uri intră într-un latte uriaș ca să se mai simtă cafeaua. Pornește de la TDS-ul espresso-ului și tăria dorită, iar calculatorul îți dă gramajul de espresso — apoi îți construiești rețeta.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Frotarea laptelui ── -->
-    <div id="mp-steam" role="tabpanel" aria-labelledby="mt-steam" hidden>
-      <div class="grid-2">
-        <div class="card">
-          <div class="field">
-            <label for="st-milk">Lapte rece în latieră <span class="hint">grame</span></label>
-            <input type="number" id="st-milk" inputmode="decimal" min="30" max="1500" step="5" value="200">
-          </div>
-          <div class="field-row">
-            <div class="field">
-              <label for="st-t0">Temperatura la început <span class="hint">°C · din frigider ~4</span></label>
-              <input type="number" id="st-t0" inputmode="decimal" min="0" max="40" step="0.5" value="4">
-            </div>
-            <div class="field">
-              <label for="st-t1">Temperatura la final <span class="hint">°C · de pe termometru</span></label>
-              <input type="number" id="st-t1" inputmode="decimal" min="30" max="95" step="0.5" value="60">
-            </div>
-          </div>
-          <div class="field">
-            <label for="st-aer">Nivelul de spumă <span class="hint">aerul adăugat, ca volum</span></label>
-            <select id="st-aer">
-              <option value="0">Fără aer — doar încălzit (0%)</option>
-              <option value="15">Textură fină · flat white (~15%)</option>
-              <option value="25" selected>Cremoasă · latte (~25%)</option>
-              <option value="50">Spumă bogată · cappuccino (~50%)</option>
-            </select>
-          </div>
-          <button type="button" class="btn btn-save" data-save="frotare">Salvează în istoric</button>
-          <div class="save-feedback" data-feedback="frotare" aria-live="polite"></div>
-        </div>
-        <div class="card">
-          <div class="result-row" role="status" aria-live="polite">
-            <div class="result-tile">
-              <div class="label">Condensare (calculată)</div>
-              <div class="value"><span id="st-cond">—</span> <small>%</small></div>
-              <div class="hint" style="font-size:12px;color:var(--ink-soft)">+<span id="st-condg">—</span> g apă din abur</div>
-            </div>
-            <div class="result-tile">
-              <div class="label">Masa finală</div>
-              <div class="value"><span id="st-mass">—</span> <small>g</small></div>
-            </div>
-            <div class="result-tile">
-              <div class="label">Volumul texturat</div>
-              <div class="value"><span id="st-vol">—</span> <small>ml</small></div>
-            </div>
-            <div class="result-tile">
-              <div class="label">Nota de dulceață</div>
-              <div class="value" style="font-size:15px;padding-top:4px"><span class="pill" id="st-sweet">—</span></div>
-            </div>
-          </div>
-          <div class="note" id="st-sweet-note" aria-live="polite"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="card explain" style="margin-top:18px">
       <h4>Condensare și aerare</h4>
       <p>Majoritatea termenilor de aici îi știe orice barist, dar aceștia doi pot încurca. <strong>Condensarea</strong> este apa din abur care se condensează în lapte la texturare — între 5 și 10% din greutatea laptelui, în funcție de mașină. Dacă nu vrei să o măsori, rămâi la valoarea implicită de 7,5%.</p>
       <p><strong>Aerarea</strong> este creșterea totală de volum a laptelui: spuma, plus apa adăugată prin condensare — deci aerarea nu poate fi mai mică decât condensarea. Recomandarea barului este o aerare de ~33%, dar poți ajusta cifra dacă îți plac cappuccino-urile spumoase sau flat white-urile foarte plate.</p>
       <p><strong>Repere de tărie:</strong> un cappuccino tipic are ~1,4% (similar cu o cafea la filtru), iar un flat white e adesea mai puternic, în jur de 2%. Volumele estimate presupun densitatea laptelui de ~1,03 g/ml și a espresso-ului de ~1 g/ml — sunt orientative, nu cântărite.</p>
-      <p><strong>De unde vine condensarea „calculată”:</strong> tab-ul Frotare o scoate din fizică, nu dintr-o cifră fixă. Aburul care îți încălzește laptele se condensează în el și îi adaugă apă; energia necesară încălzirii (masă × căldura specifică a laptelui × diferența de temperatură) vine din căldura latentă a aburului, deci masa de apă adăugată rezultă direct din temperaturile de început și de final. Pentru drumul clasic 4 → 60 °C iese ~9% — de-asta valoarea implicită „de mână” din celelalte tab-uri e 7,5%, o mașină reală mai pierde căldură pe traseu.</p>
+      <p><strong>De unde vine condensarea „calculată”:</strong> tab-ul Compoziție o scoate din fizică, nu dintr-o cifră fixă. Aburul care îți încălzește laptele se condensează în el și îi adaugă apă; energia necesară încălzirii (masă × căldura specifică a laptelui × diferența de temperatură) vine din căldura latentă a aburului, deci masa de apă adăugată rezultă direct din temperaturile de început și de final. Pentru drumul clasic 4 → 60 °C iese ~9% — de-asta valoarea implicită „de mână” din tab-ul Mărimea ceștii e 7,5%, o mașină reală mai pierde căldură pe traseu.</p>
       <p><strong>Nota de dulceață:</strong> lactoza e percepută cel mai dulce când laptele ajunge la <strong>55–65 °C</strong> — „punctul dulce”. Sub 45 °C dulceața abia se simte, iar peste ~70 °C proteinele se denaturează, apare gustul de fiert și spuma devine grosieră. Temperatura de final decide nota.</p>
     </div>
   </section>
@@ -2226,7 +2125,10 @@
       return;
     }
     if (shared) {
-      var entry = { ts: Date.now(), barista: prof.name, tool: toolKey, fields: fields };
+      // Firestore nu acceptă array în array — perechile [etichetă, valoare]
+      // se salvează ca obiecte {l, v} și se refac la citire.
+      var entry = { ts: Date.now(), barista: prof.name, tool: toolKey,
+        fields: fields.map(function (f) { return { l: String(f[0]), v: String(f[1]) }; }) };
       if (cloudActive && cloudUid) entry.uid = cloudUid;
       db.collection("history").add(entry)
         .then(function () { savedOk(fb, prof.name); })
@@ -2638,7 +2540,7 @@
   /* ═══ Tool 04: Lapte ═══ */
   var MILK_DENSITY = 1.03, ML_PER_OZ = 29.5735;
 
-  var milkTabs = ["comp", "cup", "rev", "steam"];
+  var milkTabs = ["comp", "cup"];
   milkTabs.forEach(function (key) {
     $("mt-" + key).addEventListener("click", function () {
       milkTabs.forEach(function (k) {
@@ -2652,8 +2554,6 @@
      Condensarea din fizică: energia de încălzire a laptelui (c·ΔT) vine din
      căldura latentă a aburului (~2257 J/g) plus răcirea condensului de la
      100 °C la temperatura finală. c lapte ≈ 3,93 J/(g·°C). */
-  var stLast = {};
-
   function stSweet(t1) {
     if (t1 < 45) return { txt: "Sub punctul dulce", cls: "pill pill-warn",
       note: "Laptele e doar călduț — lactoza abia se percepe. Punctul dulce e între 55 și 65 °C." };
@@ -2667,39 +2567,13 @@
       note: "Peste ~70 °C proteinele se denaturează: apare gustul de fiert, dulceața se pierde, iar spuma devine grosieră." };
   }
 
-  function updateST() {
-    var milk = num($("st-milk")), t0 = num($("st-t0")), t1 = num($("st-t1"));
-    var aer = parseFloat($("st-aer").value) / 100;
-    var pill = $("st-sweet");
-    if (milk <= 0 || t1 <= t0) {
-      ["st-cond", "st-condg", "st-mass", "st-vol"].forEach(function (id) { $(id).textContent = "—"; });
-      pill.textContent = "—"; pill.className = "pill";
-      $("st-sweet-note").textContent = "Temperatura de final trebuie să fie peste cea de început.";
-      stLast = {};
-      return;
-    }
-    var condFrac = (3.93 * (t1 - t0)) / (2257 + 4.18 * (100 - t1));
-    var condG = milk * condFrac;
-    var mass = milk + condG;
-    var vol = mass / MILK_DENSITY * (1 + aer);
-    var sw = stSweet(t1);
-    $("st-cond").textContent = fmt(condFrac * 100, 1);
-    $("st-condg").textContent = fmt(condG, 1);
-    $("st-mass").textContent = fmt(mass, 0);
-    $("st-vol").textContent = fmt(vol, 0);
-    pill.textContent = sw.txt; pill.className = sw.cls;
-    $("st-sweet-note").textContent = sw.note;
-    stLast = { milk: milk, t0: t0, t1: t1, aer: aer, condPct: condFrac * 100, condG: condG, mass: mass, vol: vol, sweet: sw.txt };
-  }
-
-  ["st-milk", "st-t0", "st-t1"].forEach(function (id) { $(id).addEventListener("input", updateST); });
-  $("st-aer").addEventListener("change", updateST);
-
   var cwLast = {};
   function updateCW() {
     var coffee = num($("cw-coffee")), str = num($("cw-str")) / 100, milk = num($("cw-milk"));
     var fat = num($("cw-fat")) / 100, lactose = num($("cw-lactose")) / 100, protein = num($("cw-protein")) / 100;
-    var cond = num($("cw-cond")) / 100, aer = num($("cw-aer")) / 100;
+    var t0 = num($("cw-t0")), t1 = num($("cw-t1"));
+    var cond = t1 > t0 ? (3.93 * (t1 - t0)) / (2257 + 4.18 * (100 - t1)) : 0;
+    var aer = num($("cw-aer")) / 100;
     var solids = coffee * str, fatG = milk * fat, lacG = milk * lactose, proG = milk * protein;
     var condW = milk * cond;
     var total = coffee + milk + condW;
@@ -2728,9 +2602,21 @@
     var volume = coffee + (milk / MILK_DENSITY) * (1 + aer);
     $("cw-total-str").textContent = fmt(totalStr, 2) + " %";
     $("cw-volume").textContent = fmt(volume, 0) + " ml · " + fmt(volume / ML_PER_OZ, 1) + " oz";
-    cwLast = { coffee: coffee, str: str * 100, milk: milk, totalStr: totalStr, volume: volume };
+    var sweet = t1 > t0 ? stSweet(t1) : null;
+    $("cw-condr").textContent = sweet ? fmt(cond * 100, 1) : "—";
+    $("cw-condg").textContent = sweet ? fmt(condW, 1) : "—";
+    var swPill = $("cw-sweet");
+    if (sweet) {
+      swPill.textContent = sweet.txt; swPill.className = sweet.cls;
+      $("cw-sweet-note").textContent = sweet.note;
+    } else {
+      swPill.textContent = "—"; swPill.className = "pill";
+      $("cw-sweet-note").textContent = "Temperatura de final trebuie să fie peste cea de început.";
+    }
+    cwLast = { coffee: coffee, str: str * 100, milk: milk, totalStr: totalStr, volume: volume,
+      t0: t0, t1: t1, condPct: cond * 100, condG: condW, sweet: sweet ? sweet.txt : "" };
   }
-  ["cw-coffee", "cw-str", "cw-milk", "cw-fat", "cw-lactose", "cw-protein", "cw-cond", "cw-aer"].forEach(function (id) { $(id).addEventListener("input", updateCW); });
+  ["cw-coffee", "cw-str", "cw-milk", "cw-fat", "cw-lactose", "cw-protein", "cw-t0", "cw-t1", "cw-aer"].forEach(function (id) { $(id).addEventListener("input", updateCW); });
 
   /* Mărimea ceștii: de la rețeta de espresso + tăria dorită la lapte și volum */
   var csLast = {};
@@ -2754,26 +2640,6 @@
   ["cs-esp", "cs-tds", "cs-target", "cs-cond", "cs-aer"].forEach(function (id) { $(id).addEventListener("input", updateCS); });
 
   /* Cowculator invers: de la ceașcă la gramajul de espresso */
-  var rvLast = {};
-  function updateRV() {
-    var vol = num($("rv-vol"));
-    if ($("rv-unit").value === "oz") vol = vol * ML_PER_OZ;
-    var tds = num($("rv-tds")), target = num($("rv-target"));
-    var cond = num($("rv-cond")) / 100, aer = num($("rv-aer")) / 100;
-    if (aer < cond) aer = cond;
-    var ratio = target > 0 ? tds / target - 1 : NaN;
-    var esp = (isFinite(ratio) && ratio > 0)
-      ? vol / (1 + (ratio / (1 + cond)) * (1 + aer) / MILK_DENSITY)
-      : NaN;
-    var milk = isFinite(esp) ? esp * ratio / (1 + cond) : NaN;
-    var weight = isFinite(esp) ? esp + esp * ratio : NaN;
-    $("rv-esp").textContent = fmt(esp, 1);
-    $("rv-milk").textContent = fmt(milk, 0);
-    $("rv-weight").textContent = fmt(weight, 0);
-    rvLast = { vol: vol, tds: tds, target: target, esp: esp, milk: milk, weight: weight };
-  }
-  ["rv-vol", "rv-tds", "rv-target", "rv-cond", "rv-aer"].forEach(function (id) { $(id).addEventListener("input", updateRV); });
-  $("rv-unit").addEventListener("change", updateRV);
 
   /* ═══ Tool 05: Degustare TDS ═══ */
   var ttLast = {};
@@ -3313,12 +3179,17 @@
       ];
     },
     lapte: function () {
-      return [
+      var f = [
         ["Espresso", fmt(cwLast.coffee, 0) + " g @ " + fmt(cwLast.str, 1) + " %"],
         ["Lapte", fmt(cwLast.milk, 0) + " g"],
         ["Tărie finală", fmt(cwLast.totalStr, 2) + " %"],
         ["Volum", fmt(cwLast.volume, 0) + " ml"]
       ];
+      if (cwLast.t1 > cwLast.t0) {
+        f.push(["Frotare", fmt(cwLast.t0, 0) + " → " + fmt(cwLast.t1, 0) + " °C · condensare " + fmt(cwLast.condPct, 1) + " % (+" + fmt(cwLast.condG, 1) + " g apă din abur)"]);
+        f.push(["Dulceață", cwLast.sweet]);
+      }
+      return f;
     },
     ceasca: function () {
       return [
@@ -3326,23 +3197,6 @@
         ["Tăria dorită", fmt(csLast.target, 1) + " %"],
         ["Lapte rece", fmt(csLast.milk, 0) + " g"],
         ["Ceașcă", fmt(csLast.vol, 0) + " ml"]
-      ];
-    },
-    frotare: function () {
-      if (!stLast.mass) return null;
-      return [
-        ["Lapte", fmt(stLast.milk, 0) + " g · " + fmt(stLast.t0, 0) + " → " + fmt(stLast.t1, 0) + " °C"],
-        ["Condensare", fmt(stLast.condPct, 1) + " % (+" + fmt(stLast.condG, 1) + " g apă din abur)"],
-        ["Masă / Volum", fmt(stLast.mass, 0) + " g / " + fmt(stLast.vol, 0) + " ml (aer " + fmt(stLast.aer * 100, 0) + " %)"],
-        ["Dulceață", stLast.sweet]
-      ];
-    },
-    cowinvers: function () {
-      return [
-        ["Ceașcă", fmt(rvLast.vol, 0) + " ml"],
-        ["Tăria dorită", fmt(rvLast.target, 1) + " % @ TDS " + fmt(rvLast.tds, 1) + " %"],
-        ["Espresso necesar", fmt(rvLast.esp, 1) + " g"],
-        ["Lapte rece", fmt(rvLast.milk, 0) + " g"]
       ];
     },
     tdstasting: function () {
@@ -3439,7 +3293,7 @@
   renderHistory();
   updateDL();
   dlRenderJournal();
-  updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateCS(); updateRV(); updateST(); updateTT(); updateTE();
+  updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateCS(); updateTT(); updateTE();
   updateLS(); updateRM(); updateBT(); updateWR(); updateMN();
   simDraw();
 
@@ -3657,7 +3511,9 @@
               ts: typeof body.ts === "number" ? body.ts : 0,
               barista: String(body.barista || "—"),
               tool: String(body.tool || ""),
-              fields: Array.isArray(body.fields) ? body.fields : [],
+              fields: Array.isArray(body.fields) ? body.fields.map(function (f) {
+                return Array.isArray(f) ? f : [String(f && f.l || ""), String(f && f.v || "")];
+              }) : [],
               example: false
             };
           });
@@ -3752,7 +3608,9 @@
             ts: typeof body.ts === "number" ? body.ts : 0,
             barista: String(body.barista || "—"),
             tool: String(body.tool || ""),
-            fields: Array.isArray(body.fields) ? body.fields : [],
+            fields: Array.isArray(body.fields) ? body.fields.map(function (f) {
+                return Array.isArray(f) ? f : [String(f && f.l || ""), String(f && f.v || "")];
+              }) : [],
             example: !!body.example
           };
         });
