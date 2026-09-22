@@ -518,6 +518,7 @@
     </div>
     <nav class="main-nav" aria-label="Navigare tool-uri">
       <a href="#profil">Bariști</a>
+      <a href="#echipamente">Echipamente</a>
       <a href="#dialin">Dial-in</a>
       <a href="#extractie">Extracție</a>
       <a href="#busola">Busolă</a>
@@ -619,6 +620,50 @@
     </div>
   </section>
 
+  <!-- ══════════ Echipamente ══════════ -->
+  <section id="echipamente" class="profile-bar wrap" aria-labelledby="echip-title">
+    <div class="profile-card">
+      <div class="profile-card-head">
+        <h2 id="echip-title">Ce echipamente sunt la bar?</h2>
+      </div>
+      <p class="profile-hint" style="margin:6px 0 0" id="eq-hint">Completezi o singură dată dotarea barului — espressorul și râșnița aleasă apar automat în jurnalul de dial-in și în registrul echipei.</p>
+      <div class="field-row" style="margin-top:12px">
+        <div class="field">
+          <label for="eq-espressor">Espressor <span class="hint">marcă și model</span></label>
+          <input type="text" id="eq-espressor" maxlength="60" placeholder="ex. La Marzocco Strada EP">
+        </div>
+        <div class="field">
+          <label for="eq-batch">Batch brewer <span class="hint">dacă există</span></label>
+          <input type="text" id="eq-batch" maxlength="60" placeholder="ex. Moccamaster, Fetco">
+        </div>
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer">
+          <input type="checkbox" id="eq-profiling" style="width:auto;margin:0"> Espressorul permite profilarea presiunii (pressure profiling)
+        </label>
+      </div>
+      <div class="field">
+        <label for="eq-grinder-new">Râșnițe <span class="hint">adaugă-le pe rând — una sau mai multe</span></label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
+          <input type="text" id="eq-grinder-new" maxlength="60" placeholder="ex. Mahlkönig E65S" style="flex:1 1 220px">
+          <button type="button" class="btn" id="eq-grinder-add" style="flex:none">Adaugă râșnița</button>
+        </div>
+        <div class="profile-chips" id="eq-grinders" role="group" aria-label="Râșnițele barului" style="margin-top:10px"></div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="eq-drippers">Drippere / pour-over <span class="hint">ce metode ai</span></label>
+          <input type="text" id="eq-drippers" maxlength="80" placeholder="ex. V60, Kalita Wave, AeroPress">
+        </div>
+        <div class="field">
+          <label for="eq-other">Altele <span class="hint">refractometru, TDS-metru, cântare…</span></label>
+          <input type="text" id="eq-other" maxlength="100" placeholder="ex. refractometru VST, pH-metru">
+        </div>
+      </div>
+      <div class="save-feedback" id="eq-feedback" aria-live="polite"></div>
+    </div>
+  </section>
+
   <!-- ══════════ Dial-in ghidat ══════════ -->
   <section id="dialin" class="tool-section wrap" aria-labelledby="dialin-title">
     <div class="section-head">
@@ -638,6 +683,10 @@
             <option value="espresso" selected>Espresso</option>
             <option value="filtru">Filtru (pour-over / batch)</option>
           </select>
+        </div>
+        <div class="field" id="dl-f-grinder" hidden>
+          <label for="dl-grinder">Râșnița folosită <span class="hint">din echipamentele barului</span></label>
+          <select id="dl-grinder"></select>
         </div>
         <div class="field">
           <label for="dl-roast">Prăjirea</label>
@@ -716,6 +765,12 @@
         <div class="field" id="dl-f-bars">
           <label for="dl-bars">Presiunea de extracție <span class="hint">bar · de pe manometru</span></label>
           <input type="number" id="dl-bars" inputmode="decimal" min="1" max="15" step="0.5" value="9">
+        </div>
+        <div class="field" id="dl-f-profile">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer">
+            <input type="checkbox" id="dl-profiled" style="width:auto;margin:0"> Am folosit profilarea presiunii
+          </label>
+          <input type="text" id="dl-profile" maxlength="90" placeholder="ex. preinfuzie 2 bar / 8 s → 9 bar → coborâre la 6 bar" hidden style="margin-top:8px">
         </div>
         <div class="field">
           <label for="dl-tds">TDS <span class="hint">% · opțional, dacă ai refractometru</span></label>
@@ -2159,6 +2214,94 @@
     }
   }
 
+  /* ═══ Echipamentele barului ═══ */
+  var EQ_KEY = "atc-equipment";
+  var equipment = lsGet(EQ_KEY) || { espressor: "", profiling: false, grinders: [], drippers: "", batch: "", other: "" };
+  var cloudSaveEquipment = null;
+
+  function renderEquipment() {
+    $("eq-espressor").value = equipment.espressor || "";
+    $("eq-profiling").checked = !!equipment.profiling;
+    $("eq-drippers").value = equipment.drippers || "";
+    $("eq-batch").value = equipment.batch || "";
+    $("eq-other").value = equipment.other || "";
+    var box = $("eq-grinders");
+    box.innerHTML = "";
+    (equipment.grinders || []).forEach(function (g, i) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "profile-chip";
+      chip.textContent = g + " ×";
+      chip.title = "Scoate râșnița";
+      chip.addEventListener("click", function () {
+        if (eqLocked) return;
+        equipment.grinders.splice(i, 1);
+        saveEquipment();
+        renderEquipment();
+      });
+      box.appendChild(chip);
+    });
+    var sel = $("dl-grinder"), wrap = $("dl-f-grinder");
+    var prev = sel.value;
+    sel.innerHTML = "";
+    (equipment.grinders || []).forEach(function (g) {
+      var o = document.createElement("option"); o.value = g; o.textContent = g;
+      sel.appendChild(o);
+    });
+    if (prev && equipment.grinders.indexOf(prev) >= 0) sel.value = prev;
+    wrap.hidden = !(equipment.grinders && equipment.grinders.length);
+  }
+
+  var eqLocked = false;
+  function setEquipmentLocked(locked) {
+    eqLocked = locked;
+    ["eq-espressor", "eq-profiling", "eq-grinder-new", "eq-grinder-add", "eq-drippers", "eq-batch", "eq-other"].forEach(function (id) {
+      $(id).disabled = locked;
+    });
+    $("eq-hint").textContent = locked
+      ? "Echipamentele barului le stabilește administratorul cafenelei — tu doar le folosești în calcule."
+      : "Completezi o singură dată dotarea barului — espressorul și râșnița aleasă apar automat în jurnalul de dial-in și în registrul echipei.";
+  }
+
+  function applyEquipment(eq) {
+    equipment = Object.assign({ espressor: "", profiling: false, grinders: [], drippers: "", batch: "", other: "" }, eq || {});
+    if (!Array.isArray(equipment.grinders)) equipment.grinders = [];
+    renderEquipment();
+  }
+
+  function saveEquipment() {
+    lsSet(EQ_KEY, equipment);
+    if (cloudSaveEquipment) cloudSaveEquipment(equipment);
+    var fb = $("eq-feedback");
+    fb.textContent = "Echipamentele au fost salvate.";
+    fb.className = "save-feedback ok";
+    setTimeout(function () { fb.textContent = ""; fb.className = "save-feedback"; }, 2000);
+  }
+
+  function eqReadInputs() {
+    equipment.espressor = $("eq-espressor").value.trim();
+    equipment.profiling = $("eq-profiling").checked;
+    equipment.drippers = $("eq-drippers").value.trim();
+    equipment.batch = $("eq-batch").value.trim();
+    equipment.other = $("eq-other").value.trim();
+    saveEquipment();
+  }
+  ["eq-espressor", "eq-drippers", "eq-batch", "eq-other"].forEach(function (id) {
+    $(id).addEventListener("change", eqReadInputs);
+  });
+  $("eq-profiling").addEventListener("change", eqReadInputs);
+  $("eq-grinder-add").addEventListener("click", function () {
+    var v = $("eq-grinder-new").value.trim();
+    if (!v || eqLocked) return;
+    if (equipment.grinders.indexOf(v) < 0) equipment.grinders.push(v);
+    $("eq-grinder-new").value = "";
+    saveEquipment();
+    renderEquipment();
+  });
+  $("eq-grinder-new").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); $("eq-grinder-add").click(); }
+  });
+
   /* ═══ Rutina barului: Dial-in ghidat ═══ */
   var DL_TEMPS = {
     espresso: { deschisa: 94, medie: 92, inchisa: 90 },
@@ -2193,6 +2336,7 @@
     $("dl-f-water").hidden = m !== "filtru";
     $("dl-f-bars").hidden = m !== "espresso";
     $("dl-tile-bars").hidden = m !== "espresso";
+    $("dl-f-profile").hidden = m !== "espresso";
     $("dl-r-dose-label").textContent = m === "espresso" ? "Doza de pornire" : "Doza (60 g/L)";
     $("dl-r-dose").textContent = fmt(r.dose, 1);
     $("dl-r-temp").textContent = fmt(r.temp, 0);
@@ -2246,6 +2390,7 @@
       (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
       (a.bev ? " · " + fmt(a.bev, 0) + " g" : "") +
       (a.bars ? " · " + fmt(a.bars, 1) + " bar" : "") +
+      (a.profile ? " · profil: " + a.profile : "") +
       (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "") +
       (a.water ? " · apă: " + a.water : "") +
       (a.minerals ? " · " + a.minerals : "");
@@ -2349,7 +2494,8 @@
       d.appendChild(head);
       var when = new Date(s.ts);
       d.appendChild(document.createTextNode(
-        " · " + (s.method === "espresso" ? "espresso" : "filtru") + " · " + s.barista +
+        " · " + (s.method === "espresso" ? "espresso" : "filtru") +
+        (s.grinder ? " · " + s.grinder : "") + " · " + s.barista +
         " · " + when.toLocaleDateString("ro-RO") + " — " +
         s.attempts.length + (s.attempts.length === 1 ? " încercare" : " încercări") +
         (s.done ? " · în țintă ✓" : " · în lucru")
@@ -2420,10 +2566,13 @@
     var adv = dlAdvice(taste, t, r);
     var w = dlWater();
     var bars = r.method === "espresso" ? num($("dl-bars")) : 0;
+    var profiled = r.method === "espresso" && $("dl-profiled").checked;
+    var profile = profiled ? ($("dl-profile").value.trim() || "profilare folosită") : "";
     dlDone = !!adv.done;
-    var attempt = { ts: Date.now(), taste: taste, time: t, bev: bevIn, bars: bars, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals };
+    var attempt = { ts: Date.now(), taste: taste, time: t, bev: bevIn, bars: bars, profile: profile, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals };
     dlAttempts.push(attempt);
     var sess = dlJournalSession(r, $("dl-coffee").value.trim() || "Cafea fără nume");
+    sess.grinder = !$("dl-f-grinder").hidden ? $("dl-grinder").value : "";
     sess.attempts.push(attempt);
     sess.done = dlDone;
     lsSet(DL_J_KEY, dlJournal);
@@ -2482,6 +2631,10 @@
     $("dl-bev").value = "";
     dlReset();
     $("dl-coffee").focus();
+  });
+  $("dl-profiled").addEventListener("change", function () {
+    $("dl-profile").hidden = !$("dl-profiled").checked;
+    if ($("dl-profiled").checked) $("dl-profile").focus();
   });
   $("dl-journal-clear").addEventListener("click", function () {
     dlJournal = []; dlSessionId = null;
@@ -3161,6 +3314,12 @@
         ["Metodă", (r.method === "espresso" ? "Espresso" : "Filtru") + " · prăjire " + roastSel.options[roastSel.selectedIndex].text.toLowerCase()],
         ["Pornire", fmt(r.dose, 1) + " g @ " + fmt(r.temp, 0) + " °C"]
       ];
+      if (r.method === "espresso" && equipment.espressor) {
+        f.push(["Espressor", equipment.espressor + (equipment.profiling ? " · cu pressure profiling" : "")]);
+      }
+      if (!$("dl-f-grinder").hidden && $("dl-grinder").value) {
+        f.push(["Râșnița", $("dl-grinder").value]);
+      }
       var w = dlWater();
       if (w.summary) f.push(["Apă", w.summary]);
       if (w.minerals) f.push(["Minerale", w.minerals]);
@@ -3169,6 +3328,7 @@
           f.push(["Încercarea " + (i + 1), DL_TASTE[a.taste] +
             (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
             (a.bars ? " · " + fmt(a.bars, 1) + " bar" : "") +
+            (a.profile ? " · profil: " + a.profile : "") +
             (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "")]);
         });
         var last = dlAttempts[dlAttempts.length - 1];
@@ -3330,6 +3490,7 @@
   renderProfiles();
   refreshHistoryFilters();
   renderHistory();
+  renderEquipment();
   updateDL();
   dlRenderJournal();
   updateEY(); updateTD(); updatePD(); updateIM(); updateED(); updateCW(); updateCS(); updateTT(); updateTE();
@@ -3503,7 +3664,13 @@
       $("acc-role-pill").textContent = cloudRole === "admin" ? "administrator" : "barist";
       fs.doc("cafes/" + cafeId).get().then(function (c) {
         $("acc-cafe-name").textContent = c.exists ? (c.data().name || "Cafeneaua mea") : "Cafeneaua mea";
+        if (c.exists && c.data().equipment) applyEquipment(c.data().equipment);
+        else if (cloudRole === "admin" && cloudSaveEquipment) cloudSaveEquipment(equipment);
       });
+      setEquipmentLocked(cloudRole !== "admin");
+      cloudSaveEquipment = cloudRole === "admin"
+        ? function (eq) { fs.doc("cafes/" + cafeId).update({ equipment: eq }).catch(accError); }
+        : null;
       $("p-email-field").hidden = false;
       $("p-email").required = true;
       $("profile-form").querySelector("button[type=submit]").textContent = "Trimite invitația";
@@ -3581,6 +3748,9 @@
       $("profile-hint-text").textContent = "Fără cont, profilurile și istoricul rămân pe acest dispozitiv. Conectează-te ca echipa să împartă același registru.";
       setSyncStatus(false, "Neconectat · registru local");
       $("history-note").textContent = "Istoricul se salvează local, în memoria acestui dispozitiv.";
+      cloudSaveEquipment = null;
+      setEquipmentLocked(false);
+      applyEquipment(lsGet(EQ_KEY));
       profiles = lsGet(P_KEY) || [];
       history = lsGet(H_KEY) || [];
       activeId = (function () {
