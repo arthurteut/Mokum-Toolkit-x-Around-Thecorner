@@ -677,6 +677,31 @@
           <label for="dl-coffee">Cafeaua <span class="hint">nume / origine</span></label>
           <input type="text" id="dl-coffee" maxlength="60" placeholder="ex. Etiopia Guji">
         </div>
+        <details id="dl-details" style="margin-bottom:14px">
+          <summary style="cursor:pointer;font-weight:700;font-size:13.5px;margin-bottom:8px">Detalii cafea (opțional) — origine, fermă, varietate…</summary>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px">
+            <div class="field">
+              <label for="dl-origin">Origine</label>
+              <input type="text" id="dl-origin" maxlength="40" placeholder="ex. Etiopia">
+            </div>
+            <div class="field">
+              <label for="dl-farm">Fermă / denumire</label>
+              <input type="text" id="dl-farm" maxlength="60" placeholder="ex. Chelbesa">
+            </div>
+            <div class="field">
+              <label for="dl-variety">Varietate</label>
+              <input type="text" id="dl-variety" maxlength="40" placeholder="ex. Heirloom 74158">
+            </div>
+            <div class="field">
+              <label for="dl-process">Procesare</label>
+              <input type="text" id="dl-process" maxlength="40" placeholder="ex. spălată, natural">
+            </div>
+            <div class="field">
+              <label for="dl-roaster">Prăjitorie</label>
+              <input type="text" id="dl-roaster" maxlength="40" placeholder="ex. prăjitoria barului">
+            </div>
+          </div>
+        </details>
         <div class="field">
           <label for="dl-method">Metoda</label>
           <select id="dl-method">
@@ -776,6 +801,71 @@
           <label for="dl-tds">TDS <span class="hint">% · opțional, dacă ai refractometru</span></label>
           <input type="number" id="dl-tds" inputmode="decimal" min="0" max="30" step="0.05" placeholder="—">
         </div>
+        <details id="dl-sensory" style="margin-bottom:14px">
+          <summary style="cursor:pointer;font-weight:700;font-size:13.5px;margin-bottom:8px">Evaluare senzorială (opțional) — scoruri, textură, arome</summary>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px">
+            <div class="field">
+              <label for="dl-sw">Dulce <span class="hint">1–6</span></label>
+              <select id="dl-sw">
+                <option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dl-ac">Aciditate <span class="hint">1–6</span></label>
+              <select id="dl-ac">
+                <option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dl-bit">Amăreală <span class="hint">1–6</span></label>
+              <select id="dl-bit">
+                <option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">
+            <div class="field">
+              <label for="dl-actype">Tipul acidității</label>
+              <select id="dl-actype">
+                <option value="">—</option>
+                <option>Malic</option><option>Citric</option><option>Tartaric</option>
+                <option>Fosforic</option><option>Lactic</option><option>Acetic</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dl-tex">Textura</label>
+              <select id="dl-tex">
+                <option value="">—</option>
+                <option>Smooth</option><option>Creamy</option><option>Velvety</option><option>Silky</option>
+                <option>Juicy</option><option>Tea-like</option><option>Watery</option><option>Syrupy</option>
+                <option>Coating</option><option>Astringent</option><option>Chalky</option><option>Gritty</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dl-aft">Aftertaste</label>
+              <select id="dl-aft">
+                <option value="">—</option>
+                <option>Short</option><option>Medium</option><option>Long</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dl-milknote">Nota cu lapte <span class="hint">dacă e băutură cu lapte</span></label>
+              <select id="dl-milknote">
+                <option value="">—</option>
+                <option>Balanced</option><option>Coffee-forward</option><option>Milk-forward</option><option>Sweet</option>
+                <option>Creamy</option><option>Flat</option><option>Bitter finish</option><option>Thin</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="dl-flav">Arome <span class="hint">până la 3, separate prin virgulă</span></label>
+            <input type="text" id="dl-flav" maxlength="90" placeholder="ex. piersică, miere, mușcată">
+          </div>
+          <div class="field">
+            <label for="dl-notes">Observații</label>
+            <input type="text" id="dl-notes" maxlength="120" placeholder="ex. dial-in de referință">
+          </div>
+        </details>
         <button type="button" class="btn" id="dl-add">Adaugă încercarea</button>
         <div class="result-row" role="status" aria-live="polite" style="margin-top:14px">
           <div class="result-tile">
@@ -833,6 +923,14 @@
         <p><strong>Schimbă un singur parametru</strong> între două încercări — altfel nu știi ce a mișcat gustul. Râșnița e volanul principal; doza, ratio-ul și temperatura sunt reglaje fine.</p>
         <p><strong>Purjează</strong> după fiecare schimbare de măcinare: primele grame ies cu setarea veche. Iar când ai ajuns în țintă, <strong>notează setarea râșniței</strong> în numele cafelei (ex. „Etiopia Guji · râșnița 2,4”) și salvează dial-in-ul — mâine pornești de acolo, nu de la zero.</p>
       </div>
+    </div>
+    <div class="card explain" style="margin-top:18px">
+      <h4>Legenda evaluării senzoriale</h4>
+      <p><strong>Scorurile 1–6</strong> (dulce, aciditate, amăreală): 1 — neacceptabil (defect major) · 2 — slab (defecte clare) · 3 — mediu (acceptabil, fără personalitate) · 4 — bun (echilibrat, plăcut) · 5 — foarte bun (complex, memorabil) · 6 — excepțional (rar, fără defecte). Nota: la amăreală, un scor mic e de obicei de dorit.</p>
+      <p><strong>Tipul acidității:</strong> Malic — măr verde (spălate de altitudine) · Citric — lămâie, portocală · Tartaric — strugure, vinos · Fosforic — minerală, strălucitoare (Kenya) · Lactic — cremoasă, de iaurt (honey/anaerobe) · Acetic — ascuțită, de oțet (semn de fermentare scăpată).</p>
+      <p><strong>Textura:</strong> Smooth — fină, fără asperități · Creamy — cremoasă, densă · Velvety — catifelată · Silky — mătăsoasă · Juicy — suculentă, vie · Tea-like — corp subțire, transparent · Watery — prea subțire · Syrupy — densă, siropoasă · Coating — acoperă gura · Astringent — usucă, strânge · Chalky — cretată · Gritty — granulară.</p>
+      <p><strong>Aftertaste:</strong> Short — dispare rapid · Medium — persistă 5–15 s · Long — lung și plăcut, peste 15 s.</p>
+      <p><strong>Notele cu lapte:</strong> Balanced — cafeaua și laptele se completează · Coffee-forward — cafeaua conduce · Milk-forward — laptele domină · Sweet — dulceața naturală a laptelui bine texturat · Creamy — densă, bogată · Flat — fără caracter · Bitter finish — final amar (supraextracție sau lapte supraîncălzit) · Thin — textură slabă, sub-texturat.</p>
     </div>
   </section>
 
@@ -2385,6 +2483,31 @@
     return cur;
   }
 
+  function dlCoffeeDetails() {
+    return ["dl-origin", "dl-farm", "dl-variety", "dl-process", "dl-roaster"]
+      .map(function (id) { return $(id).value.trim(); })
+      .filter(Boolean).join(" · ");
+  }
+
+  function dlSensory() {
+    var v = function (id) { return $(id).value; };
+    var parts = [];
+    if (v("dl-sw")) parts.push("dulce " + v("dl-sw") + "/6");
+    if (v("dl-ac") || v("dl-actype")) {
+      parts.push("aciditate " + (v("dl-ac") ? v("dl-ac") + "/6" : "") +
+        (v("dl-actype") ? (v("dl-ac") ? " " : "") + "(" + v("dl-actype").toLowerCase() + ")" : ""));
+    }
+    if (v("dl-bit")) parts.push("amăreală " + v("dl-bit") + "/6");
+    if (v("dl-tex")) parts.push("textură " + v("dl-tex"));
+    var fl = $("dl-flav").value.trim();
+    if (fl) parts.push("arome: " + fl);
+    if (v("dl-aft")) parts.push("aftertaste " + v("dl-aft"));
+    if (v("dl-milknote")) parts.push("cu lapte: " + v("dl-milknote"));
+    var nt = $("dl-notes").value.trim();
+    if (nt) parts.push(nt);
+    return parts.join(" · ");
+  }
+
   function dlAttemptLine(a, i) {
     return "#" + (i + 1) + " · " + DL_TASTE[a.taste] +
       (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
@@ -2500,9 +2623,14 @@
         s.attempts.length + (s.attempts.length === 1 ? " încercare" : " încercări") +
         (s.done ? " · în țintă ✓" : " · în lucru")
       ));
+      if (s.details) {
+        d.appendChild(document.createElement("br"));
+        d.appendChild(document.createTextNode(s.details));
+      }
       s.attempts.forEach(function (a, i) {
         d.appendChild(document.createElement("br"));
-        d.appendChild(document.createTextNode(dlAttemptLine(a, i) + " → " + a.advice));
+        d.appendChild(document.createTextNode(dlAttemptLine(a, i) +
+          (a.sensory ? " · ✎ " + a.sensory : "") + " → " + a.advice));
       });
       box.appendChild(d);
     });
@@ -2540,6 +2668,10 @@
       var d = document.createElement("div");
       d.className = "dl-log-item";
       d.appendChild(document.createTextNode(dlAttemptLine(a, i)));
+      if (a.sensory) {
+        d.appendChild(document.createElement("br"));
+        d.appendChild(document.createTextNode("✎ " + a.sensory));
+      }
       d.appendChild(document.createElement("br"));
       d.appendChild(document.createTextNode("→ " + a.advice));
       box.appendChild(d);
@@ -2569,10 +2701,11 @@
     var profiled = r.method === "espresso" && $("dl-profiled").checked;
     var profile = profiled ? ($("dl-profile").value.trim() || "profilare folosită") : "";
     dlDone = !!adv.done;
-    var attempt = { ts: Date.now(), taste: taste, time: t, bev: bevIn, bars: bars, profile: profile, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals };
+    var attempt = { ts: Date.now(), taste: taste, time: t, bev: bevIn, bars: bars, profile: profile, ey: ey, advice: adv.text, water: w.summary, minerals: w.minerals, sensory: dlSensory() };
     dlAttempts.push(attempt);
     var sess = dlJournalSession(r, $("dl-coffee").value.trim() || "Cafea fără nume");
     sess.grinder = !$("dl-f-grinder").hidden ? $("dl-grinder").value : "";
+    sess.details = dlCoffeeDetails();
     sess.attempts.push(attempt);
     sess.done = dlDone;
     lsSet(DL_J_KEY, dlJournal);
@@ -2629,6 +2762,8 @@
     $("dl-coffee").value = "";
     $("dl-tds").value = "";
     $("dl-bev").value = "";
+    ["dl-origin", "dl-farm", "dl-variety", "dl-process", "dl-roaster", "dl-flav", "dl-notes"].forEach(function (id) { $(id).value = ""; });
+    ["dl-sw", "dl-ac", "dl-actype", "dl-bit", "dl-tex", "dl-aft", "dl-milknote"].forEach(function (id) { $(id).value = ""; });
     dlReset();
     $("dl-coffee").focus();
   });
@@ -3314,6 +3449,8 @@
         ["Metodă", (r.method === "espresso" ? "Espresso" : "Filtru") + " · prăjire " + roastSel.options[roastSel.selectedIndex].text.toLowerCase()],
         ["Pornire", fmt(r.dose, 1) + " g @ " + fmt(r.temp, 0) + " °C"]
       ];
+      var details = dlCoffeeDetails();
+      if (details) f.push(["Detalii cafea", details]);
       if (r.method === "espresso" && equipment.espressor) {
         f.push(["Espressor", equipment.espressor + (equipment.profiling ? " · cu pressure profiling" : "")]);
       }
@@ -3329,7 +3466,8 @@
             (a.time ? " · " + fmt(a.time, 0) + " s" : "") +
             (a.bars ? " · " + fmt(a.bars, 1) + " bar" : "") +
             (a.profile ? " · profil: " + a.profile : "") +
-            (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "")]);
+            (a.ey ? " · EY " + fmt(a.ey, 1) + " %" : "") +
+            (a.sensory ? " — " + a.sensory : "")]);
         });
         var last = dlAttempts[dlAttempts.length - 1];
         f.push(["Stadiu", dlDone ? "În țintă după " + dlAttempts.length + (dlAttempts.length === 1 ? " încercare" : " încercări") : "În lucru — " + last.advice]);
