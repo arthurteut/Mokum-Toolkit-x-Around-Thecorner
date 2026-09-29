@@ -7,6 +7,7 @@ Site-ul are două pagini:
   start și FAQ. Către această pagină direcționezi cafenelele.
 - **`app.html`** — aplicația propriu-zisă (toolkit-ul complet).
 - **`heat.html`** — jurnalul de bonuri al echipei Heat, în identitatea vizuală Heat.
+- **`research/`** — același jurnal, gata de publicat pe `research.heatfriedchicken.ro`, cu datele în Supabase-ul Heat (pașii în [`research/SETUP.md`](research/SETUP.md)). Se generează din `heat.html`; modificările de design se fac întâi acolo.
 
 Pentru publicare: GitHub Pages (Settings → Pages → branch → root); landing-ul
 se servește automat ca pagină principală, iar aplicația la `/app.html`.
