@@ -1,4 +1,4 @@
--- Heat · jurnal de bonuri (research.heatfriedchicken.ro)
+-- Heat · jurnal de bonuri (research.heatcertifried.ro)
 -- Rulează o singură dată în Supabase → SQL Editor → New query → Run.
 -- Creează echipa (lista de emailuri cu acces), jurnalul de bonuri și regulile de acces.
 

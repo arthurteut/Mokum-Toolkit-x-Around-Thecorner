@@ -1,4 +1,4 @@
-# research.heatfriedchicken.ro: punerea online
+# research.heatcertifried.ro: punerea online
 
 Jurnalul de bonuri Heat, pe domeniul Heat, cu datele în Supabase-ul Heat.
 Folderul `research/` e tot site-ul: `index.html`, `config.js`, `assets/`.
@@ -13,9 +13,9 @@ Durează ~30 de minute, o singură dată. Pașii 1–3 îi face cineva de la Hea
 
 ---
 
-## 1. Domeniul `heatfriedchicken.ro`
+## 1. Domeniul `heatcertifried.ro`
 
-În prezent domeniul **nu e înregistrat** (registrul .ro răspunde „domeniu
+Domeniul **încă nu e înregistrat** (registrul .ro răspunde „domeniu
 inexistent").
 
 1. Se cumpără de la un registrar acreditat ROTLD (ex. Romarg, Hostico,
@@ -39,8 +39,8 @@ inexistent").
 1. **Authentication → Sign In / Providers → Email**: trebuie să fie activ
    (e activ implicit).
 2. **Authentication → URL Configuration**:
-   - *Site URL*: `https://research.heatfriedchicken.ro`
-   - *Redirect URLs*: adaugă `https://research.heatfriedchicken.ro` și
+   - *Site URL*: `https://research.heatcertifried.ro`
+   - *Redirect URLs*: adaugă `https://research.heatcertifried.ro` și
      adresa temporară de la pasul 4 (ex. `https://heat-research.pages.dev`).
 3. **Recomandat: SMTP propriu** (Authentication → Emails → SMTP Settings).
    Serverul de email implicit al Supabase trimite doar câteva emailuri pe
@@ -68,11 +68,11 @@ numele și rolul la „Cine e pe teren?". Nu mai e nevoie de Supabase pentru ast
 
    Fiecare commit pe branch-ul principal republică automat pagina.
 
-## 5. Subdomeniul `research.heatfriedchicken.ro`
+## 5. Subdomeniul `research.heatcertifried.ro`
 
 1. În Cloudflare Pages (*Custom domains → Set up a domain*) sau Netlify
    (*Domain management → Add a domain*) scrie
-   `research.heatfriedchicken.ro`.
+   `research.heatcertifried.ro`.
 2. La registrarul domeniului, în panoul DNS, adaugă:
 
    | Tip   | Nume / Host | Valoare                                        | TTL  |
@@ -84,7 +84,7 @@ numele și rolul la „Cine e pe teren?". Nu mai e nevoie de Supabase pentru ast
 
 ## 6. Verificare
 
-- `https://research.heatfriedchicken.ro` se deschide în stilul Heat.
+- `https://research.heatcertifried.ro` se deschide în stilul Heat.
 - Adminul își introduce emailul, primește linkul, intră și vede
   „Echipa Heat · live".
 - Salvează un bon de probă, îl vede în tabul *Jurnal*, apoi îl șterge.
