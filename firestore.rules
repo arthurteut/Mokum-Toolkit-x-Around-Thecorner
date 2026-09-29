@@ -33,6 +33,13 @@ service cloud.firestore {
         allow delete: if isAdminOf(cafeId)
                       || (isMemberOf(cafeId) && resource.data.uid == request.auth.uid);
       }
+
+      // Jurnalul de bonuri Heat (research la concurență)
+      match /receipts/{receiptId} {
+        allow read, create: if isMemberOf(cafeId);
+        allow delete: if isAdminOf(cafeId)
+                      || (isMemberOf(cafeId) && resource.data.uid == request.auth.uid);
+      }
     }
 
     // Membrii (bariștii cu cont). Documentul are id-ul = uid-ul utilizatorului.

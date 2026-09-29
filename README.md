@@ -25,6 +25,20 @@ Excel, rescrise ca web app brand-uită Around The Corner, cu profile de bariști
 6. **Echilibru termic** — temperatura de echilibru apă + măcinătură.
 7. **Calculatorul de apă** — LSI (indicele Langelier, la 95/125 °C și temperatura aleasă), remineralizare cu concentrate (sare Epsom + bicarbonat) și conversia analizei minerale de pe eticheta apei îmbuteliate în GH/KH.
 
+## Heat · jurnal de bonuri (research concurență)
+
+Secțiunea **Heat · Bonuri** e jurnalul echipei Heat (brand Nashville hot chicken creat de Around The Corner): la fiecare vizită la un concurent se trec datele de pe bon — concurent, locație, dată și oră, nr. bon, casa de marcat, nr. raport Z, total, metoda de plată, produsele cu prețuri și observații (coadă, clienți în local, timp de așteptare, notă). Programul locației și tipul de numerotare se completează automat după prima vizită.
+
+Analizele se calculează live, filtrabile pe concurent și perioadă:
+
+- **Estimare vânzări** — din diferența numerelor de bon: bonuri/oră (două vizite în aceeași zi), bonuri/zi (numerotare continuă, împărțită la zilele din raportul Z, sau numerotare zilnică + program), încasări/zi și ~lunar (bonuri/zi × bonul mediu).
+- **Tipare pe timp** — hartă de căldură zi a săptămânii × oră, bonuri/oră pe ore, bonuri/zi pe zile ale săptămânii și pe luni.
+- **Comparație** — clasamentul locațiilor și tabel cu bon mediu, încasări, card vs. cash, coadă, așteptare, notă.
+- **Prețuri** — ultimul preț văzut pe produs și concurent, cu cel mai mic evidențiat și modificările de preț.
+- **Jurnal** — toate bonurile, cu export CSV (se deschide direct în Excel).
+
+Bonurile stau în același registru ca restul aplicației: local pe dispozitiv, sau partajat în contul cafenelei (`cafes/{id}/receipts` — necesită regulile actualizate din `firestore.rules`).
+
 Secțiunea **Statistici** arată completările per barist (clasament cu bare, defalcare pe tabele, ultima activitate), calculate live din registru.
 
 ## Profile & istoric
