@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Heat · Jurnal de bonuri</title>
+<meta name="description" content="Jurnalul de research al echipei Heat: bonurile de la concurență, cu estimare de vânzări pe oră, zi, săptămână și lună.">
+<link rel="icon" type="image/png" href="assets/heat/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,800;1,900&family=Barlow:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+  /* Heat — Red Heat #611923 · Black Rap #0D0D0D · Yellow Chicken #F0B823 · Cream Heat #F8F9F3 */
+  :root {
+    --red: #611923;
+    --red-deep: #4A121A;
+    --black: #0D0D0D;
+    --yellow: #F0B823;
+    --cream: #F8F9F3;
+
+    --bg: #F8F9F3;
+    --surface: #FFFFFF;
+    --surface-2: #EFEDE4;
+    --ink: #0D0D0D;
+    --ink-soft: #5F5A52;
+    --line: #E1DDD0;
+    --accent: #611923;
+    --accent-ink: #F8F9F3;
+    --data: #611923;
+    --tile: #F0B823;
+    --tile-ink: #0D0D0D;
+    --good: #2F6B35;
+    --bad: #A3402E;
+    --shadow: 0 2px 0 rgba(13, 13, 13, 0.9);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D0D0D;
+      --surface: #181615;
+      --surface-2: #27231F;
+      --ink: #F8F9F3;
+      --ink-soft: #B3ADA2;
+      --line: #36312B;
+      --accent: #F0B823;
+      --accent-ink: #0D0D0D;
+      --data: #F0B823;
+      --tile: #611923;
+      --tile-ink: #F8F9F3;
+      --good: #8FC886;
+      --bad: #E08A73;
+      --shadow: 0 2px 0 rgba(240, 184, 35, 0.55);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0D0D0D;
+    --surface: #181615;
+    --surface-2: #27231F;
+    --ink: #F8F9F3;
+    --ink-soft: #B3ADA2;
+    --line: #36312B;
+    --accent: #F0B823;
+    --accent-ink: #0D0D0D;
+    --data: #F0B823;
+    --tile: #611923;
+    --tile-ink: #F8F9F3;
+    --good: #8FC886;
+    --bad: #E08A73;
+    --shadow: 0 2px 0 rgba(240, 184, 35, 0.55);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Barlow", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  h1, h2, h3, .cond {
+    font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+    font-weight: 900; line-height: 0.95; margin: 0;
+    text-transform: uppercase; letter-spacing: 0.005em;
+  }
+  a { color: var(--accent); }
+  button { font: inherit; cursor: pointer; }
+  input, select, textarea { font: inherit; color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; border-radius: 4px; }
+  .wrap { max-width: 1100px; margin-inline: auto; padding-inline: 16px; }
+
+  /* ── Header ── */
+  .site-header { background: var(--red); color: var(--cream); position: sticky; top: 0; z-index: 40; }
+  @media (max-width: 700px) {
+    .site-header { position: static; }
+    .header-tag { display: none; }
+    .logo { height: 46px; }
+  }
+  .header-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-block: 10px; flex-wrap: wrap; }
+  .logo { display: block; height: 58px; width: auto; }
+  .header-tag {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--cream);
+  }
+  .main-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+  .main-nav a {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 15px;
+    text-transform: uppercase; letter-spacing: 0.06em; text-decoration: none;
+    color: var(--cream); border: 2px solid rgba(248, 249, 243, 0.35); border-radius: 999px; padding: 3px 14px;
+  }
+  .main-nav a:hover { background: var(--yellow); border-color: var(--yellow); color: var(--black); }
+
+  /* Banda „Feel the heat" */
+  .tape {
+    background: var(--yellow); color: var(--red); overflow: hidden; white-space: nowrap;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-size: 13px;
+    letter-spacing: 0.16em; text-transform: uppercase; padding-block: 5px;
+    border-block: 2px solid var(--black);
+  }
+  .tape > span { display: inline-flex; align-items: center; gap: 12px; margin-right: 12px; }
+  .tape img { height: 15px; width: auto; }
+  .chevrons {
+    height: 22px;
+    background:
+      linear-gradient(135deg, var(--red) 25%, transparent 25%) -11px 0,
+      linear-gradient(225deg, var(--red) 25%, transparent 25%) -11px 0,
+      linear-gradient(315deg, var(--red) 25%, transparent 25%),
+      linear-gradient(45deg, var(--red) 25%, transparent 25%);
+    background-size: 22px 22px;
+    background-color: var(--yellow);
+  }
+
+  /* ── Hero ── */
+  .hero { padding-block: 34px 10px; }
+  .eyebrow {
+    display: inline-block; background: var(--black); color: var(--yellow);
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 13px;
+    letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 12px; border-radius: 6px; margin-bottom: 14px;
+  }
+  .hero h1 { font-size: clamp(44px, 9vw, 92px); font-style: italic; color: var(--accent); }
+  .hero h1 .marker {
+    display: block; font-family: "Permanent Marker", cursive; font-style: normal; font-weight: 400;
+    text-transform: none; font-size: 0.4em; line-height: 1.2; color: var(--ink); transform: rotate(-2deg); transform-origin: left; margin: 8px 0 10px;
+  }
+  .hero p { max-width: 62ch; color: var(--ink-soft); font-size: 17px; margin: 14px 0 0; }
+
+  /* ── Carduri ── */
+  .block { padding-block: 22px; }
+  .card {
+    background: var(--surface); border: 2px solid var(--black); border-radius: 20px;
+    padding: 20px; box-shadow: 4px 4px 0 var(--black);
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .card { border-color: var(--line); box-shadow: none; } }
+  :root[data-theme="dark"] .card { border-color: var(--line); box-shadow: none; }
+  .card-title { font-size: 30px; font-style: italic; color: var(--accent); margin-bottom: 14px; }
+  .kicker {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 13px;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft);
+  }
+
+  /* Profiluri */
+  .team-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .team-head h2 { font-size: 26px; font-style: italic; color: var(--accent); }
+  .sync-pill {
+    display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 12px;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    background: var(--surface-2); color: var(--ink-soft);
+  }
+  .sync-pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .sync-pill.live { background: var(--yellow); color: var(--black); }
+  .hint-line { font-size: 14px; color: var(--ink-soft); margin: 6px 0 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--line); background: var(--bg);
+    color: var(--ink); border-radius: 999px; padding: 4px 14px 4px 4px; font-weight: 700; font-size: 14px;
+  }
+  .chip .avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2);
+    display: grid; place-items: center; font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-size: 14px;
+  }
+  .chip .role { font-weight: 400; font-size: 12px; opacity: 0.75; }
+  .chip[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: var(--cream); }
+  .chip[aria-pressed="true"] .avatar { background: var(--yellow); color: var(--black); }
+  .inline-form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; align-items: end; }
+  .inline-form .field { margin: 0; flex: 1 1 170px; }
+  .linkish { background: none; border: none; padding: 0; color: var(--ink-soft); font-size: 13px; text-decoration: underline; }
+
+  /* Formular */
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+  .field label { font-weight: 700; font-size: 14px; }
+  .field .hint { font-weight: 400; font-size: 12px; color: var(--ink-soft); }
+  .field input, .field select, .field textarea, .item-row input {
+    background: var(--bg); border: 2px solid var(--line); border-radius: 10px;
+    padding: 9px 12px; font-variant-numeric: tabular-nums; min-width: 0;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus, .item-row input:focus { border-color: var(--accent); outline: none; }
+  .field textarea { min-height: 70px; resize: vertical; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 14px; }
+  .fs { border: none; padding: 0; margin: 0 0 8px; }
+  .fs + .fs { border-top: 2px dashed var(--line); padding-top: 14px; }
+  .fs legend {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-size: 17px; font-style: italic;
+    letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink); padding: 0; margin-bottom: 10px;
+  }
+  .fs legend b { color: var(--accent); margin-right: 6px; }
+  .items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .item-row { display: grid; grid-template-columns: 1fr 70px 110px 32px; gap: 8px; align-items: center; }
+  .item-row button { background: none; border: none; color: var(--ink-soft); font-size: 20px; line-height: 1; padding: 0; }
+  @media (max-width: 480px) { .item-row { grid-template-columns: 1fr 54px 84px 24px; } }
+  .btn {
+    background: var(--accent); color: var(--accent-ink); border: 2px solid var(--black); border-radius: 12px;
+    padding: 10px 22px; font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-style: italic;
+    font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase; box-shadow: 3px 3px 0 var(--black);
+  }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--black); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--black); }
+  .btn-yellow { background: var(--yellow); color: var(--black); }
+  .feedback { font-size: 14px; margin-top: 10px; min-height: 20px; }
+  .feedback.ok { color: var(--good); font-weight: 700; }
+  .feedback.err { color: var(--bad); font-weight: 700; }
+
+  /* Tile-uri */
+  .result-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .result-tile { background: var(--tile); color: var(--tile-ink); border-radius: 16px; padding: 13px 16px; }
+  .result-tile .label {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 13px;
+    letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8;
+  }
+  .result-tile .value {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-style: italic;
+    font-size: 38px; line-height: 1.05; font-variant-numeric: tabular-nums;
+  }
+  .result-tile .value small { font-size: 16px; font-weight: 700; font-style: normal; opacity: 0.8; }
+  .tiles-top .result-tile:nth-child(odd) { background: var(--red); color: var(--cream); }
+  .tiles-top .result-tile:nth-child(even) { background: var(--yellow); color: var(--black); }
+
+  /* Filtre & taburi */
+  .heat-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+  .heat-filters .field { margin: 0; flex: 1 1 180px; max-width: 280px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .tabs button {
+    border: 2px solid var(--black); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 16px;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs button { border-color: var(--line); } }
+  :root[data-theme="dark"] .tabs button { border-color: var(--line); }
+  .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .heat-sub { font-size: 20px; font-style: italic; margin: 24px 0 10px; }
+  .heat-panel > .heat-sub:first-child, .heat-cols .heat-sub { margin-top: 0; }
+
+  /* Tabele */
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 13px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap;
+  }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.best { color: var(--good); font-weight: 700; }
+  .table-scroll { overflow-x: auto; }
+  .table-scroll table { min-width: 640px; }
+  .he-delete { background: none; border: none; padding: 0; color: var(--ink-soft); font-size: 13px; text-decoration: underline; }
+
+  /* Grafice */
+  .heat-map { display: grid; gap: 3px; font-size: 12px; font-variant-numeric: tabular-nums; min-width: 560px; }
+  .heat-map .hm-lab { color: var(--ink-soft); font-weight: 700; display: grid; place-items: center; padding: 2px 0; }
+  .heat-map .hm-row { place-items: center start; font-family: "Barlow Condensed", sans-serif; font-weight: 800; text-transform: uppercase; }
+  .heat-map .hm-cell { height: 28px; border-radius: 4px; background: var(--surface-2); }
+  .heat-map .hm-cell:hover { outline: 2px solid var(--ink); outline-offset: -1px; }
+  .heat-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: 12.5px; color: var(--ink-soft); }
+  .heat-legend .ramp { display: flex; gap: 2px; }
+  .heat-legend .ramp i { width: 22px; height: 10px; border-radius: 2px; display: block; }
+  .heat-bars { display: flex; flex-direction: column; gap: 7px; }
+  .heat-bar { display: grid; grid-template-columns: minmax(70px, 150px) 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+  .heat-bar .hb-lab { font-weight: 700; overflow-wrap: anywhere; }
+  .heat-bar .hb-track { height: 14px; background: var(--surface-2); border-radius: 0 4px 4px 0; overflow: hidden; }
+  .heat-bar .hb-fill { height: 100%; background: var(--data); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .heat-bar .hb-val {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-size: 17px;
+    font-variant-numeric: tabular-nums; min-width: 7ch; text-align: right;
+  }
+  .heat-bar .hb-val small { font-family: "Barlow", sans-serif; font-weight: 400; font-size: 12px; color: var(--ink-soft); }
+  .heat-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 26px; }
+  .heat-tip {
+    position: fixed; z-index: 60; pointer-events: none; white-space: pre-line;
+    background: var(--black); color: var(--cream); border: 2px solid var(--yellow); border-radius: 10px;
+    padding: 6px 10px; font-size: 13px; line-height: 1.4; max-width: 250px;
+  }
+  .heat-empty { color: var(--ink-soft); font-size: 15px; }
+  .profile-hint { font-size: 13px; color: var(--ink-soft); }
+  .history-actions { margin-top: 14px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .note {
+    margin-top: 16px; background: var(--surface-2); border-left: 5px solid var(--yellow);
+    border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: var(--ink-soft);
+  }
+  .note strong { color: var(--ink); }
+
+  /* Footer */
+  .site-footer { background: var(--black); color: var(--cream); margin-top: 40px; }
+  .site-footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 24px; }
+  .site-footer img { height: 44px; width: auto; display: block; }
+  .site-footer .marker { font-family: "Permanent Marker", cursive; color: var(--yellow); font-size: 22px; transform: rotate(-2deg); }
+  .site-footer a { color: var(--cream); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a href="#top" aria-label="Heat — Fried Chicken"><img class="logo" src="assets/heat/heat-logo-red.png" alt="Heat Fried Chicken" width="422" height="199"></a>
+    <span class="header-tag">Hotter, more vibes, lots of flavor</span>
+    <nav class="main-nav" aria-label="Navigare">
+      <a href="#echipa">Echipa</a>
+      <a href="#bon">Bon nou</a>
+      <a href="#analize">Analize</a>
+      <a href="app.html">Toolkit ↗</a>
+    </nav>
+  </div>
+  <div class="tape" aria-hidden="true" id="tape"></div>
+</header>
+
+<main id="heat">
+  <section class="hero wrap" id="top">
+    <span class="eyebrow">Research concurență · Bring the heat</span>
+    <h1>Jurnal de bonuri<span class="marker">Feel the heat — știm cât vând ceilalți.</span></h1>
+    <p>La fiecare vizită la un concurent, trece aici datele de pe bon. Din numerele de bon, ore și zile, jurnalul estimează câte bonuri scoate fiecare concurent pe oră și pe zi, când are vârf, ce prețuri are și cât încasează.</p>
+  </section>
+
+  <section class="block wrap">
+    <div class="result-row tiles-top" role="status" aria-live="polite">
+      <div class="result-tile"><div class="label">Bonuri în jurnal</div><div class="value" id="ht-total">0</div></div>
+      <div class="result-tile"><div class="label">Locații urmărite</div><div class="value" id="ht-locs">0</div></div>
+      <div class="result-tile"><div class="label">Vizite · ultimele 7 zile</div><div class="value" id="ht-week">0</div></div>
+      <div class="result-tile"><div class="label">Bon mediu la concurență</div><div class="value" id="ht-avg">—</div></div>
+    </div>
+  </section>
+
+  <section class="block wrap" id="echipa" aria-labelledby="team-title">
+    <div class="card">
+      <div class="team-head">
+        <h2 id="team-title">Cine e pe teren?</h2>
+        <span class="sync-pill" id="sync-status">Registru local</span>
+      </div>
+      <p class="hint-line" id="team-hint">Profilul activ semnează fiecare bon. Profilurile sunt aceleași ca în toolkit-ul Around The Corner.</p>
+
+      <div id="acc-box" hidden>
+        <form class="inline-form" id="acc-login-form">
+          <div class="field">
+            <label for="al-email">Email</label>
+            <input type="email" id="al-email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="al-pass">Parolă</label>
+            <input type="password" id="al-pass" autocomplete="current-password" required minlength="6">
+          </div>
+          <button type="submit" class="btn btn-yellow">Intră în cont</button>
+        </form>
+        <p class="hint-line">Invitat prin email? Activează-ți contul o dată din <a href="app.html#profil">toolkit</a>, apoi ești conectat automat și aici.</p>
+        <div id="acc-signedin" hidden class="hint-line">☑ <strong id="acc-name">—</strong> · <span id="acc-email">—</span> · <button type="button" class="linkish" id="acc-logout">Ieși din cont</button></div>
+        <div class="feedback" id="acc-feedback" aria-live="polite"></div>
+      </div>
+
+      <div class="chips" id="profile-chips" role="group" aria-label="Profiluri"></div>
+      <form class="inline-form" id="profile-form">
+        <div class="field">
+          <label for="p-name">Coleg nou</label>
+          <input type="text" id="p-name" placeholder="ex. Andrei" maxlength="30" required>
+        </div>
+        <div class="field">
+          <label for="p-role">Rol</label>
+          <select id="p-role">
+            <option>Research</option>
+            <option>Manager</option>
+            <option>Crew</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">Adaugă</button>
+      </form>
+      <button type="button" class="linkish" id="profile-remove" style="margin-top:10px" hidden></button>
+    </div>
+  </section>
+
+  <div class="chevrons" aria-hidden="true"></div>
+
+  <section class="block wrap" id="bon" aria-labelledby="bon-title">
+    <div class="card">
+      <h2 class="card-title" id="bon-title">Adaugă un bon</h2>
+      <form id="heat-form" novalidate>
+        <fieldset class="fs">
+          <legend><b>01</b>Unde și când</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label for="hr-comp">Concurent</label>
+              <input type="text" id="hr-comp" list="hr-comp-list" maxlength="60" required placeholder="ex. Hot Chick">
+              <datalist id="hr-comp-list"></datalist>
+            </div>
+            <div class="field">
+              <label for="hr-loc">Locație</label>
+              <input type="text" id="hr-loc" list="hr-loc-list" maxlength="80" required placeholder="ex. Mall Băneasa">
+              <datalist id="hr-loc-list"></datalist>
+            </div>
+            <div class="field">
+              <label for="hr-date">Data de pe bon</label>
+              <input type="date" id="hr-date" required>
+            </div>
+            <div class="field">
+              <label for="hr-time">Ora de pe bon</label>
+              <input type="time" id="hr-time" required>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fs">
+          <legend><b>02</b>Bonul</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label for="hr-nr">Nr. bon</label>
+              <input type="number" id="hr-nr" min="0" step="1" inputmode="numeric" required>
+            </div>
+            <div class="field">
+              <label for="hr-reg">Casa de marcat <span class="hint">opțional</span></label>
+              <input type="text" id="hr-reg" maxlength="40" placeholder="ex. Casa 1 / cod fiscal">
+            </div>
+            <div class="field">
+              <label for="hr-z">Nr. raport Z <span class="hint">opțional</span></label>
+              <input type="number" id="hr-z" min="0" step="1" inputmode="numeric">
+            </div>
+            <div class="field">
+              <label for="hr-total">Total bon <span class="hint">lei</span></label>
+              <input type="number" id="hr-total" min="0" step="0.01" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="hr-pay">Metodă de plată</label>
+              <select id="hr-pay">
+                <option value="card">Card</option>
+                <option value="cash">Cash</option>
+                <option value="tichete">Tichete / voucher</option>
+                <option value="app">Aplicație (Glovo, Wolt…)</option>
+                <option value="altul">Altul</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fs">
+          <legend><b>03</b>Produse & prețuri</legend>
+          <div class="items" id="hr-items"></div>
+          <button type="button" class="linkish" id="hr-add-item">+ Adaugă produs</button>
+          <p class="profile-hint" id="hr-items-sum" style="margin:6px 0 0"></p>
+        </fieldset>
+
+        <fieldset class="fs">
+          <legend><b>04</b>Locația <span class="hint" style="font-style:normal;text-transform:none;letter-spacing:0;font-family:Barlow,sans-serif;font-size:13px;font-weight:400">— se completează automat după prima vizită</span></legend>
+          <div class="form-grid">
+            <div class="field">
+              <label for="hr-open">Deschide la</label>
+              <input type="time" id="hr-open">
+            </div>
+            <div class="field">
+              <label for="hr-close">Închide la</label>
+              <input type="time" id="hr-close">
+            </div>
+            <div class="field">
+              <label for="hr-numbering">Numerotarea bonurilor</label>
+              <select id="hr-numbering">
+                <option value="auto">Nu știu — detectează automat</option>
+                <option value="reset">Pornește de la 1 în fiecare zi</option>
+                <option value="cont">Continuă de la o zi la alta</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fs">
+          <legend><b>05</b>Observații din vizită</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label for="hr-queue">Coadă la comandă</label>
+              <select id="hr-queue">
+                <option value="">—</option>
+                <option value="0">Fără coadă</option>
+                <option value="1">Mică (1–3 pers.)</option>
+                <option value="2">Medie (4–8 pers.)</option>
+                <option value="3">Mare (peste 8)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="hr-people">Clienți în local</label>
+              <input type="number" id="hr-people" min="0" step="1" inputmode="numeric">
+            </div>
+            <div class="field">
+              <label for="hr-rating">Nota produsului</label>
+              <select id="hr-rating">
+                <option value="">—</option>
+                <option value="1">1 · slab</option>
+                <option value="2">2</option>
+                <option value="3">3 · ok</option>
+                <option value="4">4</option>
+                <option value="5">5 · excelent</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="hr-wait">Timp de așteptare <span class="hint">minute</span></label>
+              <input type="number" id="hr-wait" min="0" step="1" inputmode="numeric">
+            </div>
+          </div>
+          <div class="field">
+            <label for="hr-notes">Note</label>
+            <textarea id="hr-notes" maxlength="600" placeholder="personal, promoții, meniu nou, curățenie, ambalaje…"></textarea>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn" id="hr-save">Salvează bonul</button>
+        <div class="feedback" id="hr-feedback" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="block wrap" id="analize" aria-labelledby="analize-title">
+    <div class="card">
+      <h2 class="card-title" id="analize-title">Analize</h2>
+      <div class="heat-filters">
+        <div class="field">
+          <label for="hf-comp">Concurent</label>
+          <select id="hf-comp"><option value="">Toți concurenții</option></select>
+        </div>
+        <div class="field">
+          <label for="hf-period">Perioadă</label>
+          <select id="hf-period"><option value="">Toată perioada</option></select>
+        </div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Analize jurnal">
+        <button type="button" role="tab" aria-selected="true" data-htab="sales">Estimare vânzări</button>
+        <button type="button" role="tab" aria-selected="false" data-htab="time">Tipare pe timp</button>
+        <button type="button" role="tab" aria-selected="false" data-htab="compare">Comparație</button>
+        <button type="button" role="tab" aria-selected="false" data-htab="prices">Prețuri</button>
+        <button type="button" role="tab" aria-selected="false" data-htab="log">Jurnal</button>
+      </div>
+
+      <div class="heat-panel" data-hpanel="sales" role="tabpanel"></div>
+      <div class="heat-panel" data-hpanel="time" role="tabpanel" hidden></div>
+      <div class="heat-panel" data-hpanel="compare" role="tabpanel" hidden></div>
+      <div class="heat-panel" data-hpanel="prices" role="tabpanel" hidden></div>
+      <div class="heat-panel" data-hpanel="log" role="tabpanel" hidden>
+        <div id="hl-list"></div>
+        <div class="history-actions">
+          <span class="profile-hint" id="hl-count"></span>
+          <button type="button" class="btn btn-yellow" id="hl-export" style="font-size:16px;padding:6px 16px">Exportă CSV (Excel)</button>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Cum se calculează.</strong> Numărul de bon e un contor: diferența dintre două bonuri de la aceeași casă
+        arată câte bonuri s-au emis între ele. Două vizite în aceeași zi → <strong>bonuri/oră</strong>.
+        Dacă numerotarea pornește de la 1 zilnic, un singur bon + ora deschiderii dau bonurile de la deschidere până la vizită,
+        iar cu ora închiderii jurnalul extrapolează toată ziua. Dacă numerotarea continuă, două zile diferite dau
+        <strong>bonuri/zi</strong> (cu raportul Z, împărțim la zilele reale de funcționare). Încasările = bonuri/zi × bonul mediu
+        pe care l-ați plătit voi — e o estimare, nu o cifră exactă. Cu cât mai multe vizite, la ore diferite, cu atât mai precis.
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="chevrons" aria-hidden="true"></div>
+<footer class="site-footer">
+  <div class="wrap">
+    <img src="assets/heat/heat-logo-red.png" alt="Heat Fried Chicken" width="422" height="199" style="background:var(--red);border-radius:10px;padding:4px 8px">
+    <span class="marker">Fried chicken done right.</span>
+    <a href="app.html">← Toolkit Around The Corner</a>
+  </div>
+</footer>
+
+<script src="assets/firebase-config.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  function fmt(n, dec) {
+    if (!isFinite(n)) return "—";
+    var d = dec === undefined ? 1 : dec;
+    return n.toLocaleString("ro-RO", { minimumFractionDigits: 0, maximumFractionDigits: d });
+  }
+  function lsGet(key) {
+    try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
+    catch (e) { return null; }
+  }
+  function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* sesiune fără memorie */ }
+  }
+
+  // Banda „Feel the heat"
+  (function () {
+    var tape = $("tape");
+    for (var i = 0; i < 14; i++) {
+      var s = document.createElement("span");
+      ["Feel the heat", "×", null, "×"].forEach(function (t) {
+        if (t === null) {
+          var img = document.createElement("img");
+          img.src = "assets/heat/ht-monogram.png"; img.alt = "";
+          s.appendChild(img);
+        } else {
+          var w = document.createElement("span"); w.textContent = t; s.appendChild(w);
+        }
+      });
+      tape.appendChild(s);
+    }
+  })();
+
+  /* ═══ Profiluri — aceleași chei ca în toolkit (app.html) ═══ */
+  var P_KEY = "atc-baristas", P_ACTIVE = "atc-active-barista";
+  var shared = false, db = null;
+  var cloudActive = false, cloudUid = null;
+
+  var profiles = lsGet(P_KEY) || [];
+  var activeId = (function () {
+    var a = lsGet(P_ACTIVE);
+    return profiles.some(function (p) { return p.id === a; }) ? a : profiles[0] && profiles[0].id;
+  })();
+
+  function writeError(fb, e) {
+    if (!fb) return;
+    fb.textContent = (e && (e.code === "invalid_argument" || e.code === "not_granted" || e.code === "permission-denied"))
+      ? "Nu ai drepturi de scriere în registrul partajat."
+      : "Nu s-a putut salva — încearcă din nou.";
+    fb.className = "feedback err";
+  }
+  function initials(name) {
+    return name.trim().split(/\s+/).slice(0, 2).map(function (w) { return w[0] ? w[0].toUpperCase() : ""; }).join("");
+  }
+  function activeProfile() {
+    return profiles.find(function (p) { return p.id === activeId; }) || null;
+  }
+  function setSyncStatus(live, label) {
+    var pill = $("sync-status");
+    pill.textContent = label;
+    pill.className = "sync-pill" + (live ? " live" : "");
+  }
+
+  var chipsBox = $("profile-chips"), removeBtn = $("profile-remove");
+  function renderProfiles() {
+    chipsBox.innerHTML = "";
+    if (!profiles.length) {
+      var p = document.createElement("p");
+      p.className = "heat-empty";
+      p.textContent = "Niciun profil încă — adaugă-te mai jos ca să poți semna bonurile.";
+      chipsBox.appendChild(p);
+    }
+    profiles.forEach(function (prof) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.setAttribute("aria-pressed", prof.id === activeId ? "true" : "false");
+      var av = document.createElement("span");
+      av.className = "avatar"; av.setAttribute("aria-hidden", "true");
+      av.textContent = initials(prof.name);
+      var nm = document.createElement("span"); nm.textContent = prof.name;
+      var rl = document.createElement("span"); rl.className = "role"; rl.textContent = prof.role;
+      b.appendChild(av); b.appendChild(nm); b.appendChild(rl);
+      b.addEventListener("click", function () {
+        if (cloudActive) return;
+        activeId = prof.id;
+        lsSet(P_ACTIVE, activeId);
+        renderProfiles();
+      });
+      chipsBox.appendChild(b);
+    });
+    $("profile-form").hidden = cloudActive;
+    removeBtn.hidden = !activeProfile() || cloudActive;
+    removeBtn.textContent = activeProfile() ? "Șterge profilul „" + activeProfile().name + "”" : "";
+  }
+
+  $("profile-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("p-name").value.trim();
+    if (!name) return;
+    var role = $("p-role").value;
+    if (shared) {
+      db.collection("baristas").add({ name: name, role: role, createdAt: Date.now() })
+        .then(function (ref) { activeId = ref.id; lsSet(P_ACTIVE, activeId); $("p-name").value = ""; })
+        .catch(function (err) { alert("Nu s-a putut adăuga profilul: " + (err && err.message || "eroare")); });
+      return;
+    }
+    var prof = { id: "p" + Date.now(), name: name, role: role };
+    profiles.push(prof);
+    activeId = prof.id;
+    lsSet(P_KEY, profiles); lsSet(P_ACTIVE, activeId);
+    $("p-name").value = "";
+    renderProfiles();
+  });
+
+  removeBtn.addEventListener("click", function () {
+    var prof = activeProfile();
+    if (!prof || cloudActive) return;
+    if (!confirm("Ștergi profilul „" + prof.name + "”? Bonurile semnate de el rămân.")) return;
+    if (shared) {
+      db.doc("baristas/" + prof.id).delete()
+        .catch(function (err) { alert("Nu s-a putut șterge profilul: " + (err && err.message || "eroare")); });
+      return;
+    }
+    profiles = profiles.filter(function (p) { return p.id !== prof.id; });
+    activeId = profiles[0] && profiles[0].id;
+    lsSet(P_KEY, profiles); lsSet(P_ACTIVE, activeId || "");
+    renderProfiles();
+  });
+
+  /* ═══ Heat · jurnal de bonuri de la concurență ═══ */
+  var R_KEY = "atc-heat-receipts";
+  var DOW = ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"];
+  var DOW_LONG = ["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"];
+  var MONTHS_LONG = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+  var PAY_NAMES = { card: "Card", cash: "Cash", tichete: "Tichete", app: "Aplicație", altul: "Altul" };
+  var QUEUE_NAMES = ["fără coadă", "coadă mică", "coadă medie", "coadă mare"];
+  var MODE_NAMES = { reset: "pornește de la 1 zilnic", cont: "continuă", unknown: "necunoscută" };
+
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function isoDate(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+  function hhmm(d) { return pad2(d.getHours()) + ":" + pad2(d.getMinutes()); }
+  function keyOf(s) { return String(s || "").trim().toLowerCase().replace(/\s+/g, " "); }
+  function optNum(v) { if (v === "" || v === null || v === undefined) return null; var n = parseFloat(v); return isFinite(n) ? n : null; }
+  function toMin(t) {
+    if (!t || !/^\d{1,2}:\d{2}/.test(t)) return null;
+    var p = t.split(":");
+    return (+p[0]) * 60 + (+p[1]);
+  }
+  function dayStart(dateStr) { return new Date(dateStr + "T00:00:00").getTime(); }
+  function dowOf(dateStr) { return (new Date(dateStr + "T12:00:00").getDay() + 6) % 7; }
+  function lei(n, dec) { return n !== null && isFinite(n) ? fmt(n, dec === undefined ? 0 : dec) + " lei" : "—"; }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined && text !== null) e.textContent = text;
+    return e;
+  }
+
+  function normReceipt(id, b) {
+    b = b || {};
+    var date = /^\d{4}-\d{2}-\d{2}$/.test(b.date) ? b.date : isoDate(new Date(b.ts || 0));
+    var time = /^\d{1,2}:\d{2}$/.test(b.time) ? (b.time.length === 4 ? "0" + b.time : b.time) : "00:00";
+    return {
+      id: id,
+      ts: new Date(date + "T" + time + ":00").getTime(),
+      date: date, time: time,
+      comp: String(b.comp || "—").trim(), loc: String(b.loc || "—").trim(), reg: String(b.reg || "").trim(),
+      nr: optNum(b.nr), z: optNum(b.z), total: optNum(b.total), pay: String(b.pay || ""),
+      items: Array.isArray(b.items) ? b.items.map(function (it) {
+        return { n: String(it && it.n || "").trim(), q: optNum(it && it.q) || 1, p: optNum(it && it.p) };
+      }).filter(function (it) { return it.n; }) : [],
+      open: String(b.open || ""), close: String(b.close || ""),
+      numbering: b.numbering === "reset" || b.numbering === "cont" ? b.numbering : "auto",
+      queue: optNum(b.queue), people: optNum(b.people), rating: optNum(b.rating), wait: optNum(b.wait),
+      notes: String(b.notes || ""), by: String(b.by || "—"), uid: b.uid || null
+    };
+  }
+  function loadLocalReceipts() {
+    return (lsGet(R_KEY) || []).map(function (r) { return normReceipt(r.id, r); });
+  }
+  var receipts = loadLocalReceipts();
+  var unsubReceipts = null;
+
+  function heatUnsubscribe() {
+    if (typeof unsubReceipts === "function") unsubReceipts();
+    unsubReceipts = null;
+  }
+  function heatSubscribe() {
+    heatUnsubscribe();
+    receipts = [];
+    renderHeat();
+    var ref = db && db.collection("receipts");
+    if (!ref) return;
+    unsubReceipts = ref.orderBy("ts", "desc").limit(2000).onSnapshot(function (snap) {
+      receipts = snap.docs.map(function (d) { return normReceipt(d.id, d.data()); });
+      renderHeat();
+    }, function () {
+      var fb = $("hr-feedback");
+      fb.textContent = "Jurnalul partajat nu poate fi citit — actualizează regulile Firestore (vezi SETUP-CONTURI.md).";
+      fb.className = "feedback err";
+    });
+  }
+
+  /* ── Formular ── */
+  var itemsBox = $("hr-items");
+  function addItemRow(n, q, p) {
+    var row = el("div", "item-row");
+    var iN = el("input"); iN.type = "text"; iN.placeholder = "Produs (ex. Sandwich Hot)"; iN.maxLength = 60;
+    iN.setAttribute("list", "hr-item-list"); iN.setAttribute("aria-label", "Produs"); iN.value = n || "";
+    var iQ = el("input"); iQ.type = "number"; iQ.min = "1"; iQ.step = "1"; iQ.value = q || 1; iQ.setAttribute("aria-label", "Cantitate");
+    var iP = el("input"); iP.type = "number"; iP.min = "0"; iP.step = "0.01"; iP.placeholder = "lei/buc"; iP.setAttribute("aria-label", "Preț unitar în lei");
+    if (p !== undefined && p !== null) iP.value = p;
+    var rm = el("button", "", "×"); rm.type = "button"; rm.setAttribute("aria-label", "Scoate produsul");
+    rm.addEventListener("click", function () { row.remove(); updateItemsSum(); });
+    [iQ, iP].forEach(function (i) { i.addEventListener("input", updateItemsSum); });
+    row.appendChild(iN); row.appendChild(iQ); row.appendChild(iP); row.appendChild(rm);
+    itemsBox.appendChild(row);
+    return iN;
+  }
+  function readItems() {
+    var out = [];
+    itemsBox.querySelectorAll(".item-row").forEach(function (row) {
+      var ins = row.querySelectorAll("input");
+      var n = ins[0].value.trim();
+      if (!n) return;
+      out.push({ n: n, q: optNum(ins[1].value) || 1, p: optNum(ins[2].value) });
+    });
+    return out;
+  }
+  function updateItemsSum() {
+    var items = readItems(), sum = 0, any = false;
+    items.forEach(function (it) { if (it.p !== null) { sum += it.p * it.q; any = true; } });
+    $("hr-items-sum").textContent = any ? "Suma produselor: " + lei(sum, 2) + (optNum($("hr-total").value) === null ? " — o poți folosi ca total." : "") : "";
+  }
+  $("hr-add-item").addEventListener("click", function () { addItemRow().focus(); });
+  $("hr-total").addEventListener("input", updateItemsSum);
+  var itemList = el("datalist"); itemList.id = "hr-item-list"; document.body.appendChild(itemList);
+
+  function resetHeatForm(keepPlace) {
+    var now = new Date();
+    $("hr-date").value = isoDate(now);
+    $("hr-time").value = hhmm(now);
+    ["hr-nr", "hr-z", "hr-total", "hr-people", "hr-wait", "hr-notes"].forEach(function (id) { $(id).value = ""; });
+    ["hr-queue", "hr-rating"].forEach(function (id) { $(id).value = ""; });
+    if (!keepPlace) {
+      ["hr-comp", "hr-loc", "hr-reg", "hr-open", "hr-close"].forEach(function (id) { $(id).value = ""; });
+      $("hr-numbering").value = "auto";
+    }
+    itemsBox.innerHTML = "";
+    addItemRow();
+    updateItemsSum();
+  }
+
+  // Programul, casa și numerotarea se preiau de la ultima vizită în aceeași locație.
+  function autofillPlace() {
+    var c = keyOf($("hr-comp").value), l = keyOf($("hr-loc").value);
+    refreshLocList();
+    if (!c || !l) return;
+    var last = null;
+    receipts.forEach(function (r) {
+      if (keyOf(r.comp) === c && keyOf(r.loc) === l && (!last || r.ts > last.ts)) last = r;
+    });
+    if (!last) return;
+    if (!$("hr-open").value && last.open) $("hr-open").value = last.open;
+    if (!$("hr-close").value && last.close) $("hr-close").value = last.close;
+    if (!$("hr-reg").value && last.reg) $("hr-reg").value = last.reg;
+    if ($("hr-numbering").value === "auto" && last.numbering !== "auto") $("hr-numbering").value = last.numbering;
+  }
+  function refreshLocList() {
+    var c = keyOf($("hr-comp").value), seen = {}, box = $("hr-loc-list");
+    box.innerHTML = "";
+    receipts.forEach(function (r) {
+      if (c && keyOf(r.comp) !== c) return;
+      var k = keyOf(r.loc);
+      if (seen[k]) return;
+      seen[k] = true;
+      var o = el("option"); o.value = r.loc; box.appendChild(o);
+    });
+  }
+  $("hr-comp").addEventListener("change", autofillPlace);
+  $("hr-loc").addEventListener("change", autofillPlace);
+
+  $("heat-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var fb = $("hr-feedback");
+    function fail(msg) { fb.textContent = msg; fb.className = "feedback err"; }
+    var prof = activeProfile();
+    if (!prof) return fail("Alege sau creează întâi un profil (secțiunea „Cine e la bar?”).");
+    var comp = $("hr-comp").value.trim(), loc = $("hr-loc").value.trim();
+    var date = $("hr-date").value, time = $("hr-time").value;
+    var nr = optNum($("hr-nr").value);
+    if (!comp || !loc) return fail("Completează concurentul și locația.");
+    if (!date || !time) return fail("Completează data și ora de pe bon.");
+    if (nr === null || nr < 0 || Math.floor(nr) !== nr) return fail("Numărul bonului trebuie să fie un număr întreg.");
+    var items = readItems();
+    var total = optNum($("hr-total").value);
+    if (total === null && items.length) {
+      var sum = 0, ok = true;
+      items.forEach(function (it) { if (it.p === null) ok = false; else sum += it.p * it.q; });
+      if (ok) total = Math.round(sum * 100) / 100;
+    }
+    var doc = {
+      ts: new Date(date + "T" + time + ":00").getTime(), createdAt: Date.now(),
+      date: date, time: time, comp: comp, loc: loc, reg: $("hr-reg").value.trim(),
+      nr: nr, z: optNum($("hr-z").value), total: total, pay: $("hr-pay").value,
+      items: items,
+      open: $("hr-open").value, close: $("hr-close").value, numbering: $("hr-numbering").value,
+      queue: optNum($("hr-queue").value), people: optNum($("hr-people").value),
+      rating: optNum($("hr-rating").value), wait: optNum($("hr-wait").value),
+      notes: $("hr-notes").value.trim(), by: prof.name
+    };
+    function done() {
+      fb.textContent = "Bonul #" + nr + " de la " + comp + " a fost salvat pentru " + prof.name + ".";
+      fb.className = "feedback ok";
+      setTimeout(function () { fb.textContent = ""; fb.className = "feedback"; }, 4000);
+      resetHeatForm(false);
+    }
+    if (shared) {
+      if (cloudActive && cloudUid) doc.uid = cloudUid;
+      db.collection("receipts").add(doc).then(done).catch(function (err) { writeError(fb, err); });
+    } else {
+      doc.id = "r" + Date.now();
+      receipts.unshift(normReceipt(doc.id, doc));
+      lsSet(R_KEY, receipts);
+      renderHeat();
+      done();
+    }
+  });
+
+  function deleteReceipt(r) {
+    if (!confirm("Ștergi bonul #" + r.nr + " de la " + r.comp + " (" + r.date + ")?")) return;
+    if (shared) {
+      db.doc("receipts/" + r.id).delete()
+        .catch(function (err) { alert("Nu s-a putut șterge bonul: " + (err && err.message || "eroare")); });
+    } else {
+      receipts = receipts.filter(function (x) { return x.id !== r.id; });
+      lsSet(R_KEY, receipts);
+      renderHeat();
+    }
+  }
+
+  /* ── Motorul de estimare ── */
+  function streamKey(r) { return keyOf(r.comp) + "|" + keyOf(r.loc) + "|" + keyOf(r.reg); }
+  function locKey(r) { return keyOf(r.comp) + "|" + keyOf(r.loc); }
+
+  // Împarte un interval [s, e] cu c bonuri pe ferestre de câte o oră.
+  function spreadSeg(seg, cb) {
+    var hours = (seg.e - seg.s) / 36e5;
+    if (hours <= 0) return;
+    var rate = seg.c / hours, t = seg.s;
+    while (t < seg.e) {
+      var d = new Date(t);
+      var next = new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours() + 1).getTime();
+      var end = Math.min(next, seg.e);
+      cb((d.getDay() + 6) % 7, d.getHours(), rate, (end - t) / 36e5);
+      t = end;
+    }
+  }
+
+  function analyzeStream(s) {
+    var rs = s.rs.sort(function (a, b) { return a.ts - b.ts; });
+    var open = null, close = null, mode = "auto";
+    rs.forEach(function (r) {
+      if (toMin(r.open) !== null) open = toMin(r.open);
+      if (toMin(r.close) !== null) close = toMin(r.close);
+      if (r.numbering !== "auto") mode = r.numbering;
+    });
+    s.detected = mode === "auto";
+    if (s.detected) {
+      mode = "unknown";
+      for (var i = 1; i < rs.length; i++) {
+        if (rs[i].date === rs[i - 1].date) continue;
+        if (rs[i].nr < rs[i - 1].nr) { mode = "reset"; break; }
+        mode = "cont";
+      }
+    }
+    s.mode = mode; s.open = open; s.close = close;
+    s.segs = []; s.days = [];
+
+    function dayKey(r) { return mode === "reset" && r.z !== null ? "z" + r.z : r.date; }
+    function openTs(date) { return open === null ? null : dayStart(date) + open * 6e4; }
+    function closeTs(date) {
+      if (close === null || open === null) return null;
+      return dayStart(date) + (close > open ? close : close + 1440) * 6e4;
+    }
+
+    // Două bonuri din aceeași zi → bonuri/oră
+    for (var j = 1; j < rs.length; j++) {
+      var a = rs[j - 1], b = rs[j];
+      if (dayKey(a) === dayKey(b) && b.nr >= a.nr && b.ts - a.ts >= 15 * 6e4 && b.ts - a.ts < 20 * 36e5) {
+        s.segs.push({ s: a.ts, e: b.ts, c: b.nr - a.nr });
+      }
+    }
+
+    if (mode === "reset") {
+      var groups = {}, order = [];
+      rs.forEach(function (r) {
+        var k = dayKey(r);
+        if (!groups[k]) { groups[k] = []; order.push(k); }
+        groups[k].push(r);
+      });
+      order.forEach(function (k) {
+        var g = groups[k], f = g[0], l = g[g.length - 1];
+        var o = openTs(f.date), c = closeTs(l.date);
+        // De la deschidere până la primul bon al zilei s-au emis f.nr bonuri.
+        if (o !== null && f.ts - o >= 15 * 6e4) s.segs.push({ s: o, e: f.ts, c: f.nr });
+        var est = l.nr, partial = true;
+        if (c !== null && l.ts >= c) partial = false;
+        else if (o !== null && c !== null && l.ts > o + 30 * 6e4) {
+          est = l.nr / (l.ts - o) * (c - o);
+          partial = false;
+        }
+        s.days.push({ date: l.date, v: est, partial: partial, span: 1, loc: s });
+      });
+    } else if (mode === "cont") {
+      for (var m = 1; m < rs.length; m++) {
+        var p = rs[m - 1], q = rs[m];
+        if (p.date === q.date || q.nr < p.nr) continue;
+        var nd = p.z !== null && q.z !== null && q.z > p.z ? q.z - p.z : (q.ts - p.ts) / 864e5;
+        if (nd < 0.5) continue;
+        var perDay = (q.nr - p.nr) / nd;
+        // Media pe interval se atribuie fiecărei zile dintre cele două vizite.
+        var t = dayStart(p.date) + 864e5, stop = dayStart(q.date), guard = 0;
+        while (t <= stop && guard++ < 62) {
+          s.days.push({ date: isoDate(new Date(t)), v: perDay, partial: false, span: nd, loc: s });
+          t += 864e5;
+        }
+      }
+    }
+
+    var cSum = 0, hSum = 0, slots = {};
+    s.segs.forEach(function (sg) {
+      cSum += sg.c; hSum += (sg.e - sg.s) / 36e5;
+      spreadSeg(sg, function (dw, h, rate, w) {
+        var sl = slots[h] || (slots[h] = { sum: 0, w: 0 });
+        sl.sum += rate * w; sl.w += w;
+      });
+    });
+    s.rate = hSum > 0 ? cSum / hSum : null;
+    s.peak = null;
+    Object.keys(slots).forEach(function (h) {
+      var v = slots[h].sum / slots[h].w;
+      if (!s.peak || v > s.peak.v) s.peak = { h: +h, v: v };
+    });
+    var full = s.days.filter(function (d) { return !d.partial; });
+    s.perDay = null; s.perDayHow = "";
+    if (full.length) {
+      s.perDay = full.reduce(function (x, d) { return x + d.v; }, 0) / full.length;
+      s.perDayHow = mode === "reset" ? "din bonul zilei" : "între zile";
+    } else if (s.rate !== null && open !== null && close !== null) {
+      s.perDay = s.rate * ((close > open ? close - open : close + 1440 - open) / 60);
+      s.perDayHow = "din bonuri/oră × program";
+    } else if (s.days.length) {
+      s.perDay = Math.max.apply(null, s.days.map(function (d) { return d.v; }));
+      s.perDayHow = "minim (fără program)";
+    }
+    return s;
+  }
+
+  function analyze(list) {
+    var streams = {}, locs = {};
+    list.forEach(function (r) {
+      var lk = locKey(r);
+      var L = locs[lk] || (locs[lk] = { key: lk, comp: r.comp, loc: r.loc, rs: [], streams: [] });
+      L.rs.push(r);
+      if (r.nr === null) return;
+      var k = streamKey(r);
+      if (!streams[k]) { streams[k] = { key: k, comp: r.comp, loc: r.loc, reg: r.reg, rs: [] }; L.streams.push(streams[k]); }
+      streams[k].rs.push(r);
+    });
+    var sl = Object.keys(streams).map(function (k) { return analyzeStream(streams[k]); });
+    var ll = Object.keys(locs).map(function (k) {
+      var L = locs[k];
+      function avgOf(f) {
+        var v = L.rs.map(f).filter(function (x) { return x !== null; });
+        return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null;
+      }
+      L.visits = L.rs.length;
+      L.ticket = avgOf(function (r) { return r.total; });
+      L.rating = avgOf(function (r) { return r.rating; });
+      L.queue = avgOf(function (r) { return r.queue; });
+      L.wait = avgOf(function (r) { return r.wait; });
+      L.people = avgOf(function (r) { return r.people; });
+      var paid = L.rs.filter(function (r) { return r.pay; });
+      L.cardShare = paid.length ? paid.filter(function (r) { return r.pay === "card"; }).length / paid.length : null;
+      var known = L.streams.filter(function (s) { return s.perDay !== null; });
+      L.perDay = known.length ? known.reduce(function (a, s) { return a + s.perDay; }, 0) : null;
+      var rated = L.streams.filter(function (s) { return s.rate !== null; });
+      L.rate = rated.length ? rated.reduce(function (a, s) { return a + s.rate; }, 0) : null;
+      L.revenue = L.perDay !== null && L.ticket !== null ? L.perDay * L.ticket : null;
+      L.last = L.rs.reduce(function (m, r) { return Math.max(m, r.ts); }, 0);
+      return L;
+    }).sort(function (a, b) { return (b.perDay || -1) - (a.perDay || -1) || b.visits - a.visits; });
+    return { streams: sl, locs: ll };
+  }
+
+  /* ── Filtre ── */
+  var hfComp = $("hf-comp"), hfPeriod = $("hf-period");
+  function refreshHeatFilters() {
+    var keepC = hfComp.value, keepP = hfPeriod.value, comps = {}, months = {};
+    receipts.forEach(function (r) {
+      comps[keyOf(r.comp)] = comps[keyOf(r.comp)] || r.comp;
+      months[r.date.slice(0, 7)] = true;
+    });
+    hfComp.innerHTML = '<option value="">Toți concurenții</option>';
+    Object.keys(comps).sort().forEach(function (k) {
+      var o = el("option", "", comps[k]); o.value = k; hfComp.appendChild(o);
+    });
+    hfComp.value = comps[keepC] ? keepC : "";
+    hfPeriod.innerHTML = '<option value="">Toată perioada</option><option value="d7">Ultimele 7 zile</option><option value="d30">Ultimele 30 de zile</option><option value="d90">Ultimele 90 de zile</option>';
+    Object.keys(months).sort().reverse().forEach(function (m) {
+      var o = el("option", "", MONTHS_LONG[+m.slice(5) - 1] + " " + m.slice(0, 4)); o.value = "m" + m; hfPeriod.appendChild(o);
+    });
+    hfPeriod.value = keepP;
+    if (hfPeriod.value !== keepP) hfPeriod.value = "";
+
+    var cl = $("hr-comp-list"); cl.innerHTML = "";
+    Object.keys(comps).sort().forEach(function (k) { var o = el("option"); o.value = comps[k]; cl.appendChild(o); });
+    var items = {};
+    receipts.forEach(function (r) { r.items.forEach(function (it) { items[keyOf(it.n)] = items[keyOf(it.n)] || it.n; }); });
+    itemList.innerHTML = "";
+    Object.keys(items).sort().forEach(function (k) { var o = el("option"); o.value = items[k]; itemList.appendChild(o); });
+    refreshLocList();
+  }
+  function filteredReceipts() {
+    var c = hfComp.value, p = hfPeriod.value, from = null;
+    if (p.charAt(0) === "d") from = dayStart(isoDate(new Date())) - (+p.slice(1) - 1) * 864e5;
+    return receipts.filter(function (r) {
+      if (c && keyOf(r.comp) !== c) return false;
+      if (from !== null && r.ts < from) return false;
+      if (p.charAt(0) === "m" && r.date.slice(0, 7) !== p.slice(1)) return false;
+      return true;
+    });
+  }
+  hfComp.addEventListener("change", renderHeatPanels);
+  hfPeriod.addEventListener("change", renderHeatPanels);
+
+  document.querySelectorAll("[data-htab]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("[data-htab]").forEach(function (b) { b.setAttribute("aria-selected", b === btn ? "true" : "false"); });
+      document.querySelectorAll("[data-hpanel]").forEach(function (p) { p.hidden = p.dataset.hpanel !== btn.dataset.htab; });
+    });
+  });
+
+  /* ── Tooltip comun pentru grafice ── */
+  var heatTip = el("div", "heat-tip"); heatTip.hidden = true; heatTip.setAttribute("role", "tooltip");
+  document.body.appendChild(heatTip);
+  function showTip(e, text) {
+    heatTip.textContent = text;
+    heatTip.hidden = false;
+    var x = e.clientX + 14, y = e.clientY + 14;
+    var w = heatTip.offsetWidth, h = heatTip.offsetHeight;
+    if (x + w > window.innerWidth - 8) x = e.clientX - w - 14;
+    if (y + h > window.innerHeight - 8) y = e.clientY - h - 14;
+    heatTip.style.left = Math.max(8, x) + "px";
+    heatTip.style.top = Math.max(8, y) + "px";
+  }
+  $("heat").addEventListener("mousemove", function (e) {
+    var t = e.target.closest && e.target.closest("[data-tip]");
+    if (t) showTip(e, t.dataset.tip); else heatTip.hidden = true;
+  });
+  $("heat").addEventListener("mouseleave", function () { heatTip.hidden = true; });
+
+  /* ── Randare ── */
+  function tile(label, value, small) {
+    var t = el("div", "result-tile");
+    t.appendChild(el("div", "label", label));
+    var v = el("div", "value", value);
+    if (small) { v.appendChild(document.createTextNode(" ")); v.appendChild(el("small", "", small)); }
+    t.appendChild(v);
+    return t;
+  }
+  function barList(rows, unit) {
+    var box = el("div", "heat-bars");
+    var max = rows.reduce(function (m, r) { return Math.max(m, r.v || 0); }, 0) || 1;
+    rows.forEach(function (r) {
+      var line = el("div", "heat-bar");
+      line.appendChild(el("span", "hb-lab", r.label));
+      var track = el("div", "hb-track");
+      track.setAttribute("role", "img");
+      track.setAttribute("aria-label", r.label + ": " + (r.v === null ? "fără date" : fmt(r.v, 1) + " " + unit));
+      if (r.tip) track.dataset.tip = r.tip;
+      if (r.v !== null) {
+        var fill = el("div", "hb-fill");
+        fill.style.width = Math.max(1, r.v / max * 100) + "%";
+        track.appendChild(fill);
+      }
+      line.appendChild(track);
+      var val = el("span", "hb-val", r.v === null ? "—" : fmt(r.v, r.v < 10 ? 1 : 0));
+      if (r.v !== null && r.suffix) { val.appendChild(document.createTextNode(" ")); val.appendChild(el("small", "", r.suffix)); }
+      line.appendChild(val);
+      box.appendChild(line);
+    });
+    return box;
+  }
+  function tableOf(head, rows, numCols) {
+    var wrap = el("div", "table-scroll"), t = el("table"), thead = el("thead"), tr = el("tr");
+    head.forEach(function (h, i) { var th = el("th", numCols.indexOf(i) >= 0 ? "num" : "", h); th.scope = "col"; tr.appendChild(th); });
+    thead.appendChild(tr); t.appendChild(thead);
+    var tb = el("tbody");
+    rows.forEach(function (row) {
+      var r = el("tr");
+      row.forEach(function (c, i) {
+        var td = el("td", numCols.indexOf(i) >= 0 ? "num" : "");
+        if (c && c.nodeType) td.appendChild(c);
+        else if (c && typeof c === "object") { td.textContent = c.text; if (c.cls) td.className += " " + c.cls; if (c.tip) td.dataset.tip = c.tip; }
+        else td.textContent = c === null || c === undefined ? "—" : c;
+        r.appendChild(td);
+      });
+      tb.appendChild(r);
+    });
+    t.appendChild(tb); wrap.appendChild(t);
+    return wrap;
+  }
+  function emptyMsg(text) { return el("p", "heat-empty", text); }
+  function placeName(x) { return x.comp + " · " + x.loc; }
+  function progText(s) {
+    if (s.open === null && s.close === null) return "—";
+    function t(m) { return m === null ? "?" : pad2(Math.floor(m / 60) % 24) + ":" + pad2(m % 60); }
+    return t(s.open) + "–" + t(s.close);
+  }
+
+  function renderSales(A, list) {
+    var box = document.querySelector('[data-hpanel="sales"]');
+    box.innerHTML = "";
+    if (!list.length) { box.appendChild(emptyMsg("Niciun bon pentru filtrele alese — adaugă primul bon mai sus.")); return; }
+    var perDay = 0, rev = 0, anyPD = false, anyRev = false, hours = {};
+    A.locs.forEach(function (L) {
+      if (L.perDay !== null) { perDay += L.perDay; anyPD = true; }
+      if (L.revenue !== null) { rev += L.revenue; anyRev = true; }
+    });
+    A.streams.forEach(function (s) {
+      s.segs.forEach(function (sg) {
+        spreadSeg(sg, function (dw, h, rate, w) { var x = hours[h] || (hours[h] = { sum: 0, w: 0 }); x.sum += rate * w; x.w += w; });
+      });
+    });
+    var peak = null;
+    Object.keys(hours).forEach(function (h) { var v = hours[h].sum / hours[h].w; if (!peak || v > peak.v) peak = { h: +h, v: v }; });
+    var one = A.locs.length === 1;
+    var tiles = el("div", "result-row");
+    tiles.appendChild(tile(one ? "Bonuri/zi estimate" : "Bonuri/zi · toate locațiile", anyPD ? fmt(perDay, 0) : "—"));
+    tiles.appendChild(tile("Încasări/zi estimate", anyRev ? lei(rev) : "—"));
+    tiles.appendChild(tile("Încasări/lună (~30 zile)", anyRev ? lei(rev * 30) : "—"));
+    tiles.appendChild(tile("Ora de vârf", peak ? pad2(peak.h) + ":00" : "—", peak ? "~" + fmt(peak.v, 0) + " bonuri/oră" : ""));
+    box.appendChild(tiles);
+
+    box.appendChild(el("h3", "heat-sub", "Estimare pe locație și casă de marcat"));
+    var rows = A.streams.slice().sort(function (a, b) { return (b.perDay || -1) - (a.perDay || -1); }).map(function (s) {
+      var L = A.locs.filter(function (x) { return x.streams.indexOf(s) >= 0; })[0];
+      var rev = s.perDay !== null && L && L.ticket !== null ? s.perDay * L.ticket : null;
+      return [
+        placeName(s) + (s.reg ? " · " + s.reg : ""),
+        MODE_NAMES[s.mode] + (s.detected && s.mode !== "unknown" ? " (auto)" : ""),
+        progText(s),
+        String(s.rs.length),
+        s.perDay === null ? null : { text: fmt(s.perDay, 0), tip: s.perDayHow },
+        s.rate === null ? null : fmt(s.rate, 1),
+        s.peak ? pad2(s.peak.h) + ":00" : null,
+        L && L.ticket !== null ? lei(L.ticket) : null,
+        rev === null ? null : lei(rev),
+        rev === null ? null : lei(rev * 30)
+      ];
+    });
+    box.appendChild(tableOf(["Locație", "Numerotare", "Program", "Vizite", "Bonuri/zi", "Bonuri/oră", "Vârf", "Bon mediu", "Încasări/zi", "~Lunar"], rows, [3, 4, 5, 7, 8, 9]));
+
+    var days = [];
+    A.streams.forEach(function (s) { s.days.forEach(function (d) { if (d.span <= 1.5) days.push(d); }); });
+    days.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    if (days.length) {
+      box.appendChild(el("h3", "heat-sub", "Zile estimate"));
+      box.appendChild(tableOf(["Data", "Zi", "Locație", "Bonuri în ziua respectivă"],
+        days.slice(0, 30).map(function (d) {
+          return [d.date, DOW_LONG[dowOf(d.date)], placeName(d.loc) + (d.loc.reg ? " · " + d.loc.reg : ""),
+            { text: (d.partial ? "≥ " : "") + fmt(d.v, 0), tip: d.partial ? "Până la ora vizitei — adaugă programul locației ca să extrapolăm toată ziua" : "Estimare pe toată ziua" }];
+        }), [3]));
+    }
+    if (!A.streams.some(function (s) { return s.perDay !== null || s.rate !== null; })) {
+      box.appendChild(el("p", "note", "Deocamdată nu e destul pentru o estimare: e nevoie de cel puțin două bonuri de la aceeași casă (în aceeași zi sau în zile diferite), ori de un bon + ora de deschidere dacă numerotarea pornește de la 1 zilnic."));
+    }
+  }
+
+  function renderTime(A, list) {
+    var box = document.querySelector('[data-hpanel="time"]');
+    box.innerHTML = "";
+    if (!list.length) { box.appendChild(emptyMsg("Niciun bon pentru filtrele alese.")); return; }
+    var grid = [], visits = [], byHour = {}, minH = 24, maxH = -1;
+    for (var d = 0; d < 7; d++) { grid.push({}); visits.push({}); }
+    A.streams.forEach(function (s) {
+      s.segs.forEach(function (sg) {
+        spreadSeg(sg, function (dw, h, rate, w) {
+          var c = grid[dw][h] || (grid[dw][h] = { sum: 0, w: 0 });
+          c.sum += rate * w; c.w += w;
+          var x = byHour[h] || (byHour[h] = { sum: 0, w: 0 });
+          x.sum += rate * w; x.w += w;
+          minH = Math.min(minH, h); maxH = Math.max(maxH, h);
+        });
+      });
+    });
+    list.forEach(function (r) {
+      var h = +r.time.slice(0, 2), dw = dowOf(r.date);
+      visits[dw][h] = (visits[dw][h] || 0) + 1;
+      minH = Math.min(minH, h); maxH = Math.max(maxH, h);
+    });
+    minH = Math.min(minH, 10); maxH = Math.max(maxH, 22);
+    var maxV = 0;
+    grid.forEach(function (row) { Object.keys(row).forEach(function (h) { maxV = Math.max(maxV, row[h].sum / row[h].w); }); });
+    var steps = [18, 36, 54, 72, 92];
+    function shade(v) {
+      var i = Math.min(4, Math.floor(v / (maxV || 1) * 5 - 1e-9));
+      return "color-mix(in srgb, var(--data) " + steps[Math.max(0, i)] + "%, var(--surface-2))";
+    }
+
+    box.appendChild(el("h3", "heat-sub", "Bonuri pe oră · zi a săptămânii × oră"));
+    var sc = el("div", "table-scroll");
+    var map = el("div", "heat-map");
+    map.style.gridTemplateColumns = "40px repeat(" + (maxH - minH + 1) + ", minmax(22px, 1fr))";
+    map.setAttribute("role", "img");
+    map.setAttribute("aria-label", "Hartă de căldură: bonuri pe oră pentru fiecare zi a săptămânii și oră; detaliile sunt și în tabelele de mai jos.");
+    map.appendChild(el("span", "hm-lab", ""));
+    for (var h = minH; h <= maxH; h++) map.appendChild(el("span", "hm-lab", pad2(h)));
+    for (var dw = 0; dw < 7; dw++) {
+      map.appendChild(el("span", "hm-lab hm-row", DOW[dw]));
+      for (var hh = minH; hh <= maxH; hh++) {
+        var cell = el("span", "hm-cell"), g = grid[dw][hh], nv = visits[dw][hh] || 0;
+        var tip = DOW_LONG[dw] + ", " + pad2(hh) + ":00–" + pad2((hh + 1) % 24) + ":00\n";
+        if (g) {
+          var v = g.sum / g.w;
+          cell.style.background = shade(v);
+          cell.dataset.v = String(v);
+          tip += "~" + fmt(v, 1) + " bonuri/oră";
+        } else tip += "fără estimare";
+        if (nv) tip += " · " + nv + (nv === 1 ? " vizită" : " vizite");
+        cell.dataset.tip = tip;
+        map.appendChild(cell);
+      }
+    }
+    sc.appendChild(map);
+    box.appendChild(sc);
+    var leg = el("div", "heat-legend");
+    leg.appendChild(el("span", "", "puține"));
+    var ramp = el("span", "ramp");
+    steps.forEach(function (st) { var i = el("i"); i.style.background = "color-mix(in srgb, var(--data) " + st + "%, var(--surface-2))"; ramp.appendChild(i); });
+    leg.appendChild(ramp);
+    leg.appendChild(el("span", "", maxV ? "multe (max ~" + fmt(maxV, 0) + "/oră) · gri = fără date" : "gri = încă fără date — e nevoie de două bonuri în aceeași zi sau de ora de deschidere"));
+    box.appendChild(leg);
+
+    var cols = el("div", "heat-cols");
+    var c1 = el("div");
+    c1.appendChild(el("h3", "heat-sub", "Bonuri/oră pe ore"));
+    var hourRows = [];
+    for (var x = minH; x <= maxH; x++) {
+      var bh = byHour[x];
+      hourRows.push({ label: pad2(x) + ":00", v: bh ? bh.sum / bh.w : null, suffix: "/oră" });
+    }
+    c1.appendChild(barList(hourRows, "bonuri pe oră"));
+    cols.appendChild(c1);
+
+    var dayVals = [[], [], [], [], [], [], []], monthVals = {}, monthVisits = {};
+    A.streams.forEach(function (s) {
+      s.days.forEach(function (dd) {
+        if (dd.partial) return;
+        dayVals[dowOf(dd.date)].push(dd.v);
+        var m = dd.date.slice(0, 7);
+        (monthVals[m] || (monthVals[m] = [])).push(dd.v);
+      });
+    });
+    list.forEach(function (r) { var m = r.date.slice(0, 7); monthVisits[m] = (monthVisits[m] || 0) + 1; });
+    function mean(a) { return a.length ? a.reduce(function (p, q) { return p + q; }, 0) / a.length : null; }
+    var visitsDow = [0, 0, 0, 0, 0, 0, 0];
+    list.forEach(function (r) { visitsDow[dowOf(r.date)]++; });
+
+    var c2 = el("div");
+    c2.appendChild(el("h3", "heat-sub", "Bonuri/zi pe zi a săptămânii"));
+    c2.appendChild(barList(DOW_LONG.map(function (n, i) {
+      return { label: n, v: mean(dayVals[i]), suffix: "/zi", tip: n + ": " + visitsDow[i] + (visitsDow[i] === 1 ? " vizită" : " vizite") + ", " + dayVals[i].length + " zile estimate (medie per locație)" };
+    }), "bonuri pe zi"));
+    cols.appendChild(c2);
+
+    var c3 = el("div");
+    c3.appendChild(el("h3", "heat-sub", "Pe luni ale anului"));
+    var months = Object.keys(monthVisits).sort();
+    c3.appendChild(barList(months.map(function (m) {
+      var n = MONTHS_LONG[+m.slice(5) - 1] + " " + m.slice(2, 4);
+      return { label: n, v: mean(monthVals[m] || []), suffix: "/zi", tip: n + ": " + monthVisits[m] + " bonuri colectate, " + (monthVals[m] || []).length + " zile estimate" };
+    }), "bonuri pe zi"));
+    cols.appendChild(c3);
+    box.appendChild(cols);
+    box.appendChild(el("p", "profile-hint", "Valorile sunt medii per locație (nu se adună între concurenți). Filtrează pe un concurent pentru tiparul lui."));
+  }
+
+  function renderCompare(A, list) {
+    var box = document.querySelector('[data-hpanel="compare"]');
+    box.innerHTML = "";
+    if (!list.length) { box.appendChild(emptyMsg("Niciun bon pentru filtrele alese.")); return; }
+    box.appendChild(el("h3", "heat-sub", "Clasament după bonuri/zi estimate"));
+    box.appendChild(barList(A.locs.map(function (L) {
+      return { label: placeName(L), v: L.perDay, suffix: "/zi", tip: placeName(L) + ": " + L.visits + (L.visits === 1 ? " vizită" : " vizite") + (L.revenue !== null ? " · ~" + lei(L.revenue) + "/zi" : "") };
+    }), "bonuri pe zi"));
+
+    box.appendChild(el("h3", "heat-sub", "Tabel comparativ"));
+    var best = {};
+    function markBest(key, hi) {
+      var v = A.locs.map(function (L) { return L[key]; }).filter(function (x) { return x !== null; });
+      if (v.length > 1) best[key] = hi ? Math.max.apply(null, v) : Math.min.apply(null, v);
+    }
+    markBest("perDay", true); markBest("revenue", true); markBest("rating", true); markBest("wait", false);
+    function cell(L, key, text) { return { text: text, cls: best[key] !== undefined && L[key] === best[key] ? "best" : "" }; }
+    var rows = A.locs.map(function (L) {
+      return [
+        placeName(L), String(L.visits),
+        L.perDay === null ? null : cell(L, "perDay", fmt(L.perDay, 0)),
+        L.rate === null ? null : fmt(L.rate, 1),
+        L.ticket === null ? null : lei(L.ticket),
+        L.revenue === null ? null : cell(L, "revenue", lei(L.revenue)),
+        L.revenue === null ? null : lei(L.revenue * 30),
+        L.cardShare === null ? null : fmt(L.cardShare * 100, 0) + " %",
+        L.queue === null ? null : QUEUE_NAMES[Math.round(L.queue)],
+        L.wait === null ? null : cell(L, "wait", fmt(L.wait, 0) + " min"),
+        L.rating === null ? null : cell(L, "rating", fmt(L.rating, 1) + " / 5"),
+        new Date(L.last).toLocaleDateString("ro-RO", { day: "numeric", month: "short" })
+      ];
+    });
+    box.appendChild(tableOf(["Locație", "Vizite", "Bonuri/zi", "Bonuri/oră", "Bon mediu", "Încasări/zi", "~Lunar", "Card", "Coadă", "Așteptare", "Notă", "Ultima vizită"], rows, [1, 2, 3, 4, 5, 6, 7, 9, 10]));
+    box.appendChild(el("p", "profile-hint", "Verde = cea mai bună valoare din coloană. Bonul mediu e media bonurilor plătite de echipă la fiecare locație."));
+  }
+
+  function renderPrices(A, list) {
+    var box = document.querySelector('[data-hpanel="prices"]');
+    box.innerHTML = "";
+    var comps = {}, prods = {};
+    list.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (r) {
+      var ck = keyOf(r.comp);
+      comps[ck] = r.comp;
+      r.items.forEach(function (it) {
+        if (it.p === null) return;
+        var pk = keyOf(it.n);
+        var P = prods[pk] || (prods[pk] = { name: it.n, by: {} });
+        var prev = P.by[ck];
+        P.by[ck] = { p: it.p, date: r.date, first: prev ? prev.first : it.p };
+      });
+    });
+    var pk = Object.keys(prods);
+    if (!pk.length) { box.appendChild(emptyMsg("Niciun preț încă — adaugă produsele de pe bon (nume, cantitate, preț) când salvezi un bon.")); return; }
+    var ck = Object.keys(comps).sort();
+    pk.sort(function (a, b) { return Object.keys(prods[b].by).length - Object.keys(prods[a].by).length || a.localeCompare(b, "ro"); });
+    box.appendChild(el("h3", "heat-sub", "Ultimul preț văzut, pe produs și concurent"));
+    var rows = pk.map(function (k) {
+      var P = prods[k];
+      var vals = ck.map(function (c) { return P.by[c] ? P.by[c].p : null; }).filter(function (v) { return v !== null; });
+      var min = vals.length > 1 ? Math.min.apply(null, vals) : null;
+      return [P.name].concat(ck.map(function (c) {
+        var e = P.by[c];
+        if (!e) return null;
+        var delta = e.p - e.first;
+        return {
+          text: lei(e.p, 2) + (delta ? (delta > 0 ? " ▲" : " ▼") : ""),
+          cls: min !== null && e.p === min ? "best" : "",
+          tip: "Văzut pe " + e.date + (delta ? " · " + (delta > 0 ? "+" : "") + fmt(delta, 2) + " lei față de primul preț notat" : "")
+        };
+      }));
+    });
+    box.appendChild(tableOf(["Produs"].concat(ck.map(function (c) { return comps[c]; })), rows, ck.map(function (c, i) { return i + 1; })));
+    box.appendChild(el("p", "profile-hint", "Verde = cel mai mic preț. ▲/▼ = prețul s-a schimbat față de prima notare. Scrie produsele la fel de fiecare dată ca să se potrivească."));
+  }
+
+  function renderLog(list) {
+    var box = $("hl-list");
+    box.innerHTML = "";
+    $("hl-count").textContent = list.length + (list.length === 1 ? " bon" : " bonuri") + (hfComp.value || hfPeriod.value ? " (filtrat)" : "");
+    if (!list.length) { box.appendChild(emptyMsg(receipts.length ? "Nimic pentru filtrele alese." : "Jurnalul e gol — adaugă primul bon mai sus.")); return; }
+    var sorted = list.slice().sort(function (a, b) { return b.ts - a.ts; });
+    var rows = sorted.slice(0, 300).map(function (r) {
+      var obs = [];
+      if (r.queue !== null) obs.push(QUEUE_NAMES[r.queue] || "");
+      if (r.people !== null) obs.push(r.people + " clienți");
+      if (r.wait !== null) obs.push(r.wait + " min");
+      if (r.rating !== null) obs.push("nota " + r.rating);
+      if (r.notes) obs.push(r.notes);
+      var del = el("button", "he-delete", "Șterge");
+      del.type = "button";
+      del.addEventListener("click", function () { deleteReceipt(r); });
+      return [
+        r.date + " " + r.time, DOW[dowOf(r.date)],
+        placeName(r) + (r.reg ? " · " + r.reg : ""),
+        (r.nr === null ? "—" : "#" + r.nr) + (r.z !== null ? " · Z" + r.z : ""),
+        r.total === null ? null : lei(r.total, 2),
+        PAY_NAMES[r.pay] || r.pay || null,
+        r.items.map(function (it) { return (it.q > 1 ? it.q + "× " : "") + it.n + (it.p !== null ? " " + fmt(it.p, 2) : ""); }).join(", ") || null,
+        obs.join(" · ") || null,
+        r.by, del
+      ];
+    });
+    box.appendChild(tableOf(["Data", "Zi", "Locație", "Bon", "Total", "Plată", "Produse", "Observații", "Cine", ""], rows, [4]));
+  }
+
+  function csvCell(v) {
+    var s = v === null || v === undefined ? "" : String(v);
+    return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  $("hl-export").addEventListener("click", function () {
+    var list = filteredReceipts().slice().sort(function (a, b) { return a.ts - b.ts; });
+    if (!list.length) return;
+    var head = ["data", "ora", "zi_saptamana", "luna", "an", "concurent", "locatie", "casa", "nr_bon", "nr_z", "total_lei", "plata", "produse",
+      "deschide", "inchide", "numerotare", "coada", "clienti_in_local", "asteptare_min", "nota", "note", "completat_de"];
+    var lines = [head.join(";")].concat(list.map(function (r) {
+      return [r.date, r.time, DOW_LONG[dowOf(r.date)], MONTHS_LONG[+r.date.slice(5, 7) - 1], r.date.slice(0, 4),
+        r.comp, r.loc, r.reg, r.nr, r.z, r.total === null ? "" : String(r.total).replace(".", ","), PAY_NAMES[r.pay] || r.pay,
+        r.items.map(function (it) { return it.q + "x " + it.n + (it.p !== null ? " @ " + String(it.p).replace(".", ",") : ""); }).join(" | "),
+        r.open, r.close, r.numbering, r.queue === null ? "" : QUEUE_NAMES[r.queue], r.people, r.wait, r.rating, r.notes, r.by
+      ].map(csvCell).join(";");
+    }));
+    var blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    var a = el("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "heat-jurnal-bonuri-" + isoDate(new Date()) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
+
+  function renderHeatPanels() {
+    var list = filteredReceipts();
+    var A = analyze(list);
+    renderSales(A, list);
+    renderTime(A, list);
+    renderCompare(A, list);
+    renderPrices(A, list);
+    renderLog(list);
+  }
+  function renderHeat() {
+    var locs = {}, week = 0, tot = 0, nTot = 0;
+    receipts.forEach(function (r) {
+      locs[locKey(r)] = true;
+      if (Date.now() - r.ts < 7 * 864e5) week++;
+      if (r.total !== null) { tot += r.total; nTot++; }
+    });
+    $("ht-total").textContent = String(receipts.length);
+    $("ht-locs").textContent = String(Object.keys(locs).length);
+    $("ht-week").textContent = String(week);
+    $("ht-avg").textContent = nTot ? lei(tot / nTot) : "—";
+    refreshHeatFilters();
+    renderHeatPanels();
+  }
+  resetHeatForm(false);
+
+  /* ═══ Init ═══ */
+  renderProfiles();
+  renderHeat();
+
+  /* ═══ Conturi de cafenea (Firebase) — aceeași sesiune ca în toolkit ═══ */
+  (function initCloud() {
+    var cfg = window.ATC_FIREBASE_CONFIG;
+    if (!cfg) return;
+    var auth = null, fs = null;
+    var ERR = {
+      "auth/invalid-email": "Adresa de email nu e validă.",
+      "auth/invalid-credential": "Email sau parolă greșite.",
+      "auth/wrong-password": "Email sau parolă greșite.",
+      "auth/user-not-found": "Nu există un cont cu acest email.",
+      "auth/too-many-requests": "Prea multe încercări — așteaptă puțin și reîncearcă.",
+      "permission-denied": "Nu ai drepturile necesare pentru această acțiune."
+    };
+    function accFeedback(msg, ok) {
+      var fb = $("acc-feedback");
+      fb.textContent = msg || "";
+      fb.className = "feedback" + (msg ? (ok ? " ok" : " err") : "");
+    }
+    function accError(err) {
+      var code = err && err.code ? String(err.code) : "";
+      accFeedback(ERR[code] || ("Nu a mers: " + (err && err.message ? err.message : "eroare necunoscută")), false);
+    }
+
+    var SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
+    (function loadNext(i) {
+      var files = ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"];
+      if (i >= files.length) return start();
+      var s = document.createElement("script");
+      s.src = SDK + files[i];
+      s.onload = function () { loadNext(i + 1); };
+      s.onerror = function () { setSyncStatus(false, "Conturi indisponibile (offline)"); };
+      document.head.appendChild(s);
+    })(0);
+
+    function start() {
+      firebase.initializeApp(cfg);
+      auth = firebase.auth();
+      fs = firebase.firestore();
+      $("acc-box").hidden = false;
+      setSyncStatus(false, "Neconectat · registru local");
+
+      $("acc-login-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        accFeedback("");
+        auth.signInWithEmailAndPassword($("al-email").value.trim(), $("al-pass").value).catch(accError);
+      });
+      $("acc-logout").addEventListener("click", function () { auth.signOut(); });
+
+      auth.onAuthStateChanged(function (user) {
+        if (!user) return deactivate();
+        fs.doc("members/" + user.uid).get().then(function (m) {
+          if (!m.exists) {
+            accFeedback("Contul nu e încă activat — deschide o dată toolkit-ul ca să finalizezi invitația.", false);
+            return;
+          }
+          activate(user, m.data() || {});
+        }).catch(accError);
+      });
+    }
+
+    function activate(user, member) {
+      var cafeId = member.cafeId;
+      cloudActive = true;
+      shared = true;
+      cloudUid = user.uid;
+      db = {
+        collection: function (name) {
+          return name === "receipts" ? fs.collection("cafes/" + cafeId + "/receipts") : null;
+        },
+        doc: function (path) {
+          var parts = path.split("/");
+          return parts[0] === "receipts" ? fs.doc("cafes/" + cafeId + "/receipts/" + parts[1]) : null;
+        }
+      };
+      var role = String(member.role || "Research");
+      profiles = [{ id: user.uid, name: String(member.name || "Coleg"), role: role === "admin" ? "Administrator" : role }];
+      activeId = user.uid;
+      $("acc-login-form").hidden = true;
+      $("acc-signedin").hidden = false;
+      $("acc-name").textContent = profiles[0].name;
+      $("acc-email").textContent = user.email || "";
+      $("team-hint").textContent = "Ești conectat cu contul tău — bonurile salvate poartă semnătura ta și se văd la toată echipa.";
+      setSyncStatus(true, "Cont · sincronizat");
+      accFeedback("");
+      renderProfiles();
+      heatSubscribe();
+    }
+
+    function deactivate() {
+      heatUnsubscribe();
+      cloudActive = false;
+      shared = false;
+      cloudUid = null;
+      db = null;
+      $("acc-login-form").hidden = false;
+      $("acc-signedin").hidden = true;
+      $("team-hint").textContent = "Fără cont, profilurile și bonurile rămân pe acest dispozitiv. Conectează-te ca echipa să împartă același jurnal.";
+      setSyncStatus(false, "Neconectat · registru local");
+      profiles = lsGet(P_KEY) || [];
+      activeId = (function () {
+        var a = lsGet(P_ACTIVE);
+        return profiles.some(function (p) { return p.id === a; }) ? a : profiles[0] && profiles[0].id;
+      })();
+      receipts = loadLocalReceipts();
+      renderProfiles();
+      renderHeat();
+    }
+  })();
+
+  /* ═══ Registru partajat (versiunea publicată ca artefact) ═══ */
+  if (!window.ATC_FIREBASE_CONFIG && window.claude && typeof window.claude.use === "function") {
+    window.claude.use("db").then(function (sharedDb) {
+      if (!sharedDb) return;
+      db = sharedDb;
+      shared = true;
+      profiles = [];
+      setSyncStatus(true, "Registru partajat · live");
+      db.collection("baristas").onSnapshot(function (snap) {
+        profiles = snap.docs.map(function (d) {
+          var body = d.data() || {};
+          return { id: d.id, name: String(body.name || "Coleg"), role: String(body.role || "Research"), createdAt: body.createdAt || 0 };
+        }).sort(function (a, b) { return a.createdAt - b.createdAt; });
+        if (!profiles.some(function (p) { return p.id === activeId; })) activeId = profiles[0] && profiles[0].id;
+        renderProfiles();
+      }, function () { setSyncStatus(false, "Registru local (fără conexiune)"); });
+      heatSubscribe();
+      window.claude.use("user").then(function (u) {
+        if (!u) return;
+        Promise.resolve(u.can("data.write")).then(function (cw) {
+          if (cw === false) {
+            $("hr-save").disabled = true; $("hr-save").style.opacity = "0.55";
+            setSyncStatus(true, "Registru partajat · doar citire");
+          }
+        });
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

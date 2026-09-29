@@ -6,6 +6,7 @@ Site-ul are două pagini:
   proprietarii de cafenele și bariști, cu demo live, cele 9 tool-uri, pași de
   start și FAQ. Către această pagină direcționezi cafenelele.
 - **`app.html`** — aplicația propriu-zisă (toolkit-ul complet).
+- **`heat.html`** — jurnalul de bonuri al echipei Heat, în identitatea vizuală Heat.
 
 Pentru publicare: GitHub Pages (Settings → Pages → branch → root); landing-ul
 se servește automat ca pagină principală, iar aplicația la `/app.html`.
@@ -27,7 +28,7 @@ Excel, rescrise ca web app brand-uită Around The Corner, cu profile de bariști
 
 ## Heat · jurnal de bonuri (research concurență)
 
-Secțiunea **Heat · Bonuri** e jurnalul echipei Heat (brand Nashville hot chicken creat de Around The Corner): la fiecare vizită la un concurent se trec datele de pe bon — concurent, locație, dată și oră, nr. bon, casa de marcat, nr. raport Z, total, metoda de plată, produsele cu prețuri și observații (coadă, clienți în local, timp de așteptare, notă). Programul locației și tipul de numerotare se completează automat după prima vizită.
+Pagina **`heat.html`** e jurnalul echipei Heat (brand Nashville hot chicken creat de Around The Corner), în identitatea vizuală Heat din brand guidelines: Red Heat `#611923`, Black Rap `#0D0D0D`, Yellow Chicken `#F0B823`, Cream Heat `#F8F9F3`; Barlow Condensed (echivalent gratuit pentru Acumin ExtraCondensed) și Permanent Marker (pentru accentele graffiti Subway); logo-urile extrase din ghid sunt în `assets/heat/`. La fiecare vizită la un concurent se trec datele de pe bon — concurent, locație, dată și oră, nr. bon, casa de marcat, nr. raport Z, total, metoda de plată, produsele cu prețuri și observații (coadă, clienți în local, timp de așteptare, notă). Programul locației și tipul de numerotare se completează automat după prima vizită.
 
 Analizele se calculează live, filtrabile pe concurent și perioadă:
 
@@ -37,7 +38,7 @@ Analizele se calculează live, filtrabile pe concurent și perioadă:
 - **Prețuri** — ultimul preț văzut pe produs și concurent, cu cel mai mic evidențiat și modificările de preț.
 - **Jurnal** — toate bonurile, cu export CSV (se deschide direct în Excel).
 
-Bonurile stau în același registru ca restul aplicației: local pe dispozitiv, sau partajat în contul cafenelei (`cafes/{id}/receipts` — necesită regulile actualizate din `firestore.rules`).
+Bonurile și profilurile stau în același registru ca toolkit-ul: local pe dispozitiv (aceleași profiluri), sau partajat în contul cafenelei (`cafes/{id}/receipts` — necesită regulile actualizate din `firestore.rules`). Cine e conectat în toolkit e conectat automat și pe `heat.html`.
 
 Secțiunea **Statistici** arată completările per barist (clasament cu bare, defalcare pe tabele, ultima activitate), calculate live din registru.
 
