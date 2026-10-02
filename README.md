@@ -15,6 +15,13 @@ jurul toolkit-ului avansat de preparare a cafelei: calculatoarele din tabelele
 Excel, rescrise ca web app brand-uită Around The Corner, cu profile de bariști
 și istoric al completărilor.
 
+## Site-ul principal aroundthecorner.ro
+
+Folderul [`aroundthecorner-wp/`](aroundthecorner-wp) conține refacerea site-ului principal
+(WordPress + Elementor): pluginul de animații cinematice **ATC Motion**, child theme-ul
+**Around The Corner** (WooCommerce + Stripe + Academie), prototipul noii prime pagini și ghidurile
+de instalare. Pornește de la [`aroundthecorner-wp/README.md`](aroundthecorner-wp/README.md).
+
 ## Tabelele toolkit-ului
 
 1. **Randament de extracție** — solver pentru TDS ↔ masă băutură ↔ doză ↔ EY, cu verdict pe fereastra de extracție 18–22%.

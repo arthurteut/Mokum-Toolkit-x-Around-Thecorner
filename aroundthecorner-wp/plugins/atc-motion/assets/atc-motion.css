@@ -1,0 +1,81 @@
+/* ATC Motion — stări inițiale și elemente globale.
+   Ascunderea inițială e activă doar cât timp <html> are clasa .atc-js
+   (pusă de un script inline în <head>; dacă JS-ul nu pornește, conținutul rămâne vizibil). */
+
+:root {
+  --atc-accent: #ddaf43;
+  --atc-ink: #25332c;
+  --atc-cream: #f8f7f0;
+}
+
+.atc-js .atc-reveal,
+.atc-js .atc-split,
+.atc-js .atc-scrub-text,
+.atc-js .atc-stagger { visibility: hidden; }
+
+.atc-js .atc-mask { clip-path: inset(100% 0 0 0); }
+
+.atc-mask { overflow: hidden; }
+.atc-mask img, .atc-parallax img, .atc-zoom img { will-change: transform; }
+.atc-parallax, .atc-zoom { overflow: hidden; }
+
+/* Măștile SplitText taie diacriticele (Ă, Î, Ș) dacă rândul e strâns; le dăm loc sus și jos. */
+.atc-line-mask, .atc-word-mask { padding-block: 0.14em; margin-block: -0.14em; }
+
+/* Galerie orizontală: pe ecrane mici devine o bandă nativă cu snap. */
+.atc-hscroll { overflow: hidden; }
+.atc-hscroll .atc-hscroll__track { display: flex; flex-wrap: nowrap; width: max-content; }
+@media (max-width: 767px) {
+  .atc-hscroll { overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--atc-hscroll-pad, 16px); -webkit-overflow-scrolling: touch; }
+  .atc-hscroll .atc-hscroll__track > * { scroll-snap-align: start; }
+}
+
+/* Bandă infinită */
+.atc-marquee { overflow: hidden; }
+.atc-marquee__track { display: flex; width: max-content; will-change: transform; }
+.atc-marquee__set { display: flex; flex-wrap: nowrap; align-items: center; flex-shrink: 0; }
+.atc-marquee__set > * { flex-shrink: 0; margin-right: var(--atc-marquee-gap, 4rem); }
+
+/* Abur */
+.atc-steam__canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+
+/* Bara de progres */
+.atc-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 99999;
+  background: var(--atc-accent); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none;
+}
+body.admin-bar .atc-progress { top: 32px; }
+
+/* Cursor custom (doar pe dispozitive cu mouse) */
+.atc-cursor {
+  position: fixed; top: 0; left: 0; z-index: 100000; pointer-events: none;
+  width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  background: var(--atc-accent); mix-blend-mode: difference; opacity: 0;
+  display: grid; place-items: center;
+  transition: width .35s cubic-bezier(.2,.8,.2,1), height .35s cubic-bezier(.2,.8,.2,1), margin .35s cubic-bezier(.2,.8,.2,1), opacity .3s, background-color .3s;
+}
+.atc-cursor.is-visible { opacity: 1; }
+.atc-cursor.is-link { width: 56px; height: 56px; margin: -28px 0 0 -28px; }
+.atc-cursor.has-label { width: 92px; height: 92px; margin: -46px 0 0 -46px; mix-blend-mode: normal; background: var(--atc-accent); }
+.atc-cursor__label { font: 700 12px/1 inherit; letter-spacing: .08em; text-transform: uppercase; color: var(--atc-ink); opacity: 0; transition: opacity .2s; }
+.atc-cursor.has-label .atc-cursor__label { opacity: 1; }
+
+/* Preloader */
+.atc-preloader {
+  position: fixed; inset: 0; z-index: 100001; background: var(--atc-ink); color: var(--atc-cream);
+  display: flex; flex-direction: column; justify-content: space-between; padding: 4vh 4vw;
+  clip-path: inset(0 0 0 0);
+  animation: atc-preloader-failsafe 0s linear 5s forwards;
+}
+.atc-no-preload .atc-preloader { display: none; }
+.atc-preloader__brand { overflow: hidden; display: flex; gap: .4em; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; font-size: clamp(14px, 1.4vw, 20px); }
+.atc-preloader__brand > * { display: inline-block; }
+.atc-preloader__count { align-self: flex-end; font-weight: 800; font-size: clamp(72px, 16vw, 240px); line-height: .8; font-variant-numeric: tabular-nums; color: var(--atc-accent); }
+@keyframes atc-preloader-failsafe { to { visibility: hidden; opacity: 0; pointer-events: none; } }
+
+html.atc-cursor-on, html.atc-cursor-on a, html.atc-cursor-on button { cursor: none; }
+html.atc-cursor-on input, html.atc-cursor-on textarea, html.atc-cursor-on select { cursor: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .atc-preloader, .atc-cursor, .atc-progress, .atc-steam__canvas { display: none !important; }
+}
