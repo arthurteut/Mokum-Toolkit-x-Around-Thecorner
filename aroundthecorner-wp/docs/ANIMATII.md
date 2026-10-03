@@ -69,7 +69,7 @@ peste tranziție, dă-i clasa `no-transition`.
 | `atc-marquee` | un container cu logo-uri sau text | Bandă infinită care accelerează la scroll și își schimbă sensul. `atc-marquee--reverse`, `data-atc-duration\|30`. |
 | `atc-magnetic` | widget *Button* | Butonul e atras de cursor. |
 | `atc-tilt` | card (container) | Se înclină 3D după mouse. `data-atc-tilt\|7`. |
-| `atc-steam` | containerul unei poze cu ceașcă | Abur animat peste poză. Poziția: `data-atc-steam-x\|0.5`, `data-atc-steam-y\|0.7`. |
+| `atc-steam` | containerul unei poze cu ceașcă | Abur animat peste poză. Poziția: `data-atc-steam-x\|0.5`, `data-atc-steam-y\|0.7`. Densitatea: `data-atc-steam-strength\|1`. |
 | `atc-draw` | widget *HTML* cu un SVG | Liniile se desenează la scroll. |
 | `data-atc-cursor` | atribut pe link sau card | Cu cursorul custom pornit, afișează un text peste element: `data-atc-cursor\|Vezi`. |
 

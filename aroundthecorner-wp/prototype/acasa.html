@@ -37,7 +37,7 @@
 
   .acasa { position: relative; min-height: 100vh; padding: calc(env(safe-area-inset-top, 0px) + 28px) clamp(16px, 2.2vw, 32px) 0; }
   .acasa .atc-bg-layer { object-position: 50% 40%; }
-  .acasa__tint { position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgba(48, 64, 55, .80), rgba(40, 54, 46, .86)); pointer-events: none; }
+  .acasa__tint { position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgba(48, 64, 55, .72), rgba(40, 54, 46, .78)); pointer-events: none; }
   .acasa > :not(.atc-bg-layer):not(.acasa__tint):not(.atc-curtain__strips) { position: relative; z-index: 1; }
 
   .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
@@ -105,7 +105,7 @@
 </style>
 </head>
 <body>
-<main class="acasa atc-bg-zoom atc-bg-zoom--focus atc-bg-zoom--drift" data-atc-blur="3" data-atc-from="1.22">
+<main class="acasa atc-bg-zoom atc-bg-zoom--focus atc-bg-zoom--drift" data-atc-blur="2" data-atc-from="1.2">
   <img class="atc-bg-layer" src="img/acasa-bg.jpg" alt="">
   <div class="acasa__tint" aria-hidden="true"></div>
 

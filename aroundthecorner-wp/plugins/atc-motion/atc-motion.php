@@ -206,7 +206,7 @@ function atc_motion_settings_page() {
 		array( 'atc-draw', 'Liniile unui SVG se desenează la scroll.', '' ),
 		array( 'atc-magnetic', 'Butonul e „atras” de cursor.', 'data-atc-strength|0.35' ),
 		array( 'atc-tilt', 'Card care se înclină 3D după mouse.', 'data-atc-tilt|7' ),
-		array( 'atc-steam', 'Abur animat peste imagine (ceașcă, espressor).', 'data-atc-steam-x|0.5, data-atc-steam-y|0.75' ),
+		array( 'atc-steam', 'Abur animat peste imagine (ceașcă, espressor).', 'data-atc-steam-x|0.5, data-atc-steam-y|0.75, data-atc-steam-strength|1' ),
 		array( 'data-atc-bg', '(atribut) Fundalul paginii trece lin la această culoare.', 'data-atc-bg|#25332c' ),
 		array( 'data-atc-cursor', '(atribut) Cursorul afișează un text peste element.', 'data-atc-cursor|Vezi' ),
 	);

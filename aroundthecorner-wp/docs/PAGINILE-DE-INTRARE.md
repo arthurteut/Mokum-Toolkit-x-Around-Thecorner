@@ -47,10 +47,10 @@ clasele pe **ambele** variante.
 
 | Element | CSS Classes | Attributes |
 |---|---|---|
-| Secțiunea cu fotografia în trei coloane | `atc-curtain atc-bg-zoom atc-bg-zoom--drift atc-steam` | `data-atc-strips\|3` · `data-atc-from\|1.18` · `data-atc-steam-x\|0.84` · `data-atc-steam-y\|0.6` |
-| Banda de sus, cu logo-ul | `atc-reveal atc-reveal--left atc-delay-8` | |
-| Titlul „We create third spaces…” | `atc-split atc-split--words atc-split--instant atc-delay-9` | |
-| Banda cu „Find out more” | `atc-reveal atc-reveal--left atc-delay-9` | |
+| Secțiunea cu fotografia în trei coloane | `atc-curtain atc-bg-zoom atc-bg-zoom--drift atc-steam` | `data-atc-strips\|3` · `data-atc-from\|1.18` · `data-atc-steam-x\|0.84` · `data-atc-steam-y\|0.6` · `data-atc-steam-strength\|1` |
+| Banda de sus, cu logo-ul | `atc-reveal atc-reveal--left atc-delay-6` | |
+| Titlul „We create third spaces…” | `atc-split atc-split--words atc-split--instant atc-delay-7` | |
+| Banda cu „Find out more” | `atc-reveal atc-reveal--left atc-delay-8` | |
 | Butonul / linkul „Find out more” | `atc-magnetic` | |
 
 > Fotografia rămâne fundalul secțiunii, setat în Elementor. Pluginul o mută singur într-un strat care
@@ -60,7 +60,7 @@ clasele pe **ambele** variante.
 
 | Element | CSS Classes | Attributes |
 |---|---|---|
-| Secțiunea cu fundalul espresso | `atc-bg-zoom atc-bg-zoom--focus atc-bg-zoom--drift` | `data-atc-blur\|3` (cât de încețoșat rămâne fundalul; `0` = clar) |
+| Secțiunea cu fundalul espresso | `atc-bg-zoom atc-bg-zoom--focus atc-bg-zoom--drift` | `data-atc-blur\|2` (cât de încețoșat rămâne fundalul; `0` = clar) |
 | Logo-ul din stânga sus | `atc-reveal atc-delay-3` | |
 | Secțiunea interioară cu plăcile | `atc-tiles atc-delay-4` | |
 | Logo-ul auriu „A” de jos | `atc-reveal atc-reveal--scale` | |
@@ -94,6 +94,14 @@ selector .atc-tile:hover { border-color: rgba(235,187,77,.55); }
 În meniul de jos, „Equipments” devine **Shop** (`/shop/`) și „Training” devine **Academie**
 (`/academie/`). Paginile vechi trimit acolo prin redirecturile 301 din
 [ARHITECTURA.md](ARHITECTURA.md).
+
+## Reglajele alese: „echilibrat”
+
+- **Ritm:** intrarea pe pagina 1 durează cam 2 secunde (benzile, apoi titlul la 0,7 s), iar plăcile
+  intră la 0,07 s una după alta. Mai repede: scazi cifrele din `atc-delay-…`; mai lent: le crești.
+- **Abur:** `data-atc-steam-strength|1`. `0.6` = abia se vede, `1.5` = mai dens.
+- **Fundalul de pe /acasa/:** `data-atc-blur|2` și stratul verde de peste poză la circa 75%
+  opacitate (*Background Overlay* în Elementor). Poza se vede, iar textul rămâne ușor de citit.
 
 ## Verificare
 

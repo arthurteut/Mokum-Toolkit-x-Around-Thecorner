@@ -490,7 +490,7 @@
         var alt = has(el, 'atc-curtain--alt');
         var vars = {
           yPercent: function (i) { return alt && i % 2 ? 101 : -101; },
-          duration: 1.25, ease: 'expo.inOut', stagger: 0.14, delay: delayOf(el),
+          duration: 1.1, ease: 'expo.inOut', stagger: 0.12, delay: delayOf(el),
           onComplete: function () { wrap.remove(); }
         };
         if (el.getBoundingClientRect().top > window.innerHeight) {
@@ -572,7 +572,7 @@
         });
         tl.fromTo(items,
           { autoAlpha: 0, y: 90, rotationX: -38, transformPerspective: 1000, transformOrigin: '50% 100%' },
-          { autoAlpha: 1, y: 0, rotationX: 0, duration: 1.2, ease: 'expo.out', stagger: { each: 0.08, grid: 'auto', from: 'start' } })
+          { autoAlpha: 1, y: 0, rotationX: 0, duration: 1.1, ease: 'expo.out', stagger: { each: 0.07, grid: 'auto', from: 'start' } })
           .from(icons, { scale: 0, rotation: -14, duration: 0.9, ease: 'back.out(2.4)', stagger: 0.08 }, 0.25)
           .from(texts, { yPercent: 60, autoAlpha: 0, duration: 0.8, ease: 'power3.out', stagger: 0.04 }, 0.35);
       });
@@ -613,7 +613,8 @@
         var w, h, running = false, t = 0;
         var originX = num(el, 'steam-x', 0.5), originY = num(el, 'steam-y', 0.75);
         var wisps = [];
-        for (var i = 0; i < 7; i++) wisps.push({ seed: Math.random() * 100, off: (i - 3) * 0.035, w: 10 + Math.random() * 22 });
+        var strength = Math.max(0, num(el, 'steam-strength', 1));
+        for (var i = 0; i < 6; i++) wisps.push({ seed: Math.random() * 100, off: (i - 2.5) * 0.035, w: 10 + Math.random() * 22 });
         function size() {
           w = el.clientWidth; h = el.clientHeight;
           c.width = w * dpr; c.height = h * dpr;
@@ -635,7 +636,7 @@
             }
             var g = ctx.createLinearGradient(0, y0, 0, y0 - rise);
             g.addColorStop(0, 'rgba(255,255,255,0)');
-            g.addColorStop(0.25, 'rgba(255,255,255,0.10)');
+            g.addColorStop(0.25, 'rgba(255,255,255,' + (0.09 * strength).toFixed(3) + ')');
             g.addColorStop(1, 'rgba(255,255,255,0)');
             ctx.strokeStyle = g;
             ctx.lineWidth = s.w;
