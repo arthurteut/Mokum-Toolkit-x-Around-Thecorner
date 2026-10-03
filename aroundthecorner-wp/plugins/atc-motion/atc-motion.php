@@ -26,8 +26,9 @@ function atc_motion_options() {
 		'smooth'    => 1,
 		'progress'  => 1,
 		'cursor'    => 0,
-		'preloader' => 0,
-		'markers'   => 0,
+		'preloader'   => 0,
+		'transitions' => 0,
+		'markers'     => 0,
 	);
 	$saved = get_option( 'atc_motion', array() );
 	return wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults );
@@ -91,8 +92,9 @@ add_action(
 					'smooth'    => (bool) $smooth,
 					'progress'  => (bool) $o['progress'],
 					'cursor'    => (bool) $o['cursor'],
-					'preloader' => (bool) $o['preloader'],
-					'markers'   => (bool) $o['markers'] && current_user_can( 'manage_options' ),
+					'preloader'   => (bool) $o['preloader'],
+					'transitions' => (bool) $o['transitions'],
+					'markers'     => (bool) $o['markers'] && current_user_can( 'manage_options' ),
 				)
 			) . ';',
 			'before'
@@ -111,7 +113,7 @@ add_action(
 			return;
 		}
 		?>
-<script id="atc-motion-head">(function(d){if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;var h=d.documentElement;h.classList.add('atc-js');try{if(sessionStorage.getItem('atcPreloaded'))h.classList.add('atc-no-preload')}catch(e){}window.__atcFailsafe=setTimeout(function(){h.classList.remove('atc-js')},4000)})(document);</script>
+<script id="atc-motion-head">(function(d){if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;var h=d.documentElement;h.classList.add('atc-js');try{if(sessionStorage.getItem('atcPreloaded'))h.classList.add('atc-no-preload');if(sessionStorage.getItem('atcPT'))h.classList.add('atc-pt-in','atc-no-preload')}catch(e){}window.__atcFailsafe=setTimeout(function(){h.classList.remove('atc-js')},4000)})(document);</script>
 		<?php
 	},
 	1
@@ -147,7 +149,7 @@ add_action(
 				'type'              => 'array',
 				'sanitize_callback' => function ( $in ) {
 					$out = array();
-					foreach ( array( 'smooth', 'progress', 'cursor', 'preloader', 'markers' ) as $k ) {
+					foreach ( array( 'smooth', 'progress', 'cursor', 'preloader', 'transitions', 'markers' ) as $k ) {
 						$out[ $k ] = empty( $in[ $k ] ) ? 0 : 1;
 					}
 					return $out;
@@ -178,10 +180,15 @@ function atc_motion_settings_page() {
 		'smooth'    => array( 'Scroll fin (Lenis)', 'Derulare fluidă, „cinematică”. Dezactivat automat pe coș, checkout și contul clientului.' ),
 		'progress'  => array( 'Bară de progres', 'Linie aurie subțire, sus, care arată cât ai derulat din pagină.' ),
 		'cursor'    => array( 'Cursor custom', 'Punct auriu care crește peste linkuri; doar pe desktop.' ),
-		'preloader' => array( 'Preloader', 'Ecran de intrare cu numărătoare 0→100, o singură dată pe sesiune.' ),
+		'preloader'   => array( 'Preloader', 'Ecran de intrare cu numărătoare 0→100, o singură dată pe sesiune.' ),
+		'transitions' => array( 'Tranziții între pagini', 'La click pe un link intern, trei benzi verzi închid pagina și se deschid pe următoarea. Scoate scriptul vechi de fade-in/fade-out din Elementor dacă îl activezi.' ),
 		'markers'   => array( 'Markeri de depanare', 'Arată (doar administratorilor) unde încep și se termină animațiile la scroll.' ),
 	);
 	$classes = array(
+		array( 'atc-curtain', 'Trei benzi verzi se ridică pe rând și dezvăluie secțiunea (intro).', 'data-atc-strips|3, --alt (benzile alternează sus/jos)' ),
+		array( 'atc-bg-zoom', 'Fundalul secțiunii intră cu zoom-out și se mișcă lent la scroll.', '--focus (pornește încețoșat), --drift (urmărește mouse-ul), data-atc-blur|2' ),
+		array( 'atc-tiles', 'Grilă de plăci: intră cu rotire 3D, iconițele sar, lumină aurie după mouse.', 'pe secțiunea interioară / containerul plăcilor' ),
+		array( 'atc-spotlight', 'Lumină aurie care urmărește mouse-ul pe un card.', '' ),
 		array( 'atc-reveal', 'Elementul apare cu fade + glisare de jos.', '--left, --right, --scale, atc-delay-1…9' ),
 		array( 'atc-stagger', 'Pe un container: copiii apar pe rând.', 'atribut data-atc-stagger|0.15' ),
 		array( 'atc-split', 'Titlu dezvăluit linie cu linie (mască).', '--words, --chars, --instant (fără scroll, pt. hero)' ),

@@ -7,7 +7,7 @@
   'use strict';
 
   var cfg = Object.assign(
-    { smooth: true, cursor: false, progress: true, preloader: false, markers: false },
+    { smooth: true, cursor: false, progress: true, preloader: false, transitions: false, markers: false },
     window.ATC_MOTION_CONFIG || {}
   );
 
@@ -32,6 +32,7 @@
     reveal();
     var pre = document.querySelector('.atc-preloader');
     if (pre) pre.remove();
+    html.classList.remove('atc-pt-in');
     return;
   }
 
@@ -60,7 +61,12 @@
 
   // Copiii „vizuali” ai unui container Elementor (sare peste .e-con-inner / widget-container).
   function kids(el) {
-    var inner = el.querySelector(':scope > .e-con-inner') || el.querySelector(':scope > .elementor-widget-container');
+    var inner =
+      el.querySelector(':scope > .e-con-inner') ||
+      el.querySelector(':scope > .elementor-container') ||
+      el.querySelector(':scope > .elementor-widget-wrap') ||
+      el.querySelector(':scope > .elementor-column-wrap > .elementor-widget-wrap') ||
+      el.querySelector(':scope > .elementor-widget-container');
     var list = Array.prototype.slice.call((inner || el).children);
     return list.filter(function (k) {
       return k.tagName !== 'STYLE' && k.tagName !== 'SCRIPT';
@@ -74,6 +80,17 @@
       return !n.parentElement.closest('h1,h2,h3,h4,h5,h6,p') || n.parentElement === el;
     });
     return t.length ? t : [el];
+  }
+
+  // Start pentru animațiile „o singură dată”: elementul pornește când ajunge la pct% din ecran,
+  // dar și când e prea jos ca să ajungă vreodată acolo (la capătul paginii).
+  function startAt(pct) {
+    return function (self) {
+      var r = self.trigger.getBoundingClientRect();
+      var top = r.top + (window.scrollY || window.pageYOffset);
+      var s = top - window.innerHeight * pct / 100;
+      return Math.min(s, ScrollTrigger.maxScroll(window) - 2);
+    };
   }
 
   function mediaIn(el) {
@@ -113,7 +130,7 @@
         gsap.set(el, from);
       });
       ScrollTrigger.batch(els, {
-        start: 'top 88%',
+        start: startAt(88),
         once: true,
         onEnter: function (batch) {
           gsap.to(batch, {
@@ -134,7 +151,7 @@
         gsap.fromTo(items, { autoAlpha: 0, y: 50 }, {
           autoAlpha: 1, y: 0, duration: 1.1, ease: EASE,
           stagger: num(el, 'stagger', 0.1),
-          scrollTrigger: { trigger: el, start: 'top 85%', once: true }
+          scrollTrigger: { trigger: el, start: startAt(85), once: true }
         });
       });
     },
@@ -161,7 +178,7 @@
                 stagger: mode === 'chars' ? 0.025 : mode === 'words' ? 0.05 : 0.1,
                 delay: delayOf(el)
               };
-              if (!instant) vars.scrollTrigger = { trigger: el, start: 'top 88%', once: true };
+              if (!instant) vars.scrollTrigger = { trigger: el, start: startAt(88), once: true };
               return gsap.from(parts, vars);
             }
           });
@@ -181,7 +198,7 @@
               gsap.set(el, { autoAlpha: 1 });
               return gsap.fromTo(self.words, { opacity: 0.14 }, {
                 opacity: 1, ease: 'none', stagger: 0.1,
-                scrollTrigger: { trigger: el, start: 'top 80%', end: 'bottom 45%', scrub: true }
+                scrollTrigger: { trigger: el, start: 'top 80%', end: 'clamp(bottom 45%)', scrub: true }
               });
             }
           });
@@ -194,7 +211,7 @@
       $$('.atc-mask', root).forEach(function (el) {
         var dir = has(el, 'atc-mask--left') ? 'inset(0 100% 0 0)' : 'inset(100% 0 0 0)';
         var media = mediaIn(el);
-        var tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 85%', once: true }, delay: delayOf(el) });
+        var tl = gsap.timeline({ scrollTrigger: { trigger: el, start: startAt(85), once: true }, delay: delayOf(el) });
         tl.fromTo(el, { clipPath: dir, autoAlpha: 1 }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'expo.inOut' });
         if (media) tl.from(media, { scale: 1.35, duration: 1.8, ease: EASE }, 0);
       });
@@ -348,7 +365,7 @@
         paint();
         gsap.to(o, {
           v: end, duration: num(el, 'duration', 2), ease: 'power2.out', onUpdate: paint,
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+          scrollTrigger: { trigger: el, start: startAt(90), once: true }
         });
       });
     },
@@ -399,7 +416,7 @@
           if (!len) return;
           gsap.fromTo(p, { strokeDasharray: len, strokeDashoffset: len }, {
             strokeDashoffset: 0, ease: 'none',
-            scrollTrigger: { trigger: el, start: 'top 80%', end: 'bottom 50%', scrub: 1 }
+            scrollTrigger: { trigger: el, start: 'top 80%', end: 'clamp(bottom 50%)', scrub: 1 }
           });
         });
       });
@@ -448,6 +465,136 @@
           rx(-((e.clientY - r.top) / r.height - 0.5) * max * 2);
         });
         el.addEventListener('pointerleave', function () { rx(0); ry(0); });
+      });
+    },
+
+    // Cortină pe coloane: N benzi (implicit 3) se ridică pe rând și dezvăluie elementul.
+    curtain: function (root) {
+      $$('.atc-curtain', root).forEach(function (el) {
+        if (el.__atcCurtain) return;
+        el.__atcCurtain = true;
+        if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+        var n = Math.max(1, Math.round(num(el, 'strips', 3)));
+        var wrap = document.createElement('div');
+        wrap.className = 'atc-curtain__strips';
+        wrap.setAttribute('aria-hidden', 'true');
+        var color = el.getAttribute('data-atc-curtain-color');
+        for (var i = 0; i < n; i++) {
+          var st = document.createElement('i');
+          if (color) st.style.background = color;
+          wrap.appendChild(st);
+        }
+        el.appendChild(wrap);
+        el.classList.add('atc-curtain--ready');
+        var strips = wrap.children;
+        var alt = has(el, 'atc-curtain--alt');
+        var vars = {
+          yPercent: function (i) { return alt && i % 2 ? 101 : -101; },
+          duration: 1.25, ease: 'expo.inOut', stagger: 0.14, delay: delayOf(el),
+          onComplete: function () { wrap.remove(); }
+        };
+        if (el.getBoundingClientRect().top > window.innerHeight) {
+          vars.scrollTrigger = { trigger: el, start: startAt(80), once: true };
+        }
+        gsap.to(strips, vars);
+      });
+    },
+
+    // Fundal cinematic: poza de fundal (CSS sau <img class="atc-bg-layer">) intră cu zoom-out,
+    // se mișcă lent la scroll; --focus: pornește încețoșată; --drift: urmărește ușor mouse-ul.
+    bgzoom: function (root) {
+      $$('.atc-bg-zoom', root).forEach(function (el) {
+        if (el.__atcBg) return;
+        el.__atcBg = true;
+        var layer = el.querySelector(':scope > .atc-bg-layer');
+        if (!layer) {
+          var cs = getComputedStyle(el);
+          if (!cs.backgroundImage || cs.backgroundImage === 'none') return;
+          layer = document.createElement('div');
+          layer.className = 'atc-bg-layer';
+          layer.style.backgroundImage = cs.backgroundImage;
+          layer.style.backgroundPosition = cs.backgroundPosition;
+          layer.style.backgroundSize = cs.backgroundSize === 'auto' ? 'cover' : cs.backgroundSize;
+          el.style.backgroundImage = 'none';
+          el.insertBefore(layer, el.firstChild);
+        }
+        if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+        el.classList.add('atc-bg-zoom--on');
+        var blurEnd = num(el, 'blur', 0);
+        var from = { scale: num(el, 'from', 1.25) };
+        var to = { scale: 1.04, duration: num(el, 'duration', 2.8), ease: 'power3.out', delay: delayOf(el) };
+        if (has(el, 'atc-bg-zoom--focus')) {
+          from.filter = 'blur(' + num(el, 'blur-from', 18) + 'px)';
+          to.filter = 'blur(' + blurEnd + 'px)';
+        } else if (blurEnd) {
+          gsap.set(layer, { filter: 'blur(' + blurEnd + 'px)' });
+        }
+        gsap.fromTo(layer, from, to);
+        gsap.to(layer, {
+          yPercent: num(el, 'speed', 8), ease: 'none',
+          scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true }
+        });
+        if (has(el, 'atc-bg-zoom--drift') && finePointer) {
+          var xTo = gsap.quickTo(layer, 'x', { duration: 1.6, ease: 'power3' });
+          var yTo = gsap.quickTo(layer, 'y', { duration: 1.6, ease: 'power3' });
+          var amp = num(el, 'drift', 18);
+          window.addEventListener('pointermove', function (e) {
+            xTo((e.clientX / window.innerWidth - 0.5) * -amp);
+            yTo((e.clientY / window.innerHeight - 0.5) * -amp);
+          });
+        }
+      });
+    },
+
+    // Grilă de plăci: intră pe rând cu o rotire 3D, iconița „sare”, textul urcă.
+    // Fiecare placă primește și lumina care urmărește mouse-ul (spotlight).
+    tiles: function (root) {
+      $$('.atc-tiles', root).forEach(function (el) {
+        var items = $$('.atc-tile', el);
+        if (!items.length) items = kids(el);
+        items.forEach(function (t) {
+          t.classList.add('atc-tile', 'atc-spotlight');
+          var ic = t.querySelector('img, svg');
+          if (!ic || !finePointer) return;
+          t.addEventListener('pointerenter', function () { gsap.to(ic, { y: -8, scale: 1.08, duration: 0.6, ease: 'power3.out', overwrite: 'auto' }); });
+          t.addEventListener('pointerleave', function () { gsap.to(ic, { y: 0, scale: 1, duration: 0.8, ease: 'elastic.out(1, 0.45)', overwrite: 'auto' }); });
+        });
+        gsap.set(el, { autoAlpha: 1 });
+        var icons = items.map(function (t) { return t.querySelector('img, svg'); }).filter(Boolean);
+        var texts = [];
+        items.forEach(function (t) {
+          $$('.elementor-heading-title, h1, h2, h3, h4, p, strong, span.atc-tile__text', t).forEach(function (x) { texts.push(x); });
+        });
+        var inView = el.getBoundingClientRect().top < window.innerHeight * 0.9;
+        var tl = gsap.timeline({
+          delay: delayOf(el),
+          scrollTrigger: inView ? null : { trigger: el, start: startAt(85), once: true }
+        });
+        tl.fromTo(items,
+          { autoAlpha: 0, y: 90, rotationX: -38, transformPerspective: 1000, transformOrigin: '50% 100%' },
+          { autoAlpha: 1, y: 0, rotationX: 0, duration: 1.2, ease: 'expo.out', stagger: { each: 0.08, grid: 'auto', from: 'start' } })
+          .from(icons, { scale: 0, rotation: -14, duration: 0.9, ease: 'back.out(2.4)', stagger: 0.08 }, 0.25)
+          .from(texts, { yPercent: 60, autoAlpha: 0, duration: 0.8, ease: 'power3.out', stagger: 0.04 }, 0.35);
+      });
+      effects.spotlight(root);
+    },
+
+    // Lumină aurie care urmărește mouse-ul în interiorul unui card.
+    spotlight: function (root) {
+      if (!finePointer) return;
+      $$('.atc-spotlight', root).forEach(function (el) {
+        if (el.__atcSpot) return;
+        el.__atcSpot = true;
+        if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+        var glow = document.createElement('span');
+        glow.className = 'atc-spotlight__glow';
+        glow.setAttribute('aria-hidden', 'true');
+        el.appendChild(glow);
+        el.addEventListener('pointermove', function (e) {
+          var r = el.getBoundingClientRect();
+          el.style.setProperty('--atc-mx', (e.clientX - r.left) + 'px');
+          el.style.setProperty('--atc-my', (e.clientY - r.top) + 'px');
+        });
       });
     },
 
@@ -562,9 +709,74 @@
       .add(done, '-=0.6');
   }
 
+  /* ---------- tranziții între pagini ---------- */
+
+  function pageTransitions() {
+    var cover = null;
+    function build(state) {
+      if (cover) return cover;
+      cover = document.createElement('div');
+      cover.className = 'atc-pt';
+      cover.setAttribute('aria-hidden', 'true');
+      cover.innerHTML = '<i></i><i></i><i></i>';
+      document.body.appendChild(cover);
+      gsap.set(cover.querySelectorAll('i'), { yPercent: state === 'covered' ? 0 : 101 });
+      return cover;
+    }
+    function leaveOk(a, e) {
+      if (!cfg.transitions || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return false;
+      if (a.target && a.target !== '_self') return false;
+      if (a.hasAttribute('download') || a.closest('.no-transition, [data-no-transition], #wpadminbar, .ajax_add_to_cart')) return false;
+      var href = a.getAttribute('href') || '';
+      if (!href || href.charAt(0) === '#' || /^(mailto|tel|sms|javascript|whatsapp):/i.test(href)) return false;
+      var url;
+      try { url = new URL(a.href, location.href); } catch (err) { return false; }
+      if (url.origin !== location.origin) return false;
+      if (url.pathname === location.pathname && url.search === location.search && url.hash) return false;
+      if (/add-to-cart=|\/wp-admin|\/wp-login|elementor-preview/.test(url.href)) return false;
+      if (/\.(pdf|zip|jpe?g|png|webp|gif|mp4)$/i.test(url.pathname)) return false;
+      return url.href;
+    }
+
+    // Intrare: dacă pagina anterioară a închis cortina, o deschidem acum.
+    var arriving = html.classList.contains('atc-pt-in');
+    try { sessionStorage.removeItem('atcPT'); } catch (err) {}
+    if (arriving) {
+      build('covered');
+      html.classList.remove('atc-pt-in');
+      gsap.to(cover.querySelectorAll('i'), {
+        yPercent: -101, duration: 1, ease: 'expo.inOut', stagger: 0.1, delay: 0.1,
+        onComplete: function () { gsap.set(cover.querySelectorAll('i'), { yPercent: 101 }); }
+      });
+    }
+
+    if (!cfg.transitions) return;
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      var go = leaveOk(a, e);
+      if (!go) return;
+      e.preventDefault();
+      build();
+      if (lenis) lenis.stop();
+      try { sessionStorage.setItem('atcPT', '1'); } catch (err) {}
+      gsap.fromTo(cover.querySelectorAll('i'), { yPercent: 101 }, {
+        yPercent: 0, duration: 0.75, ease: 'expo.inOut', stagger: 0.08,
+        onComplete: function () { location.href = go; }
+      });
+    });
+    // Înapoi din istoric (bfcache): cortina nu trebuie să rămână trasă.
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted && cover) {
+        gsap.set(cover.querySelectorAll('i'), { yPercent: 101 });
+        if (lenis) lenis.start();
+      }
+    });
+  }
+
   /* ---------- pornire ---------- */
 
-  var order = ['split', 'scrubtext', 'reveal', 'stagger', 'mask', 'parallax', 'zoom', 'heroout', 'pin', 'expand', 'hscroll', 'stack', 'counter', 'marquee', 'draw', 'bg', 'magnetic', 'tilt', 'steam'];
+  var order = ['curtain', 'bgzoom', 'tiles', 'split', 'scrubtext', 'reveal', 'stagger', 'mask', 'parallax', 'zoom', 'heroout', 'pin', 'expand', 'hscroll', 'stack', 'counter', 'marquee', 'draw', 'bg', 'magnetic', 'tilt', 'steam'];
 
   function init(root) {
     root = root || document;
@@ -575,6 +787,7 @@
 
   function boot() {
     html.classList.add('atc-ready');
+    pageTransitions();
     progressBar();
     cursor();
     // Elementele din prima ecranare (hero) pornesc după preloader.

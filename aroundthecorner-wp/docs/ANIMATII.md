@@ -48,6 +48,20 @@ Pui o **clasă CSS** pe un element, iar pluginul îl animă. Nimic altceva de in
 | `atc-hscroll` | secțiunea | Galerie orizontală fixată. Containerul interior (direcție *Row*, *Wrap: No wrap*) primește `atc-hscroll__track`. Pe telefon devine o bandă cu swipe. |
 | `data-atc-bg` | atribut pe secțiune | `data-atc-bg\|#25332c` și opțional `data-atc-fg\|#f8f7f0`: fundalul paginii trece lin la această culoare. Lasă fundalul secțiunii transparent. |
 
+### Intrări de pagină
+
+| Clasă | Unde o pui | Ce face |
+|---|---|---|
+| `atc-curtain` | secțiunea de intro | Benzi verzi (implicit 3) acoperă secțiunea și se ridică pe rând. `data-atc-strips\|3`, `atc-curtain--alt` (benzile alternează sus/jos), culoarea: `data-atc-curtain-color\|#25332c`. |
+| `atc-bg-zoom` | secțiunea cu poză de fundal | Fundalul intră cu zoom-out și se mișcă lent la scroll. `atc-bg-zoom--focus`: pornește încețoșat și intră în focus. `atc-bg-zoom--drift`: urmărește ușor mouse-ul. `data-atc-blur\|3`: cât rămâne încețoșat. Funcționează cu fundalul setat normal din Elementor. |
+| `atc-tiles` | secțiunea / containerul cu plăci | Plăcile intră pe rând cu rotire 3D, iconițele sar, textele urcă. La hover: lumină aurie după mouse și iconița se ridică. Merge și cu secțiunile vechi (Section → Column). |
+| `atc-spotlight` | orice card | Doar lumina aurie care urmărește mouse-ul. Culoarea: `selector { --atc-glow: rgba(235,187,77,.24); }`. |
+
+**Tranziții între pagini:** se pornesc din *Setări → ATC Motion*, nu printr-o clasă. La click pe un
+link intern, trei benzi verzi închid pagina și se deschid pe următoarea. Linkurile externe, `#ancorele`,
+telefonul, emailul, WhatsApp-ul și butoanele „Adaugă în coș” nu sunt afectate. Ca un link să sară
+peste tranziție, dă-i clasa `no-transition`.
+
 ### Interacțiuni
 
 | Clasă | Unde o pui | Ce face |

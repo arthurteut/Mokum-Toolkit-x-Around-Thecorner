@@ -9,6 +9,7 @@
 }
 
 .atc-js .atc-reveal,
+.atc-js .atc-tiles,
 .atc-js .atc-split,
 .atc-js .atc-scrub-text,
 .atc-js .atc-stagger { visibility: hidden; }
@@ -20,7 +21,7 @@
 .atc-parallax, .atc-zoom { overflow: hidden; }
 
 /* Măștile SplitText taie diacriticele (Ă, Î, Ș) dacă rândul e strâns; le dăm loc sus și jos. */
-.atc-line-mask, .atc-word-mask { padding-block: 0.14em; margin-block: -0.14em; }
+.atc-line-mask, .atc-word-mask { padding: 0.14em 0.08em; margin: -0.14em -0.08em; }
 
 /* Galerie orizontală: pe ecrane mici devine o bandă nativă cu snap. */
 .atc-hscroll { overflow: hidden; }
@@ -78,4 +79,31 @@ html.atc-cursor-on input, html.atc-cursor-on textarea, html.atc-cursor-on select
 
 @media (prefers-reduced-motion: reduce) {
   .atc-preloader, .atc-cursor, .atc-progress, .atc-steam__canvas { display: none !important; }
+}
+
+/* Cortină pe coloane (atc-curtain): acoperă elementul până pornește JS-ul. */
+.atc-curtain { position: relative; }
+.atc-js .atc-curtain:not(.atc-curtain--ready)::after { content: ""; position: absolute; inset: 0; z-index: 6; background: var(--atc-ink); }
+.atc-curtain__strips { position: absolute; inset: 0; z-index: 6; display: flex; pointer-events: none; }
+.atc-curtain__strips i { flex: 1; background: var(--atc-ink); margin-right: -1px; }
+
+/* Fundal cinematic (atc-bg-zoom) */
+.atc-bg-zoom { isolation: isolate; overflow: hidden; }
+.atc-bg-layer { position: absolute; inset: -4%; z-index: -1; background-size: cover; background-position: center; will-change: transform; }
+img.atc-bg-layer { width: 108%; height: 108%; max-width: none; object-fit: cover; }
+
+/* Lumina care urmărește mouse-ul (atc-spotlight, pusă automat pe plăcile din atc-tiles) */
+.atc-spotlight__glow {
+  position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: radial-gradient(260px circle at var(--atc-mx, 50%) var(--atc-my, 50%), var(--atc-glow, rgba(235, 187, 77, .24)), transparent 65%);
+  transition: opacity .4s ease;
+}
+.atc-spotlight:hover > .atc-spotlight__glow { opacity: 1; }
+
+/* Tranziții între pagini */
+.atc-pt { position: fixed; inset: 0; z-index: 100002; display: flex; pointer-events: none; }
+.atc-pt i { flex: 1; margin-right: -1px; background: var(--atc-ink); }
+html.atc-pt-in body::before {
+  content: ""; position: fixed; inset: 0; z-index: 100003; background: var(--atc-ink);
+  animation: atc-preloader-failsafe 0s linear 3s forwards;
 }

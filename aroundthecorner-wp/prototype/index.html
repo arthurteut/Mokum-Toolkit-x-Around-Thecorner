@@ -3,646 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!--ATC:HEAD-START-->
 <title>Around The Corner</title>
-<meta name="description" content="Around The Corner: consultanță pentru deschiderea cafenelelor, Academie de barista și echipamente La Marzocco, Modbar, Mahlkönig.">
+<meta name="description" content="Around The Corner: we create third spaces that people want to be part of.">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="../plugins/atc-motion/assets/vendor/lenis.css">
 <link rel="stylesheet" href="../plugins/atc-motion/assets/atc-motion.css">
 <script>
-  window.ATC_MOTION_CONFIG = { smooth: true, progress: true, cursor: true, preloader: true, markers: false };
+  window.ATC_MOTION_CONFIG = { smooth: true, progress: false, cursor: true, preloader: false, transitions: true, markers: false };
   (function (d) {
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var h = d.documentElement; h.classList.add('atc-js');
-    try { if (sessionStorage.getItem('atcPreloaded')) h.classList.add('atc-no-preload'); } catch (e) {}
+    try { if (sessionStorage.getItem('atcPT')) h.classList.add('atc-pt-in', 'atc-no-preload'); } catch (e) {}
     window.__atcFailsafe = setTimeout(function () { h.classList.remove('atc-js'); }, 4000);
   })(document);
 </script>
 <style>
-  /* Layout: capitole care alternează verde închis / crem; fundalul paginii trece lin de la unul la altul la scroll. */
+  /* Pagina 1 (/): designul actual al site-ului (fotografia în trei coloane, benzile întunecate,
+     titlul alb cu umbră), animat cu ATC Motion. */
   :root {
     --ink: #25332c;
-    --forest: #3e4d45;
-    --sage: #5e7369;
+    --sage: #44554d;
     --cream: #f8f7f0;
-    --sand: #eee0cb;
-    --gold: #ddaf43;
-    --line: rgba(127, 140, 120, .28);
-
-    --display: "Avenir Next LT Pro", "Avenir Next", "Avenir", "Nunito Sans", system-ui, sans-serif;
-    --body: "Avenir Next LT Pro", "Avenir Next", "Avenir", "Nunito Sans", system-ui, sans-serif;
-
-    --atc-page-bg: #25332c;
-    --atc-page-fg: #f8f7f0;
-    --gutter: clamp(16px, 4vw, 56px);
-    --max: 1320px;
+    --gold: #ebbb4d;
+    --band: rgba(28, 30, 28, .55);
+    --font: "Avenir Next LT Pro", "Avenir Next", "Avenir", "Nunito Sans", system-ui, sans-serif;
     color-scheme: dark;
   }
-  html { background: var(--atc-page-bg); }
-  body {
-    margin: 0;
-    background: var(--atc-page-bg);
-    color: var(--atc-page-fg);
-    font: 400 17px/1.6 var(--body);
-    -webkit-font-smoothing: antialiased;
-    overflow-x: clip;
-  }
-  img { max-width: 100%; display: block; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--ink); color: #fff; font: 400 17px/1.5 var(--font); -webkit-font-smoothing: antialiased; overflow-x: clip; }
   a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-  ::selection { background: var(--gold); color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
-  .wrap { max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }
-  .eyebrow { font-weight: 700; font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin: 0; }
-  .h-xl, .h-lg, .h-md { font-family: var(--display); font-weight: 900; text-transform: uppercase; line-height: .92; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
-  .h-xl { font-size: clamp(3rem, 9.4vw, 9.5rem); }
-  .h-lg { font-size: clamp(2.4rem, 6vw, 5.6rem); }
-  .h-md { font-size: clamp(1.5rem, 2.6vw, 2.2rem); line-height: 1; }
-  .lead { font-size: clamp(1.05rem, 1.5vw, 1.3rem); max-width: 58ch; opacity: .86; margin: 0; }
-  section { position: relative; }
-  .chapter { padding-block: clamp(96px, 14vw, 200px); }
+  .intro { position: relative; min-height: 100vh; min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto auto; }
+  .intro .atc-bg-layer { object-position: 50% 50%; }
+  .intro::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,0) 30%, rgba(0,0,0,.28)); }
+  .band, .intro__copy { position: relative; z-index: 2; }
 
-  .btn {
-    display: inline-flex; align-items: center; gap: .6em;
-    font: 700 .95rem/1 var(--body); letter-spacing: .02em; text-decoration: none;
-    padding: 1.05em 1.7em; border-radius: 999px; border: 1px solid currentColor;
-    transition: background-color .3s, color .3s, border-color .3s;
+  .band { background: var(--band); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); transform-origin: 0 50%; }
+  .band--top { margin-top: calc(env(safe-area-inset-top, 0px) + 54px); padding: 22px clamp(16px, 6.7vw, 96px); }
+  .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand img { width: 50px; height: 50px; }
+  .brand span { font-weight: 900; text-transform: uppercase; line-height: .9; font-size: 1.45rem; letter-spacing: .01em; }
+  .brand small { display: block; font-size: .68em; }
+
+  .intro__copy { align-self: center; padding: 48px clamp(16px, 8.6vw, 124px) 36px; }
+  .intro__title {
+    margin: 0; font-weight: 900; font-size: clamp(2.6rem, 5.2vw, 4.7rem); line-height: 1.12; letter-spacing: -.005em;
+    text-shadow: 5px 2px 1px rgba(0, 0, 0, .52); max-width: 18ch; text-wrap: balance;
   }
-  .btn--solid { background: var(--gold); color: var(--ink); border-color: var(--gold); }
-  .btn--solid:hover { background: var(--atc-page-fg); border-color: var(--atc-page-fg); color: var(--atc-page-bg); }
-  .btn--ghost:hover { background: var(--atc-page-fg); color: var(--atc-page-bg); border-color: var(--atc-page-fg); }
-  .arrow { display: inline-block; transition: transform .3s; }
-  a:hover .arrow { transform: translateX(4px); }
+  .intro__title em { font-style: normal; }
 
-  /* ---------- header ---------- */
-  .top {
-    position: fixed; z-index: 50; inset: 0 0 auto 0;
-    padding: calc(env(safe-area-inset-top, 0px) + 18px) var(--gutter) 18px;
-    display: flex; align-items: center; justify-content: space-between; gap: 24px;
-    color: var(--atc-page-fg);
-    transition: padding .4s, background-color .4s, backdrop-filter .4s;
+  .band--cta { justify-self: start; max-width: 100%; padding: 26px clamp(28px, 4vw, 64px) 30px clamp(16px, 8.6vw, 124px); margin-bottom: clamp(36px, 8vh, 96px); box-sizing: border-box; }
+  .cta { display: inline-flex; align-items: center; gap: .5em; text-decoration: none; white-space: nowrap; font-weight: 900; font-size: clamp(1.6rem, 2.6vw, 2.5rem); text-shadow: 3px 2px 1px rgba(0,0,0,.45); }
+  .cta .arrow { display: inline-block; animation: nudge 2.4s cubic-bezier(.6,0,.2,1) 3s infinite; }
+  .cta:hover { color: var(--gold); }
+  @keyframes nudge { 0%, 60%, 100% { transform: translateX(0); } 30% { transform: translateX(10px); } }
+
+  /* zona cu abur peste ceștile din coloana dreaptă */
+  .steam { position: absolute; z-index: 1; right: 0; top: 0; width: 33.4%; height: 100%; pointer-events: none; }
+
+  .proto-note { position: fixed; z-index: 60; right: 14px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); background: var(--gold); color: var(--ink); font: 700 .74rem/1.3 var(--font); padding: 8px 12px; border-radius: 999px; letter-spacing: .04em; text-decoration: none; }
+
+  @media (max-width: 760px) {
+    .intro .atc-bg-layer { object-position: 50% 50%; }
+    .band--top { margin-top: calc(env(safe-area-inset-top, 0px) + 24px); padding-block: 16px; }
+    .brand img { width: 42px; height: 42px; }
+    .brand span { font-size: 1.15rem; }
+    .steam { width: 100%; }
   }
-  .top.is-scrolled { padding-block: calc(env(safe-area-inset-top, 0px) + 10px) 10px; background: color-mix(in srgb, var(--atc-page-bg) 82%, transparent); backdrop-filter: blur(14px); }
-  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .brand img { width: 40px; height: 40px; }
-  .brand span { font-weight: 900; text-transform: uppercase; line-height: .95; font-size: 1rem; letter-spacing: .02em; }
-  .brand small { display: block; font-size: .72em; }
-  .nav { display: flex; gap: clamp(14px, 2vw, 30px); align-items: center; }
-  .nav a { text-decoration: none; font-weight: 700; font-size: .92rem; position: relative; }
-  .nav a:not(.btn)::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: right; transition: transform .35s; }
-  .nav a:not(.btn):hover::after { transform: scaleX(1); transform-origin: left; }
-  .nav .btn { padding: .75em 1.2em; }
-  .menu-btn { display: none; background: none; border: 1px solid currentColor; color: inherit; border-radius: 999px; padding: .6em 1.1em; font: 700 .9rem var(--body); cursor: pointer; }
-  @media (max-width: 980px) {
-    .menu-btn { display: inline-flex; }
-    .nav { position: fixed; inset: 0; z-index: -1; flex-direction: column; justify-content: center; gap: 22px; background: var(--ink); color: var(--cream); opacity: 0; pointer-events: none; transition: opacity .35s; }
-    .nav a { font-size: 1.6rem; font-weight: 900; text-transform: uppercase; }
-    .top.is-open .nav { opacity: 1; pointer-events: auto; }
-  }
-
-  /* ---------- hero ---------- */
-  .hero { padding-top: clamp(130px, 16vw, 190px); padding-bottom: clamp(48px, 7vw, 96px); }
-  .hero__inner { transform-origin: 50% 0; }
-  .hero__title { margin-top: 18px; }
-  .hero__title em { font-style: normal; color: var(--gold); }
-  .hero__row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; margin-top: clamp(28px, 4vw, 48px); }
-  .hero__panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.6vw, 22px); margin-top: clamp(40px, 6vw, 80px); align-items: start; }
-  .panel { margin: 0; overflow: hidden; border-radius: 6px; aspect-ratio: 9 / 13; max-width: 100%; background: var(--forest); }
-  .panel img { width: 100%; height: 100%; object-fit: cover; }
-  .panel:nth-child(2) { margin-top: clamp(30px, 6vw, 90px); }
-  .panel:nth-child(3) { margin-top: clamp(14px, 3vw, 40px); }
-  .panel figcaption { position: absolute; left: 14px; bottom: 12px; z-index: 3; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--cream); }
-  .panel { position: relative; }
-  .scroll-cue { display: flex; align-items: center; gap: 12px; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; opacity: .75; }
-  .scroll-cue i { width: 1px; height: 46px; background: currentColor; display: block; position: relative; overflow: hidden; }
-  .scroll-cue i::after { content: ""; position: absolute; inset: 0; background: var(--gold); transform: translateY(-100%); animation: cue 2.2s cubic-bezier(.7,0,.3,1) infinite; }
-  @keyframes cue { 50% { transform: translateY(0); } 100% { transform: translateY(100%); } }
-
-  /* ---------- expand ---------- */
-  .expand { height: 100vh; height: 100svh; overflow: hidden; }
-  .expand__media { position: absolute; inset: 0; overflow: hidden; }
-  .expand__media img { width: 100%; height: 100%; object-fit: cover; }
-  .expand__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20, 28, 24, .82) 0%, rgba(20, 28, 24, .1) 55%); }
-  .expand__copy { position: absolute; z-index: 2; left: 0; right: 0; bottom: clamp(32px, 7vw, 90px); color: var(--cream); }
-  .expand__copy .h-lg { max-width: 16ch; margin-top: 14px; }
-  .expand__src { margin-top: 18px; font-size: .85rem; opacity: .7; max-width: 60ch; }
-  @media (max-width: 767px) { .expand { height: auto; } .expand__media { position: relative; aspect-ratio: 4/5; } .expand__copy { position: relative; bottom: auto; padding-block: 32px 0; color: var(--atc-page-fg); } }
-
-  /* ---------- manifest ---------- */
-  .manifest { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
-  .portrait { margin: 0; border-radius: 6px; overflow: hidden; aspect-ratio: 4 / 5; max-width: 100%; }
-  .portrait img { width: 100%; height: 100%; object-fit: cover; }
-  .manifest__text { font-weight: 700; font-size: clamp(1.45rem, 2.7vw, 2.45rem); line-height: 1.25; margin: 18px 0 0; letter-spacing: -.005em; }
-  .manifest__sign { margin-top: 28px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-  .manifest__sign span { font-size: .9rem; opacity: .7; }
-  @media (max-width: 860px) { .manifest { grid-template-columns: 1fr; } .portrait { max-width: 420px; } }
-
-  /* ---------- servicii ---------- */
-  .sec-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: end; margin-bottom: clamp(40px, 6vw, 80px); }
-  .sec-head .lead { justify-self: end; }
-  @media (max-width: 860px) { .sec-head { grid-template-columns: 1fr; } .sec-head .lead { justify-self: start; } }
-  .services { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2vw, 28px); }
-  .service { display: flex; flex-direction: column; gap: 18px; text-decoration: none; }
-  .service__img { margin: 0; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 6px; max-width: 100%; }
-  .service__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s cubic-bezier(.2,.8,.2,1); }
-  .service:hover .service__img img { transform: scale(1.06); }
-  .service p { margin: 0; opacity: .8; font-size: .98rem; }
-  .service ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-  .service li { font-size: .8rem; font-weight: 700; border: 1px solid var(--line); border-radius: 999px; padding: .35em .9em; }
-  .also { margin-top: clamp(40px, 5vw, 64px); display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: baseline; border-top: 1px solid var(--line); padding-top: 24px; }
-  .also a { font-weight: 900; text-transform: uppercase; font-size: clamp(1.05rem, 1.8vw, 1.5rem); text-decoration: none; }
-  .also a:hover { color: var(--gold); }
-  @media (max-width: 860px) { .services { grid-template-columns: 1fr; } .service__img { aspect-ratio: 16 / 10; } }
-
-  /* ---------- metoda (carduri suprapuse) ---------- */
-  .steps { display: grid; gap: 22px; margin-top: clamp(40px, 6vw, 72px); }
-  .step {
-    display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(20px, 4vw, 56px);
-    height: min(72vh, 640px); padding: clamp(24px, 4vw, 56px); border-radius: 10px; box-sizing: border-box;
-    background: var(--cream); color: var(--ink); transform-origin: 50% 0; will-change: transform;
-    box-shadow: 0 -18px 50px -30px rgba(0,0,0,.6);
-  }
-  .step:nth-child(even) { background: var(--sand); }
-  .step__n { font-weight: 900; font-size: clamp(3.4rem, 8vw, 7rem); line-height: .8; color: var(--gold); font-variant-numeric: tabular-nums; }
-  .step__body { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; min-width: 0; }
-  .step h3 { margin: 10px 0 0; }
-  .step ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-  .step li { padding-left: 26px; position: relative; font-size: 1rem; }
-  .step li::before { content: ""; position: absolute; left: 0; top: .62em; width: 14px; height: 2px; background: var(--gold); }
-  .step__img { margin: 0; border-radius: 6px; overflow: hidden; position: relative; min-height: 0; }
-  .step__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .step__img--product { background: var(--cream); display: grid; place-items: center; }
-  .step__img--product img { position: static; object-fit: contain; width: 86%; height: auto; mix-blend-mode: multiply; }
-  @media (max-width: 860px) { .step { grid-template-columns: 1fr; height: auto; } .step__img { aspect-ratio: 16/10; } }
-
-  /* ---------- studiu de caz (galerie orizontală) ---------- */
-  .case { padding-top: clamp(96px, 12vw, 160px); }
-  .case .atc-hscroll { height: 100vh; height: 100svh; display: flex; align-items: center; }
-  .case__track { display: flex; gap: clamp(16px, 2vw, 28px); padding-inline: var(--gutter); align-items: center; }
-  .case__intro { width: min(78vw, 560px); flex-shrink: 0; display: grid; gap: 22px; }
-  .case__photo { margin: 0; flex-shrink: 0; height: min(64vh, 620px); aspect-ratio: 3 / 4; border-radius: 6px; overflow: hidden; }
-  .case__photo--wide { aspect-ratio: 16 / 10; }
-  .case__photo img { width: 100%; height: 100%; object-fit: cover; }
-  .case__card { flex-shrink: 0; width: min(78vw, 360px); display: grid; gap: 12px; align-self: stretch; align-content: center; padding: 28px; border-left: 2px solid var(--gold); }
-  .case__card b { font-weight: 900; font-size: 1.6rem; color: var(--gold); font-variant-numeric: tabular-nums; }
-  .case__card h3 { margin: 0; font-weight: 900; text-transform: uppercase; font-size: 1.25rem; line-height: 1.05; }
-  .case__card p { margin: 0; font-size: .98rem; opacity: .85; }
-  @media (max-width: 767px) { .case .atc-hscroll { height: auto; padding-block: 24px; } .case__photo { height: 56vh; } }
-
-  /* ---------- cifre ---------- */
-  .numbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); }
-  .number { padding: 32px 24px 8px 0; border-right: 1px solid var(--line); display: grid; gap: 10px; align-content: start; }
-  .number + .number { padding-left: 24px; }
-  .number:last-child { border-right: 0; }
-  .number strong { font-weight: 900; font-size: clamp(2.6rem, 5.4vw, 5rem); line-height: .9; color: var(--gold); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .number span { font-size: .98rem; opacity: .85; max-width: 26ch; }
-  .numbers-note { margin-top: 28px; font-size: .82rem; opacity: .6; }
-  @media (max-width: 900px) { .numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); } .number:nth-child(2) { border-right: 0; } .number:nth-child(3) { padding-left: 0; } }
-  @media (max-width: 480px) { .numbers { grid-template-columns: 1fr; } .number { border-right: 0; padding-left: 0 !important; border-bottom: 1px solid var(--line); padding-bottom: 24px; } }
-
-  /* ---------- shop ---------- */
-  .logos { padding-block: 28px; border-block: 1px solid var(--line); margin-bottom: clamp(48px, 7vw, 96px); --atc-marquee-gap: clamp(48px, 7vw, 110px); }
-  .logos img { height: 46px; width: auto; object-fit: contain; mix-blend-mode: multiply; }
-  .logos img.tall { height: 70px; }
-  .products { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px); }
-  .product { background: #fff; color: var(--ink); border-radius: 8px; padding: 18px 18px 20px; display: grid; gap: 6px; align-content: start; text-decoration: none; }
-  .product figure { margin: 0 0 8px; aspect-ratio: 1; display: grid; place-items: center; border-radius: 4px; background: #f3f1ea; overflow: hidden; }
-  .product figure img { max-height: 82%; width: auto; max-width: 86%; object-fit: contain; mix-blend-mode: multiply; transition: transform .7s cubic-bezier(.2,.8,.2,1); }
-  .product:hover figure img { transform: scale(1.07) translateY(-4px); }
-  .product small { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--sage); }
-  .product h3 { margin: 0; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; }
-  .product p { margin: 0; font-size: .9rem; color: var(--sage); min-height: 2.8em; }
-  .product .more { margin-top: 10px; font-weight: 700; font-size: .88rem; }
-  .shop-foot { margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
-  .shop-foot p { margin: 0; max-width: 62ch; opacity: .8; font-size: .95rem; }
-  @media (max-width: 980px) { .products { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-
-  /* ---------- academie ---------- */
-  .academy { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
-  .courses { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .course {
-    display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 20px; align-items: center;
-    padding: 18px 22px; border-radius: 6px; background: rgba(255,255,255,.55); border-left: 4px solid var(--gold);
-    transition: transform .35s, background-color .35s;
-  }
-  .course:hover { transform: translateX(6px); background: #fff; }
-  .course__len { font-weight: 900; font-size: 1.5rem; line-height: 1; font-variant-numeric: tabular-nums; }
-  .course__len small { display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--sage); margin-top: 4px; }
-  .course h3 { margin: 0; font-weight: 900; text-transform: uppercase; font-size: 1.02rem; line-height: 1.15; }
-  .course p { margin: 2px 0 0; font-size: .9rem; color: var(--sage); }
-  .course .btn { padding: .7em 1.1em; font-size: .85rem; }
-  .academy__aside { display: grid; gap: 18px; position: sticky; top: 110px; }
-  .video-card { border-radius: 8px; overflow: hidden; background: var(--ink); color: var(--cream); }
-  .video-card figure { margin: 0; aspect-ratio: 4 / 3; overflow: hidden; }
-  .video-card img { width: 100%; height: 100%; object-fit: cover; }
-  .video-card div { padding: 22px; display: grid; gap: 8px; }
-  .video-card h3 { margin: 0; font-weight: 900; text-transform: uppercase; }
-  .video-card p { margin: 0; font-size: .92rem; opacity: .8; }
-  .partners { font-size: .9rem; opacity: .85; margin: 0; }
-  @media (max-width: 900px) { .academy { grid-template-columns: 1fr; } .academy__aside { position: static; } }
-  @media (max-width: 560px) { .course { grid-template-columns: 70px minmax(0, 1fr); } .course .btn { grid-column: 1 / -1; justify-self: start; } }
-
-  /* ---------- toolkit ---------- */
-  .toolkit { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
-  .chart { width: 100%; height: auto; max-width: 100%; }
-  .chart text { fill: var(--cream); font: 600 13px var(--body); opacity: .75; }
-  .chart .axis { stroke: rgba(248,247,240,.35); stroke-width: 1; fill: none; }
-  .chart .grid { stroke: rgba(248,247,240,.08); stroke-width: 1; fill: none; }
-  .chart .ratio { stroke: rgba(248,247,240,.55); stroke-width: 1.5; fill: none; }
-  .chart .ideal { fill: rgba(221,175,67,.16); stroke: var(--gold); stroke-width: 2; }
-  .chart .shot { fill: var(--gold); }
-  .chart .ideal-label { fill: var(--gold); opacity: 1; font-weight: 700; }
-  .jobs { margin-top: clamp(56px, 8vw, 110px); display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 28px; }
-  .jobs p { margin: 0; max-width: 60ch; }
-  @media (max-width: 900px) { .toolkit { grid-template-columns: 1fr; } }
-
-  /* ---------- final ---------- */
-  .cta { text-align: left; }
-  .cta .h-xl { max-width: 12ch; }
-  .cta__row { margin-top: clamp(32px, 5vw, 56px); display: flex; flex-wrap: wrap; gap: 20px 40px; align-items: center; }
-  .cta__contact { display: grid; gap: 4px; font-weight: 700; font-size: 1.1rem; }
-  .cta__contact span { user-select: all; }
-  .cta .btn--dark { background: var(--ink); color: var(--cream); border-color: var(--ink); font-size: 1.05rem; padding: 1.3em 2em; }
-  .cta .btn--dark:hover { background: var(--cream); color: var(--ink); border-color: var(--cream); }
-
-  footer { padding-top: 40px; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px); }
-  .giant { font-weight: 900; text-transform: uppercase; font-size: clamp(4rem, 15vw, 15rem); line-height: .85; white-space: nowrap; --atc-marquee-gap: .35em; color: transparent; -webkit-text-stroke: 1.5px rgba(248,247,240,.5); }
-  .giant span:nth-child(odd) { color: var(--cream); -webkit-text-stroke: 0; }
-  .foot { margin-top: 48px; display: flex; flex-wrap: wrap; gap: 16px 40px; justify-content: space-between; font-size: .9rem; opacity: .75; }
-  .foot nav { display: flex; flex-wrap: wrap; gap: 10px 24px; }
-  .foot a { text-decoration: none; }
-  .foot a:hover { color: var(--gold); }
-  .proto-note { position: fixed; z-index: 60; right: 14px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); background: var(--gold); color: var(--ink); font: 700 .74rem/1.3 var(--body); padding: 8px 12px; border-radius: 999px; letter-spacing: .04em; }
 </style>
-<!--ATC:HEAD-END-->
 </head>
 <body>
-<!--ATC:BODY-START-->
-<div class="atc-preloader" aria-hidden="true">
-  <div class="atc-preloader__brand"><span>Around</span><span>The</span><span>Corner</span></div>
-  <div class="atc-preloader__count">0</div>
-</div>
-
-<header class="top" id="top">
-  <a class="brand" href="#acasa" aria-label="Around The Corner, acasă">
-    <img src="img/atc-mark.png" alt="" width="40" height="40">
-    <span>Around<small>The Corner</small></span>
-  </a>
-  <nav class="nav" id="nav" aria-label="Principal">
-    <a href="#servicii">Deschidere cafenea</a>
-    <a href="#metoda">Metoda</a>
-    <a href="#proiecte">Proiecte</a>
-    <a href="#shop">Shop</a>
-    <a href="#academie">Academie</a>
-    <a href="#toolkit">Toolkit</a>
-    <a class="btn btn--ghost" href="#contact">Contact</a>
-  </nav>
-  <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Meniu</button>
-</header>
-
 <main>
-  <!-- 1 · HERO -->
-  <section class="hero" id="acasa" data-atc-bg="#25332c" data-atc-fg="#f8f7f0">
-    <div class="wrap hero__inner atc-hero-out">
-      <p class="eyebrow atc-reveal">Consultanță cafenele · Academie · Echipamente</p>
-      <h1 class="h-xl hero__title atc-split atc-split--instant">We create <em>third spaces</em> that people want to be part of.</h1>
-      <div class="hero__row">
-        <p class="lead atc-reveal atc-delay-4">Deschidem și dezvoltăm cafenele, brunch kitchens și pizzerii care funcționează și sunt profitabile: de la locație și concept până la bar, echipă și cifre.</p>
-        <div class="scroll-cue atc-reveal atc-delay-6" aria-hidden="true"><i></i>Scroll</div>
-      </div>
-      <div class="hero__panels">
-        <figure class="panel atc-mask atc-delay-2"><div class="atc-parallax atc-parallax--self" data-atc-speed="0.12" style="height:100%"><img src="img/bar-machine.jpg" alt="Espressor La Marzocco într-o cafenea amenajată de Around The Corner"></div><figcaption>Bar</figcaption></figure>
-        <figure class="panel atc-mask atc-delay-3 atc-steam" data-atc-steam-y="0.62"><div class="atc-parallax atc-parallax--self" data-atc-speed="-0.12" style="height:100%"><img src="img/espresso-pour.jpg" alt="Espresso extras în cești ceramice"></div><figcaption>Extracție</figcaption></figure>
-        <figure class="panel atc-mask atc-delay-4"><div class="atc-parallax atc-parallax--self" data-atc-speed="0.2" style="height:100%"><img src="img/guests.jpg" alt="Oaspeți la brunch într-o cafenea"></div><figcaption>Oameni</figcaption></figure>
-      </div>
-    </div>
-  </section>
+  <section class="intro atc-curtain atc-bg-zoom atc-bg-zoom--drift" data-atc-strips="3" data-atc-from="1.18" aria-label="Around The Corner">
+    <img class="atc-bg-layer" src="img/intro.jpg" alt="">
+    <div class="steam atc-steam" data-atc-steam-x="0.42" data-atc-steam-y="0.58" aria-hidden="true"></div>
 
-  <!-- 2 · SCENĂ: imaginea crește pe tot ecranul -->
-  <section class="expand atc-expand" data-atc-bg="#25332c" data-atc-fg="#f8f7f0" aria-label="Third place">
-    <div class="expand__media atc-expand__media"><img src="img/third-space.jpg" alt="Bar de cafenea cu espressor La Marzocco și cești ceramice"></div>
-    <div class="wrap expand__copy">
-      <p class="eyebrow atc-expand__text">Third place</p>
-      <h2 class="h-lg atc-expand__text">A treia casă, între muncă și acasă.</h2>
-      <p class="expand__src atc-expand__text">Cartierele noi atrag profesioniști tineri care văd cafeneaua ca spațiu social. O gândim ca loc la care oamenii revin, nu doar ca punct de vânzare.</p>
+    <div class="band band--top atc-reveal atc-reveal--left atc-delay-8">
+      <a class="brand" href="index.html" aria-label="Around The Corner, acasă">
+        <img src="img/atc-mark-white.png" alt="" width="50" height="50">
+        <span>Around<small>The Corner</small></span>
+      </a>
     </div>
-  </section>
 
-  <!-- 3 · MANIFEST -->
-  <section class="chapter" data-atc-bg="#f8f7f0" data-atc-fg="#25332c">
-    <div class="wrap manifest">
-      <figure class="portrait atc-mask"><img src="img/arthur.jpg" alt="Arthur Teut, fondator Around The Corner"></figure>
-      <div>
-        <p class="eyebrow atc-reveal">Salut!</p>
-        <p class="manifest__text atc-scrub-text">Sunt Arthur Teut și lucrez cu antreprenori care vor să transforme cafenele, brunch kitchens sau pizzerii în afaceri funcționale și profitabile. Îți dau soluții tehnice și economice solide: concept, design de spațiu, flux de lucru și optimizare fiscală, apoi meniuri, training, branding și promovare.</p>
-        <div class="manifest__sign atc-reveal">
-          <a class="btn btn--ghost atc-magnetic" href="#contact">Hai să vorbim <span class="arrow">→</span></a>
-          <span>Partener La Marzocco · Origo Academy</span>
-        </div>
-      </div>
+    <div class="intro__copy">
+      <h1 class="intro__title atc-split atc-split--words atc-split--instant atc-delay-9">We create third spaces that people want to be part&nbsp;of.</h1>
     </div>
-  </section>
 
-  <!-- 4 · SERVICII -->
-  <section class="chapter" id="servicii" data-atc-bg="#f8f7f0" data-atc-fg="#25332c">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2 class="h-lg atc-split">Ce construim împreună</h2>
-        <p class="lead atc-reveal">Alegi tot pachetul sau doar modulul de care ai nevoie acum.</p>
-      </div>
-      <div class="services">
-        <a class="service atc-reveal" href="#metoda" data-atc-cursor="Vezi">
-          <figure class="service__img atc-mask"><img src="img/cup-bar.jpg" alt="Ceașcă de cafea pe barul unei cafenele noi"></figure>
-          <p class="eyebrow">01 · Consultanță</p>
-          <h3 class="h-md">Deschidere cafenea</h3>
-          <p>Un proces complet: locația potrivită, conceptul, barul, procedurile, echipa, costurile și suportul de după lansare.</p>
-          <ul><li>Prima cafenea</li><li>O nouă locație</li><li>Complexe rezidențiale</li></ul>
-        </a>
-        <a class="service atc-reveal atc-delay-1" href="#academie" data-atc-cursor="Vezi">
-          <figure class="service__img atc-mask atc-delay-1"><img src="img/milk-pour.jpg" alt="Barista toarnă lapte spumat pentru latte art"></figure>
-          <p class="eyebrow">02 · Academie</p>
-          <h3 class="h-md">Training barista</h3>
-          <p>Cursuri de la începător la avansat, cu metodologiile Barista Hustle și Coffee Science Foundation, pe La Marzocco și Mahlkönig.</p>
-          <ul><li>Ateliere cu dată</li><li>Cursuri video</li><li>Training în cafenea</li></ul>
-        </a>
-        <a class="service atc-reveal atc-delay-2" href="#shop" data-atc-cursor="Shop">
-          <figure class="service__img atc-mask atc-delay-2"><img src="img/bbb-machine.jpg" alt="Espressor La Marzocco instalat la Brick by Brick"></figure>
-          <p class="eyebrow">03 · Shop</p>
-          <h3 class="h-md">Echipamente</h3>
-          <p>Partener La Marzocco. Furnizăm și instalăm Modbar, Mahlkönig, Übermilk și PUQ Press, cu service, training și leasing.</p>
-          <ul><li>Pentru cafenele</li><li>Pentru acasă</li><li>Închiriere</li></ul>
-        </a>
-      </div>
-      <div class="also atc-stagger">
-        <span class="eyebrow">Și pentru</span>
-        <a href="#contact">Brunch kitchens</a>
-        <a href="#contact">Pizzerii napoletane</a>
-        <a href="#contact">Pop-up coffee shop</a>
-        <a href="#contact">Dezvoltatori rezidențiali</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5 · METODA: 7 steps ahead -->
-  <section class="chapter" id="metoda" data-atc-bg="#25332c" data-atc-fg="#f8f7f0">
-    <div class="wrap">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow atc-reveal">Growth process</p>
-          <h2 class="h-lg atc-split" style="margin-top:14px">7 steps ahead</h2>
-        </div>
-        <p class="lead atc-reveal">Metoda noastră, adaptată pieței din România. Pornim de la un audit, apoi implementezi toate cele 7 module sau doar unul.</p>
-      </div>
-      <div class="steps atc-stack" data-atc-top="96">
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">00</div><h3 class="h-md">Audit</h3></div>
-            <ul><li>Evaluăm spațiul, fluxul de lucru și indicatorii financiari.</li><li>Analizăm costurile cu materii prime, personal și chirie.</li><li>Comparăm datele cu standardele industriei.</li></ul></div>
-          <figure class="step__img"><img src="img/latte-sketch.jpg" alt="Planificare pe hârtie lângă un latte" loading="lazy"></figure>
-        </article>
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">01</div><h3 class="h-md">Flow &amp; workstation</h3></div>
-            <ul><li>Proiectăm barul ca pe un sistem operațional, în care fiecare mișcare contează.</li><li>Rutine pentru dozare, extracție și spumare, gândite pentru orele de vârf.</li><li>Clean as you go și controlul risipei.</li></ul></div>
-          <figure class="step__img"><img src="img/bar-machine.jpg" alt="Stație de lucru la bar" loading="lazy"></figure>
-        </article>
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">02</div><h3 class="h-md">Playbook</h3></div>
-            <ul><li>Standardul de interacțiune cu oaspeții, adaptat ritmului locației.</li><li>Pașii zilnici: deschidere, refill, service, închidere.</li><li>Un sistem simplu de feedback și ajustări.</li></ul></div>
-          <figure class="step__img"><img src="img/cup-bar.jpg" alt="Băutură servită la bar" loading="lazy"></figure>
-        </article>
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">03</div><h3 class="h-md">Equipments</h3></div>
-            <ul><li>Parteneri cu cele mai importante branduri globale din industrie.</li><li>Instalare, service complet și mentenanță.</li><li>Echipamente noi sau utilizate, inclusiv închiriere cu opțiune de cumpărare.</li></ul></div>
-          <figure class="step__img step__img--product"><img src="img/kb90.png" alt="Espressor La Marzocco KB90" loading="lazy"></figure>
-        </article>
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">04</div><h3 class="h-md">Fiscal</h3></div>
-            <ul><li>Meniul organizat pe datele de vânzări: promovăm băuturile cu marjă mare.</li><li>Leasing pentru echipamente și amortizare pe termen lung.</li><li>Scutirea impozitului pe profitul reinvestit în active fixe.</li></ul></div>
-          <figure class="step__img"><img src="img/bbb-shelves.jpg" alt="Raft cu produse într-o cafenea" loading="lazy"></figure>
-        </article>
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">05</div><h3 class="h-md">Hiring</h3></div>
-            <ul><li>Anunțuri promovate pe coffeejobs.ro, platforma de HR dedicată cafelei.</li><li>Interviuri cu probe practice: dozare, spumare, stații aglomerate.</li><li>Onboarding cu kit de training și protocoale HACCP.</li></ul></div>
-          <figure class="step__img"><img src="img/guests.jpg" alt="Echipă și oaspeți într-o cafenea" loading="lazy"></figure>
-        </article>
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">06</div><h3 class="h-md">Training</h3></div>
-            <ul><li>Folosirea optimă a echipamentelor, la cele mai înalte standarde.</li><li>Simulări de rush hour: prioritizare și lucru pe mai multe stații.</li><li>Mentenanță: boilere, grupuri, filtre de apă, râșnițe.</li></ul></div>
-          <figure class="step__img"><img src="img/milk-pour.jpg" alt="Training de spumare a laptelui" loading="lazy"></figure>
-        </article>
-        <article class="step">
-          <div class="step__body"><div><div class="step__n">07</div><h3 class="h-md">Follow</h3></div>
-            <ul><li>Consultanță periodică timp de câteva luni după lansare.</li><li>Analiza parametrilor de extracție și a feedback-ului oaspeților.</li><li>Suport tehnic, consumabile și discounturi la cafea.</li></ul></div>
-          <figure class="step__img"><img src="img/bbb-front.jpg" alt="Intrarea cafenelei Brick by Brick" loading="lazy"></figure>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6 · STUDIU DE CAZ -->
-  <section class="case" id="proiecte" data-atc-bg="#eee0cb" data-atc-fg="#25332c">
-    <div class="atc-hscroll">
-      <div class="case__track atc-hscroll__track">
-        <div class="case__intro">
-          <p class="eyebrow">Case study · Timișoara</p>
-          <h2 class="h-lg">Brick by Brick</h2>
-          <p class="lead">O cafenea de specialitate din centrul Timișoarei care voia un bar mai rapid, costuri mai bune și o experiență constantă. În câteva săptămâni a trecut de la blocaje la un flux constant.</p>
-          <p><a class="btn btn--ghost" href="https://aroundthecorner.ro/brick-by-brick-timisoara/">Citește studiul <span class="arrow">→</span></a></p>
-        </div>
-        <figure class="case__photo"><img src="img/bbb-bar.jpg" alt="Barul Brick by Brick cu espressor La Marzocco" loading="lazy"></figure>
-        <div class="case__card"><b>1</b><h3>Audit bean-to-cup</h3><p>Am cronometrat fiecare extracție și traseul baristaului, apoi am comparat costurile cu media industriei third-wave.</p></div>
-        <figure class="case__photo"><img src="img/bbb-shelves.jpg" alt="Interiorul cafenelei Brick by Brick" loading="lazy"></figure>
-        <div class="case__card"><b>2</b><h3>Flow &amp; workstations</h3><p>Râșnițe și espressoare pe aceeași linie de lucru, după principiul „one step, one action”.</p></div>
-        <figure class="case__photo case__photo--wide"><img src="img/bbb-front.jpg" alt="Fațada cafenelei Brick by Brick" loading="lazy"></figure>
-        <div class="case__card"><b>4</b><h3>Equipments</h3><p>Un espressor La Marzocco de ultimă generație, calibrat pentru trafic intens, cu instalare și service rapid.</p></div>
-        <figure class="case__photo"><img src="img/bbb-brunch.jpg" alt="Platou de brunch la Brick by Brick" loading="lazy"></figure>
-        <div class="case__card"><b>6</b><h3>Training în rush hour</h3><p>Am simulat vârfurile, inclusiv platourile de brunch, până când lucrul pe mai multe stații a devenit regula.</p></div>
-        <figure class="case__photo"><img src="img/bbb-matcha.jpg" alt="Matcha latte la Brick by Brick" loading="lazy"></figure>
-        <figure class="case__photo"><img src="img/bbb-night.jpg" alt="Barul Brick by Brick seara" loading="lazy"></figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- 7 · CIFRE -->
-  <section class="chapter" data-atc-bg="#25332c" data-atc-fg="#f8f7f0">
-    <div class="wrap">
-      <p class="eyebrow atc-reveal">Bar automatizat</p>
-      <h2 class="h-lg atc-split" style="margin:14px 0 48px">Mai rapid, fără angajați noi</h2>
-      <div class="numbers atc-stagger">
-        <div class="number"><strong class="atc-counter">250</strong><span>de băuturi pe oră, cu spumă constantă, cu Übermilk</span></div>
-        <div class="number"><strong class="atc-counter">−25%</strong><span>timp per băutură, cu Modbar și Übermilk în flux</span></div>
-        <div class="number"><strong class="atc-counter">+30%</strong><span>capacitate, fără creștere de personal</span></div>
-        <div class="number"><strong class="atc-counter">±1 g</strong><span>precizie la extracție cu Drip Prediction (Modbar AV)</span></div>
-      </div>
-      <p class="numbers-note atc-reveal">Cifre din implementările Around The Corner cu Modbar AV și Übermilk.</p>
-    </div>
-  </section>
-
-  <!-- 8 · SHOP -->
-  <section class="chapter" id="shop" data-atc-bg="#f8f7f0" data-atc-fg="#25332c">
-    <div class="logos atc-marquee" data-atc-duration="34" aria-label="Branduri partenere">
-      <img class="tall" src="img/logo-lamarzocco.png" alt="La Marzocco">
-      <img src="img/logo-modbar.png" alt="Modbar">
-      <img class="tall" src="img/logo-mahlkoenig.png" alt="Mahlkönig">
-      <img src="img/logo-ubermilk.png" alt="Übermilk">
-      <img class="tall" src="img/logo-puq.png" alt="PUQ Press">
-    </div>
-    <div class="wrap">
-      <div class="sec-head">
-        <h2 class="h-lg atc-split">Shop echipamente</h2>
-        <p class="lead atc-reveal">Pentru cafenele și pentru acasă. Preț de partener, leasing sau închiriere cu opțiune de cumpărare, cu instalare și training incluse.</p>
-      </div>
-      <div class="products atc-stagger">
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/linea-mini.png" alt="" loading="lazy"></figure><small>La Marzocco · Home</small><h3>Linea Mini</h3><p>Iconic design, built for home.</p><span class="more">Cere ofertă →</span></a>
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/gs3.png" alt="" loading="lazy"></figure><small>La Marzocco · Home</small><h3>GS3</h3><p>Pro performance, built for home.</p><span class="more">Cere ofertă →</span></a>
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/kb90.png" alt="" loading="lazy"></figure><small>La Marzocco · Pro</small><h3>KB90</h3><p>The ultimate workflow machine.</p><span class="more">Cere ofertă →</span></a>
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/pico.png" alt="" loading="lazy"></figure><small>La Marzocco · Home</small><h3>Pico</h3><p>Partenerul perfect pentru home barista.</p><span class="more">Cere ofertă →</span></a>
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/ek43.png" alt="" loading="lazy"></figure><small>Mahlkönig · Râșniță</small><h3>EK43</h3><p>Măcinare extrem de uniformă, de la espresso la filtru.</p><span class="more">Cere ofertă →</span></a>
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/e65s.png" alt="" loading="lazy"></figure><small>Mahlkönig · Râșniță</small><h3>E65S GbW</h3><p>Grind-by-weight: dozare precisă în timp real.</p><span class="more">Cere ofertă →</span></a>
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/ubermilk.png" alt="" loading="lazy"></figure><small>Übermilk · Lapte</small><h3>Übermilk</h3><p>4 L/min la 65 °C, cu autocurățare.</p><span class="more">Cere ofertă →</span></a>
-        <a class="product atc-tilt" href="#contact" data-atc-cursor="Ofertă"><figure><img src="img/puq-q.png" alt="" loading="lazy"></figure><small>PUQ Press · Tamper</small><h3>PUQ Q</h3><p>Noul standard în tampare: precizie și consistență.</p><span class="more">Cere ofertă →</span></a>
-      </div>
-      <div class="shop-foot atc-reveal">
-        <p>În site, cardurile vin direct din WooCommerce. Accesoriile și consumabilele se cumpără direct cu cardul (Stripe), iar espressoarele profesionale au butonul „Cere ofertă”.</p>
-        <a class="btn btn--ghost" href="#contact">Tot shop-ul <span class="arrow">→</span></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 9 · ACADEMIE -->
-  <section class="chapter" id="academie" data-atc-bg="#eee0cb" data-atc-fg="#25332c">
-    <div class="wrap">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow atc-reveal">Master your craft</p>
-          <h2 class="h-lg atc-split" style="margin-top:14px">Academia</h2>
-        </div>
-        <p class="lead atc-reveal">Parteneriatul cu Origo Academy ne permite să lucrăm cu metodologiile Barista Hustle și Coffee Science Foundation, pe echipamente La Marzocco și Mahlkönig.</p>
-      </div>
-      <div class="academy">
-        <ul class="courses atc-stagger">
-          <li class="course"><div class="course__len">8 h<small>Toate nivelurile</small></div><div><h3>Introducere în istoria cafelei</h3><p>De unde vine cafeaua și cum a ajuns cafeaua de specialitate.</p></div><a class="btn btn--ghost" href="#contact">Vezi datele</a></li>
-          <li class="course"><div class="course__len">8 h<small>Începător</small></div><div><h3>Tehnici de barista</h3><p>Espresso, spumarea laptelui, latte art și întreținerea echipamentelor.</p></div><a class="btn btn--ghost" href="#contact">Vezi datele</a></li>
-          <li class="course"><div class="course__len">2 zile<small>Avansat</small></div><div><h3>Tehnici de barista</h3><p>Profiluri de gust, latte art și standardele World Barista Championship.</p></div><a class="btn btn--ghost" href="#contact">Vezi datele</a></li>
-          <li class="course"><div class="course__len">8 h<small>Începător</small></div><div><h3>Evaluare senzorială</h3><p>Evaluarea senzorială a cafelei și protocolul SCA de cupping.</p></div><a class="btn btn--ghost" href="#contact">Vezi datele</a></li>
-          <li class="course"><div class="course__len">2 zile<small>Avansat</small></div><div><h3>Evaluare senzorială</h3><p>Știința senzorială aplicată în programe de calitate.</p></div><a class="btn btn--ghost" href="#contact">Vezi datele</a></li>
-          <li class="course"><div class="course__len">8 h<small>Începător</small></div><div><h3>Preparare la filtru</h3><p>Pour-over și imersie, cu extracția optimizată.</p></div><a class="btn btn--ghost" href="#contact">Vezi datele</a></li>
-          <li class="course"><div class="course__len">Echipă<small>Pentru cafenele</small></div><div><h3>Excelență operațională</h3><p>Rețete standardizate, flux de lucru și mentenanță, în cafeneaua ta.</p></div><a class="btn btn--ghost" href="#contact">Cere ofertă</a></li>
-        </ul>
-        <aside class="academy__aside">
-          <div class="video-card atc-reveal">
-            <figure class="atc-zoom"><img src="img/matcha-table.jpg" alt="Matcha latte și cafea pe o masă" loading="lazy"></figure>
-            <div><p class="eyebrow">În curând</p><h3>Cursuri video</h3><p>Lecții pe care le urmezi în ritmul tău, cu acces imediat după plată.</p></div>
-          </div>
-          <p class="partners atc-reveal">În site, fiecare atelier are datele și locurile rămase la vedere, iar rezervarea se plătește direct cu cardul.</p>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <!-- 10 · TOOLKIT -->
-  <section class="chapter" id="toolkit" data-atc-bg="#3e4d45" data-atc-fg="#f8f7f0">
-    <div class="wrap">
-      <div class="toolkit">
-        <div>
-          <p class="eyebrow atc-reveal">Toolkit gratuit</p>
-          <h2 class="h-lg atc-split" style="margin:14px 0 22px">Brew by numbers</h2>
-          <p class="lead atc-reveal">10 instrumente pentru bariști și cafenele: randament de extracție, diluție, calculator de lapte, apă și LSI, echilibru termic și jurnal de dial-in. În română, gata de folosit pe tableta barului.</p>
-          <p class="atc-reveal" style="margin-top:28px"><a class="btn btn--solid atc-magnetic" href="https://toolkit.aroundthecorner.ro">Deschide toolkit-ul <span class="arrow">→</span></a></p>
-        </div>
-        <figure class="atc-reveal" style="margin:0">
-          <svg class="chart atc-draw" viewBox="0 0 640 440" role="img" aria-labelledby="chart-t">
-            <title id="chart-t">Diagrama de control a preparării: TDS în funcție de randamentul de extracție, cu fereastra ideală 18–22% EY</title>
-            <!-- x: EY 14–26 % → 70..610 ; y: TDS 1.00–1.60 % → 380..40 -->
-            <g class="grid">
-              <path d="M115 40V380M160 40V380M205 40V380M250 40V380M295 40V380M340 40V380M385 40V380M430 40V380M475 40V380M520 40V380M565 40V380"/>
-              <path d="M70 323.3H610M70 266.7H610M70 210H610M70 153.3H610M70 96.7H610"/>
-            </g>
-            <path class="axis" d="M70 40V380H610"/>
-            <rect class="ideal" x="250" y="181.7" width="180" height="113.3" rx="2"/>
-            <text class="ideal-label" x="258" y="200">Ideal · 18–22% EY</text>
-            <!-- raport băutură/doză: TDS = EY / R -->
-            <path class="ratio" d="M70 380L448 40"/>
-            <path class="ratio" d="M115 380L520 40"/>
-            <path class="ratio" d="M160 380L592 40"/>
-            <path class="ratio" d="M205 380L610 80"/>
-            <text x="424" y="30">1:14</text>
-            <text x="496" y="30">1:15</text>
-            <text x="568" y="30">1:16</text>
-            <text x="598" y="104">1:17</text>
-            <circle class="shot" cx="340" cy="238.3" r="7"/>
-            <text x="352" y="234" style="fill:var(--gold);opacity:1;font-weight:700">20% · 1,25%</text>
-            <text x="70" y="404">14</text><text x="250" y="404">18</text><text x="340" y="404">20</text><text x="430" y="404">22</text><text x="595" y="404">26</text>
-            <text x="300" y="430">Randament de extracție (EY %)</text>
-            <text x="30" y="384">1,00</text><text x="30" y="215">1,30</text><text x="30" y="45">1,60</text>
-            <text x="14" y="24">TDS %</text>
-            <text x="70" y="24" style="opacity:.5">raport băutură : cafea</text>
-          </svg>
-        </figure>
-      </div>
-      <div class="jobs atc-reveal">
-        <p><strong>Cauți bariști?</strong> coffeejobs.ro e platforma de HR dedicată industriei cafelei din România: anunțuri promovate la nivel național și interviuri cu probe practice.</p>
-        <a class="btn btn--ghost" href="https://coffeejobs.ro">Intră pe coffeejobs.ro <span class="arrow">→</span></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 11 · CONTACT -->
-  <section class="chapter cta" id="contact" data-atc-bg="#ddaf43" data-atc-fg="#25332c">
-    <div class="wrap">
-      <p class="eyebrow atc-reveal" style="color:var(--ink)">Get in touch</p>
-      <h2 class="h-xl atc-split atc-split--chars" style="margin-top:16px">Hai să dezvoltăm ceva autentic!</h2>
-      <div class="cta__row">
-        <span class="atc-magnetic"><a class="btn btn--dark" href="#contact">Programează o discuție <span class="arrow">→</span></a></span>
-        <div class="cta__contact atc-reveal">
-          <span>office@aroundthecorner.ro</span>
-          <span>0733 056 474</span>
-        </div>
-      </div>
+    <div class="band band--cta atc-reveal atc-reveal--left atc-delay-9">
+      <span class="atc-magnetic" style="display:inline-block"><a class="cta" href="acasa.html">Find out more <span class="arrow" aria-hidden="true">→</span></a></span>
     </div>
   </section>
 </main>
 
-<footer data-atc-bg="#25332c" data-atc-fg="#f8f7f0">
-  <div class="giant atc-marquee" data-atc-duration="40" aria-hidden="true"><span>Around</span><span>The Corner</span><span>Third spaces</span></div>
-  <div class="wrap foot">
-    <span>© 2026 Around The Corner. Toate drepturile sunt rezervate.</span>
-    <nav aria-label="Subsol">
-      <a href="#servicii">Consultanță</a>
-      <a href="#shop">Shop</a>
-      <a href="#academie">Academie</a>
-      <a href="https://aroundthecorner.ro/blog/">Blog</a>
-      <a href="https://aroundthecorner.ro/gdpr/">GDPR</a>
-    </nav>
-  </div>
-</footer>
-
-<div class="proto-note">Prototip · aroundthecorner.ro</div>
+<a class="proto-note" href="sectiuni.html">Prototip · vezi și paginile noi</a>
 
 <script src="../plugins/atc-motion/assets/vendor/gsap.min.js"></script>
 <script src="../plugins/atc-motion/assets/vendor/ScrollTrigger.min.js"></script>
 <script src="../plugins/atc-motion/assets/vendor/SplitText.min.js"></script>
 <script src="../plugins/atc-motion/assets/vendor/lenis.min.js"></script>
 <script src="../plugins/atc-motion/assets/atc-motion.js"></script>
-<script>
-  (function () {
-    var top = document.getElementById('top');
-    var btn = document.getElementById('menu-btn');
-    function onScroll() { top.classList.toggle('is-scrolled', window.scrollY > 40); }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    btn.addEventListener('click', function () {
-      var open = top.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      btn.textContent = open ? 'Închide' : 'Meniu';
-      if (window.ATCMotion) open ? ATCMotion.stop() : ATCMotion.start();
-    });
-    document.querySelectorAll('.nav a').forEach(function (a) {
-      a.addEventListener('click', function () {
-        if (top.classList.contains('is-open')) btn.click();
-      });
-    });
-  })();
-</script>
-<!--ATC:BODY-END-->
 </body>
 </html>

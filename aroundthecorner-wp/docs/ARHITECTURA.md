@@ -3,10 +3,16 @@
 Structura **Servicii + Shop**: consultanța pentru cafenele rămâne în centru, iar Shop-ul și
 Academia devin secțiuni de prim rang, cu plată online.
 
+**Intrarea în site rămâne cea de acum:** pagina 1 (`/`, „We create third spaces”) și pagina 2
+(`/acasa/`, plăcile), doar animate. Pe `/acasa/` se adaugă plăcile **Academie** și **Shop**. Restul
+structurii (Metoda, Proiecte, Shop, Academie, Toolkit) sunt **pagini separate**. Rețeta pentru cele două
+pagini e în [PAGINILE-DE-INTRARE.md](PAGINILE-DE-INTRARE.md).
+
 ## Harta site-ului
 
 ```
-Acasă  /                         ← pagina cinematică (vezi prototype/)
+Intro  /                         ← pagina 1 actuală, animată (prototype/index.html)
+Acasă  /acasa/                   ← pagina 2 actuală cu plăcile, animată + Academie și Shop (prototype/acasa.html)
 │
 ├─ Deschidere cafenea            ← meniu cu 4 intrări
 │   ├─ Prima cafenea             /primacafenea/        (există)
@@ -54,8 +60,11 @@ cunoaște deja. Pentru paginile care se mută, pune redirecturi 301 cu pluginul 
 setează din *Advanced → Motion Effects → Sticky: Top* plus *Sticky Header Effects* (pluginul e deja
 instalat).
 
-## Pagina „Acasă”, secțiune cu secțiune
+## Secțiunile din prototip (`prototype/sectiuni.html`)
 
+Secțiunile de mai jos nu mai stau pe prima pagină. Fiecare devine pagina ei sau o parte dintr-o
+pagină separată: „Ce construim” și „7 steps ahead” pe `/development/`, studiul de caz pe
+`/projects/`, Shop pe `/shop/`, Academia pe `/academie/`, Toolkit și Contact unde ai nevoie de ele.
 Fiecare rând arată ce pui în Elementor și ce clase primește (vezi [ANIMATII.md](ANIMATII.md)).
 Fundalul fiecărei secțiuni îl poți lăsa transparent și seta prin atributul `data-atc-bg`: pagina
 trece atunci lin dintr-o culoare în alta.

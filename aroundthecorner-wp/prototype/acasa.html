@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Around The Corner · Acasă</title>
+<meta name="description" content="Around The Corner oferă consultanță completă și development pentru cafenele.">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="../plugins/atc-motion/assets/vendor/lenis.css">
+<link rel="stylesheet" href="../plugins/atc-motion/assets/atc-motion.css">
+<script>
+  window.ATC_MOTION_CONFIG = { smooth: true, progress: false, cursor: true, preloader: false, transitions: true, markers: false };
+  (function (d) {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var h = d.documentElement; h.classList.add('atc-js');
+    try { if (sessionStorage.getItem('atcPT')) h.classList.add('atc-pt-in', 'atc-no-preload'); } catch (e) {}
+    window.__atcFailsafe = setTimeout(function () { h.classList.remove('atc-js'); }, 4000);
+  })(document);
+</script>
+<style>
+  /* Pagina 2 (/acasa/): designul actual (fundal espresso estompat, plăci de sticlă cu iconițe aurii,
+     prezentare, meniu și „AROUND THE CORNER” uriaș), plus două plăci noi: Academie și Shop. */
+  :root {
+    --ink: #25332c;
+    --forest: #44554d;
+    --gold: #ebbb4d;
+    --gold-deep: #d4a43a;
+    --white: rgba(255, 255, 255, .92);
+    --glass: rgba(16, 22, 19, .52);
+    --glass-line: rgba(255, 255, 255, .13);
+    --font: "Avenir Next LT Pro", "Avenir Next", "Avenir", "Nunito Sans", system-ui, sans-serif;
+    color-scheme: dark;
+  }
+  body { margin: 0; background: var(--forest); color: var(--white); font: 400 17px/1.55 var(--font); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
+  .acasa { position: relative; min-height: 100vh; padding: calc(env(safe-area-inset-top, 0px) + 28px) clamp(16px, 2.2vw, 32px) 0; }
+  .acasa .atc-bg-layer { object-position: 50% 40%; }
+  .acasa__tint { position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgba(48, 64, 55, .80), rgba(40, 54, 46, .86)); pointer-events: none; }
+  .acasa > :not(.atc-bg-layer):not(.acasa__tint):not(.atc-curtain__strips) { position: relative; z-index: 1; }
+
+  .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
+  .brand img { width: 44px; height: 44px; }
+  .brand span { font-weight: 900; text-transform: uppercase; line-height: .92; font-size: 1.32rem; }
+  .brand small { display: block; font-size: .7em; }
+
+  /* ---------- plăcile ---------- */
+  .tiles {
+    max-width: 1280px; margin: clamp(48px, 9vh, 110px) auto 0;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(14px, 1.8vw, 26px);
+  }
+  .tile {
+    position: relative; display: grid; justify-items: center; align-content: center; gap: 4px; text-align: center; text-decoration: none;
+    min-height: 260px; padding: 34px 18px 30px; box-sizing: border-box; border-radius: 26px;
+    background: var(--glass); border: 1px solid var(--glass-line);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: border-color .4s ease, background-color .4s ease;
+  }
+  .tile:hover { border-color: rgba(235, 187, 77, .55); background: rgba(16, 22, 19, .64); }
+  .tile img, .tile svg { width: 76px; height: 76px; margin-bottom: 18px; position: relative; z-index: 2; }
+  .tile strong { display: block; font-weight: 700; color: var(--gold); text-transform: uppercase; font-size: clamp(1.7rem, 2.4vw, 2.3rem); line-height: 1.05; letter-spacing: .01em; position: relative; z-index: 2; }
+  .tile span.atc-tile__text { display: block; font-weight: 700; color: var(--white); text-transform: uppercase; font-size: clamp(1.05rem, 1.6vw, 1.55rem); line-height: 1.15; position: relative; z-index: 2; }
+  .tile .new { position: absolute; top: 14px; right: 16px; z-index: 2; font-size: .66rem; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--ink); background: var(--gold); border-radius: 999px; padding: 4px 9px; }
+  @media (max-width: 1100px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 760px) {
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 36px; }
+    .tile { min-height: 168px; padding: 22px 10px; border-radius: 22px; }
+    .tile img, .tile svg { width: 52px; height: 52px; margin-bottom: 12px; }
+    .tile strong { font-size: 1.3rem; }
+    .tile span.atc-tile__text { font-size: .95rem; }
+  }
+
+  /* ---------- prezentare + subsol ---------- */
+  .about { max-width: 1180px; margin: clamp(70px, 12vh, 140px) auto 0; display: grid; justify-items: center; gap: 28px; text-align: center; }
+  .about__mark { width: 96px; height: 96px; }
+  .about p { margin: 0; font-size: clamp(1rem, 1.4vw, 1.2rem); max-width: 70ch; color: var(--white); text-wrap: balance; }
+  .foot-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 34px; }
+  .foot-nav a { font-weight: 900; text-transform: uppercase; color: var(--gold); text-decoration: none; font-size: 1.02rem; position: relative; }
+  .foot-nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .35s; }
+  .foot-nav a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .contact-row { display: flex; gap: 16px; justify-content: center; }
+  .contact-row a { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--gold); display: grid; place-items: center; color: var(--gold); transition: background-color .3s, color .3s; }
+  .contact-row a:hover { background: var(--gold); color: var(--ink); }
+  .contact-row svg { width: 22px; height: 22px; }
+  .legal { display: grid; gap: 6px; font-size: .92rem; }
+  .legal a { color: rgba(255,255,255,.55); text-decoration: none; }
+  .legal small { color: rgba(255,255,255,.35); font-size: .78rem; }
+
+  .giant {
+    margin: clamp(40px, 8vh, 90px) 0 0; text-align: center; white-space: nowrap;
+    font-weight: 900; text-transform: uppercase; color: var(--gold-deep); line-height: .82;
+    font-size: clamp(2rem, 8.2vw, 8.4rem); letter-spacing: -.01em; padding-bottom: .04em;
+  }
+
+  .wa-wrap { position: fixed; z-index: 40; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); display: flex; justify-content: center; pointer-events: none; }
+  .wa {
+    pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; padding: 16px 26px; border-radius: 8px;
+    background: var(--gold); color: #fff; font-weight: 700; text-decoration: none; box-shadow: 0 16px 40px -18px rgba(0,0,0,.6);
+  }
+  .wa svg { width: 20px; height: 20px; }
+  .wa:hover { background: #f1c860; }
+  .proto-note { position: fixed; z-index: 60; right: 14px; top: calc(env(safe-area-inset-top, 0px) + 14px); background: var(--gold); color: var(--ink); font: 700 .74rem/1.3 var(--font); padding: 8px 12px; border-radius: 999px; letter-spacing: .04em; text-decoration: none; }
+  @media (max-width: 760px) { .wa { padding: 12px 18px; font-size: .92rem; } .proto-note { display: none; } }
+</style>
+</head>
+<body>
+<main class="acasa atc-bg-zoom atc-bg-zoom--focus atc-bg-zoom--drift" data-atc-blur="3" data-atc-from="1.22">
+  <img class="atc-bg-layer" src="img/acasa-bg.jpg" alt="">
+  <div class="acasa__tint" aria-hidden="true"></div>
+
+  <header class="atc-reveal atc-delay-3">
+    <a class="brand" href="index.html" aria-label="Around The Corner, prima pagină">
+      <img src="img/atc-mark-white.png" alt="" width="44" height="44">
+      <span>Around<small>The Corner</small></span>
+    </a>
+  </header>
+
+  <nav class="tiles atc-tiles atc-delay-4" aria-label="Cu ce te putem ajuta">
+    <a class="tile" href="https://aroundthecorner.ro/primacafenea/" data-atc-cursor="Hai">
+      <img src="img/icons/coffee-shop-2.png" alt="">
+      <strong>Deschid</strong><span class="atc-tile__text">prima cafenea</span>
+    </a>
+    <a class="tile" href="https://aroundthecorner.ro/development/" data-atc-cursor="Hai">
+      <img src="img/icons/growth.png" alt="">
+      <strong>Dezvolt</strong><span class="atc-tile__text">o cafenea</span>
+    </a>
+    <a class="tile" href="https://aroundthecorner.ro/scaleup/" data-atc-cursor="Hai">
+      <img src="img/icons/location.png" alt="">
+      <strong>Deschid</strong><span class="atc-tile__text">încă o locație</span>
+    </a>
+    <a class="tile" href="https://aroundthecorner.ro/equipments/" data-atc-cursor="Hai">
+      <img src="img/icons/coffee-maker.png" alt="">
+      <strong>Vreau</strong><span class="atc-tile__text">echipamente</span>
+    </a>
+    <a class="tile" href="https://aroundthecorner.ro/jobs/" data-atc-cursor="Hai">
+      <img src="img/icons/barista.png" alt="">
+      <strong>Angajez</strong><span class="atc-tile__text">barista</span>
+    </a>
+    <a class="tile" href="https://aroundthecorner.ro/rezidential/" data-atc-cursor="Hai">
+      <img src="img/icons/apartments.png" alt="">
+      <strong>Sunt</strong><span class="atc-tile__text">dezvoltator</span>
+    </a>
+    <a class="tile" href="sectiuni.html#academie" data-atc-cursor="Hai">
+      <span class="new">Nou</span>
+      <svg viewBox="0 0 64 64" fill="none" stroke="#ebbb4d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 22 32 11l26 11-26 11L6 22Z"/>
+        <path d="M17 27v11c0 4.4 6.7 8 15 8s15-3.6 15-8V27"/>
+        <path d="M58 22v13"/><circle cx="58" cy="38" r="2.6"/>
+        <path d="M24 56h16"/><path d="M32 46v10"/>
+      </svg>
+      <strong>Învăț</strong><span class="atc-tile__text">la Academie</span>
+    </a>
+    <a class="tile" href="sectiuni.html#shop" data-atc-cursor="Hai">
+      <span class="new">Nou</span>
+      <svg viewBox="0 0 64 64" fill="none" stroke="#ebbb4d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 21h40l-3.2 34H15.2L12 21Z"/>
+        <path d="M23 21v-4a9 9 0 0 1 18 0v4"/>
+        <ellipse cx="32" cy="38" rx="7" ry="9.5" transform="rotate(-28 32 38)"/>
+        <path d="M28.6 30.6c3.4 3 3.8 11.2 6.8 14.8"/>
+      </svg>
+      <strong>Cumpăr</strong><span class="atc-tile__text">din shop</span>
+    </a>
+  </nav>
+
+  <section class="about" aria-label="Despre Around The Corner">
+    <img class="about__mark atc-reveal atc-reveal--scale" src="img/atc-mark-gold.png" alt="" width="96" height="96">
+    <p class="atc-split">Around The Corner oferă consultanță completă și development pentru cafenele. De la meniuri și organizarea spațiului, până la training, optimizare operațională și branding: te ajutăm să construiești o afacere funcțională, profitabilă și relevantă.</p>
+    <nav class="foot-nav atc-stagger" aria-label="Pagini">
+      <a href="https://aroundthecorner.ro/about/">About</a>
+      <a href="https://aroundthecorner.ro/development/">Development</a>
+      <a href="sectiuni.html#shop">Shop</a>
+      <a href="sectiuni.html#academie">Academie</a>
+      <a href="https://aroundthecorner.ro/rezidential/">Rezidential</a>
+      <a href="https://aroundthecorner.ro/blog/">Case studies</a>
+      <a href="https://aroundthecorner.ro/contact/">Contact</a>
+    </nav>
+    <div class="contact-row atc-stagger">
+      <a href="https://wa.me/40733056474" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/></svg></a>
+      <a href="https://aroundthecorner.ro/contact/" aria-label="Telefon 0733 056 474"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z"/></svg></a>
+      <a href="https://aroundthecorner.ro/contact/" aria-label="Email office@aroundthecorner.ro"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z"/></svg></a>
+    </div>
+    <div class="legal atc-reveal">
+      <span>© Around The Corner S.R.L. Toate drepturile sunt rezervate</span>
+      <a href="https://aroundthecorner.ro/gdpr/">GDPR Policy</a>
+      <small>designed by justpixel</small>
+    </div>
+  </section>
+
+  <p class="giant atc-split atc-split--chars" aria-hidden="true">Around The Corner</p>
+</main>
+
+<div class="wa-wrap"><a class="wa atc-reveal atc-delay-9" href="https://wa.me/40733056474">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/></svg>
+  Scrie-ne pe WhatsApp
+</a></div>
+<a class="proto-note" href="sectiuni.html">Prototip · paginile noi</a>
+
+<script src="../plugins/atc-motion/assets/vendor/gsap.min.js"></script>
+<script src="../plugins/atc-motion/assets/vendor/ScrollTrigger.min.js"></script>
+<script src="../plugins/atc-motion/assets/vendor/SplitText.min.js"></script>
+<script src="../plugins/atc-motion/assets/vendor/lenis.min.js"></script>
+<script src="../plugins/atc-motion/assets/atc-motion.js"></script>
+</body>
+</html>
