@@ -20,4 +20,11 @@
  * Cheia apiKey a unui proiect Firebase web este publică prin design —
  * accesul la date este protejat de regulile din firestore.rules, nu de ea.
  */
-window.ATC_FIREBASE_CONFIG = null;
+window.ATC_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCBEoLDgAwfvuyppqdOEt0BMjrtsAWXTx8",
+  authDomain: "atc-toolkit.firebaseapp.com",
+  projectId: "atc-toolkit",
+  storageBucket: "atc-toolkit.firebasestorage.app",
+  messagingSenderId: "280614575126",
+  appId: "1:280614575126:web:13c81125f78be35d082937"
+};
