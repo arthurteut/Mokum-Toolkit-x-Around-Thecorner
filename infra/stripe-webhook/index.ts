@@ -7,10 +7,13 @@
 // vizibilă în panoul de owner din aplicație.
 //
 // Secrets necesare (Supabase -> Edge Functions -> Secrets):
-//   STRIPE_WEBHOOK_SECRET  — semnătura endpoint-ului (whsec_...)
-//   FB_API_KEY             — apiKey-ul web al proiectului Firebase (public)
-//   FB_PROJECT_ID          — ex. atc-toolkit
-//   SVC_EMAIL, SVC_PASSWORD — contul de serviciu Firebase (vezi firestore.rules)
+//   STRIPE_WEBHOOK_SECRET — semnătura endpoint-ului (whsec_...)
+//   SVC_PASSWORD          — parola contului de serviciu Firebase
+// Valorile publice stau direct aici:
+
+const FB_API_KEY = "AIzaSyCBEoLDgAwfvuyppqdOEt0BMjrtsAWXTx8"; // public prin design
+const FB_PROJECT_ID = "atc-toolkit";
+const SVC_EMAIL = "stripe-service@atc-toolkit.web.app";
 
 const enc = new TextEncoder();
 
@@ -48,11 +51,11 @@ let cachedToken: { token: string; exp: number } | null = null;
 async function svcToken(): Promise<string> {
   if (cachedToken && Date.now() < cachedToken.exp) return cachedToken.token;
   const res = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${env("FB_API_KEY")}`,
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: env("SVC_EMAIL"), password: env("SVC_PASSWORD"), returnSecureToken: true }),
+      body: JSON.stringify({ email: SVC_EMAIL, password: env("SVC_PASSWORD"), returnSecureToken: true }),
     },
   );
   if (!res.ok) throw new Error(`Firebase sign-in failed: ${res.status} ${await res.text()}`);
@@ -62,7 +65,7 @@ async function svcToken(): Promise<string> {
 }
 
 function fsBase(): string {
-  return `https://firestore.googleapis.com/v1/projects/${env("FB_PROJECT_ID")}/databases/(default)/documents`;
+  return `https://firestore.googleapis.com/v1/projects/${FB_PROJECT_ID}/databases/(default)/documents`;
 }
 
 async function fsFetch(path: string, init: RequestInit = {}): Promise<Response> {
