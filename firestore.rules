@@ -5,6 +5,16 @@ service cloud.firestore {
     function signedIn() {
       return request.auth != null;
     }
+    // Owner-ul platformei (Arthur) — are acces complet din panoul de owner.
+    function isOwner() {
+      return signedIn() && request.auth.token.email.lower() in [
+        'arthur.teut@gmail.com'
+      ];
+    }
+    // Contul de serviciu folosit de webhook-ul Stripe (activează/dezactivează cafenele).
+    function isService() {
+      return signedIn() && request.auth.token.email.lower() == 'stripe-service@atc-toolkit.web.app';
+    }
     function myMember() {
       return get(/databases/$(database)/documents/members/$(request.auth.uid)).data;
     }
@@ -16,30 +26,65 @@ service cloud.firestore {
     function isAdminOf(cafeId) {
       return isMemberOf(cafeId) && myMember().role == 'admin';
     }
+    // Abonamentul cafenelei e activ (setat de webhook-ul Stripe sau manual de owner).
+    function cafeActive(cafeId) {
+      return get(/databases/$(database)/documents/cafes/$(cafeId)).data.active == true;
+    }
     function emailKey() {
       // id-ul documentului de invitație: emailul cu '.' inlocuit cu ','
       return request.auth.token.email.lower().replace('\\.', ',');
     }
+    // Câmpurile de abonament nu pot fi atinse decât de owner / serviciu.
+    function keepsBillingFields() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['active', 'subscription']);
+    }
 
     // Cafeneaua: documentul e creat de contul cafenelei (cafeId == uid-ul owner-ului)
     match /cafes/{cafeId} {
-      allow read: if isMemberOf(cafeId);
-      allow create: if signedIn() && request.auth.uid == cafeId;
-      allow update, delete: if isAdminOf(cafeId);
+      allow read: if isMemberOf(cafeId) || isOwner() || isService();
+      // la creare nu poate seta singură câmpurile de abonament
+      allow create: if (signedIn() && request.auth.uid == cafeId
+                        && !request.resource.data.keys().hasAny(['active', 'subscription']))
+                    || isOwner();
+      allow update: if (isAdminOf(cafeId) && keepsBillingFields())
+                    || isOwner() || isService();
+      allow delete: if isAdminOf(cafeId) || isOwner();
 
       // Registrul (istoricul completărilor) cafenelei
       match /history/{entryId} {
-        allow read, create: if isMemberOf(cafeId);
+        // citirea rămâne permisă și cu abonamentul expirat (își văd datele),
+        // dar salvarea cere abonament activ
+        allow read: if isMemberOf(cafeId) || isOwner();
+        allow create: if isMemberOf(cafeId) && cafeActive(cafeId);
         allow delete: if isAdminOf(cafeId)
                       || (isMemberOf(cafeId) && resource.data.uid == request.auth.uid);
       }
+    }
+
+    // Configurația aplicației — cheia de deblocare a toolkit-ului.
+    // Poate fi citită doar de membrii unei cafenele cu abonament activ.
+    match /config/{docId} {
+      allow read: if (signedIn()
+                      && exists(/databases/$(database)/documents/members/$(request.auth.uid))
+                      && cafeActive(myMember().cafeId))
+                  || isOwner() || isService();
+      allow write: if isOwner() || isService();
+    }
+
+    // Plăți Stripe care nu s-au potrivit automat cu nicio cafenea —
+    // owner-ul le vede în panoul lui și le rezolvă manual.
+    match /stripe_orphans/{docId} {
+      allow read, delete: if isOwner();
+      allow write: if isService() || isOwner();
     }
 
     // Membrii (bariștii cu cont). Documentul are id-ul = uid-ul utilizatorului.
     match /members/{uid} {
       // membrii aceleiași cafenele se văd între ei
       allow read: if signedIn()
-        && (request.auth.uid == uid || resource.data.cafeId == myMember().cafeId);
+        && (request.auth.uid == uid || isOwner()
+            || resource.data.cafeId == myMember().cafeId);
       // owner-ul cafenelei își creează propriul membru admin (cafeId == uid-ul lui),
       // iar un barist invitat își creează membrul pe baza invitației de pe emailul lui
       allow create: if signedIn() && request.auth.uid == uid && (
