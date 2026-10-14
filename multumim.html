@@ -136,13 +136,19 @@
   document,'script','https://connect.facebook.net/en_US/fbevents.js');
   fbq("init", id);
   fbq("track", "PageView");
-  /* evenimentul de conversie o singură dată per browser, nu și la refresh */
-  var fired = false;
-  try { fired = localStorage.getItem("atc-px-sub") === "1"; } catch (e) {}
-  if (!fired) {
-    fbq("track", "Purchase", { value: 99.0, currency: "RON" });
-    fbq("track", "Subscribe", { value: 99.0, currency: "RON", predicted_ltv: 594.0 });
-    try { localStorage.setItem("atc-px-sub", "1"); } catch (e) {}
+  /* conversia pleacă doar la venirea de la o plată reală (Stripe pune session_id
+     în link), o singură dată per sesiune de plată; event_id-ul e același cu cel
+     trimis de server prin Conversions API, ca Meta să deduplicheze */
+  var sid = "";
+  try { sid = new URLSearchParams(location.search).get("session_id") || ""; } catch (e) {}
+  if (sid) {
+    var fired = false;
+    try { fired = localStorage.getItem("atc-px-sub") === sid; } catch (e) {}
+    if (!fired) {
+      fbq("track", "Purchase", { value: 99.0, currency: "RON" }, { eventID: sid });
+      fbq("track", "Subscribe", { value: 99.0, currency: "RON", predicted_ltv: 594.0 }, { eventID: sid + "-sub" });
+      try { localStorage.setItem("atc-px-sub", sid); } catch (e) {}
+    }
   }
 })();
 </script>
