@@ -198,6 +198,25 @@
   .hero-scrollcue svg { display: block; }
   @keyframes cueFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
   /* panourile colorate care intră din lateral la scroll */
+  .hero-art {
+    position: absolute; z-index: 2; pointer-events: none;
+    right: clamp(8px, 4vw, 70px); bottom: 54px;
+    width: clamp(280px, 31vw, 540px); height: auto;
+    mix-blend-mode: multiply;
+    opacity: 0; transform: translateY(24px);
+    animation: artIn 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.35s forwards;
+  }
+  @keyframes artIn { to { opacity: 1; transform: none; } }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .hero-art { mix-blend-mode: screen; filter: invert(1); }
+  }
+  :root[data-theme="dark"] .hero-art { mix-blend-mode: screen; filter: invert(1); }
+  @media (max-width: 760px) {
+    .hero-art {
+      position: static; display: block; margin: 26px 0 0 auto;
+      width: min(320px, 82%); animation-delay: 0.15s;
+    }
+  }
   .hero-panel { position: absolute; z-index: 1; will-change: transform; }
   .hero-panel.pl { left: 0; bottom: 10%; width: clamp(54px, 11vw, 200px); height: 42%; background: var(--tl-amber); transform: translateX(-105%); }
   .hero-panel.pr { right: 0; top: 7%; width: clamp(44px, 8vw, 150px); height: 38%; background: var(--tl-sage); transform: translateX(105%); }
@@ -402,6 +421,7 @@
       </div>
     </div>
   </div>
+  <img class="hero-art" src="assets/img/baristas.jpg" alt="Doi bariști lucrând la barul de cafea — ilustrație">
   <div class="wrap hero-foot">
     <span>aroundthecorner.toolkit</span>
     <a class="hero-scrollcue" href="#manifest" aria-label="Derulează mai jos">
