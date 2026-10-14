@@ -415,6 +415,26 @@
     .gridpaper { background-size: 64px 64px; }
   }
 </style>
+<script>
+(function () {
+  var id = "__PIXEL_ID__";
+  if (!/^\d{10,20}$/.test(id)) return;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq("init", id);
+  fbq("track", "PageView");
+  /* click spre crearea contului = Lead pentru optimizarea reclamelor */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a");
+    if (!a || !window.fbq) return;
+    var h = a.getAttribute("href") || "";
+    if (h.indexOf("app.html") === 0) fbq("track", "Lead");
+  });
+})();
+</script>
 </head>
 <body>
 
