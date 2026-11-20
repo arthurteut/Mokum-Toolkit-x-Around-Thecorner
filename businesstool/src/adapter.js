@@ -144,7 +144,7 @@
     e.preventDefault();
     var email = ui.email.value.trim().toLowerCase(); if (!email) return;
     feedback("Se trimite…", true);
-    sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname } })
+    sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname.replace(/\/$/, "") } })
       .then(function (res) { if (res.error) throw res.error; feedback("Ți-am trimis linkul de intrare pe " + email + ". Deschide-l de pe acest dispozitiv.", true); })
       .catch(function (err) { feedback("Nu am putut trimite linkul: " + ((err && err.message) || "eroare"), false); });
   });
