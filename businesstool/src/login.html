@@ -1,0 +1,28 @@
+<div class="login" id="login" hidden>
+  <div class="login-card">
+    <img src="assets/heat/heat-logo-red.png" alt="Heat Fried Chicken" width="422" height="199">
+    <h2>Plan de afaceri</h2>
+    <p class="login-msg" id="login-msg"></p>
+    <form id="login-form">
+      <label for="login-email">Emailul tău de echipă</label>
+      <input type="email" id="login-email" autocomplete="email" required placeholder="nume@exemplu.ro">
+      <button type="submit" class="btn yellow">Trimite-mi linkul de intrare</button>
+      <p class="hint">Primești un link pe email, fără parolă. Deschide-l de pe același dispozitiv și rămâi conectat.</p>
+    </form>
+    <p class="login-fb" id="login-fb" role="status" aria-live="polite"></p>
+    <button type="button" class="btn ghost" id="login-logout" hidden>Ieși din cont</button>
+  </div>
+</div>
+<dialog id="team-dlg" class="team-dlg" aria-labelledby="team-title">
+  <h3 id="team-title">Echipa cu acces</h3>
+  <p class="hint">Doar emailurile de aici pot deschide și modifica planul. Un coleg intră cu emailul lui și primește linkul de intrare.</p>
+  <ul id="team-list"></ul>
+  <form id="team-form" class="fgrid">
+    <div class="field"><label for="tm-email">Email</label><input type="email" id="tm-email" autocomplete="off" required></div>
+    <div class="field"><label for="tm-name">Nume</label><input type="text" id="tm-name" maxlength="40" required></div>
+    <div class="field"><label for="tm-role">Rol</label><input type="text" id="tm-role" maxlength="40" placeholder="Echipa Heat"></div>
+    <div class="field"><label for="tm-admin"><input type="checkbox" id="tm-admin"> Administrator (poate adăuga și scoate colegi)</label></div>
+    <div class="tool-actions"><button type="submit" class="btn yellow">Adaugă în echipă</button><button type="button" class="btn ghost" id="team-close">Închide</button></div>
+  </form>
+  <p class="hint" id="team-fb"></p>
+</dialog>

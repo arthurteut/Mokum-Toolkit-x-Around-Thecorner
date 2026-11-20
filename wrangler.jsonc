@@ -1,0 +1,7 @@
+{
+  // Cloudflare Workers (fluxul nou „Import a repository”): publică folderul businesstool/ ca site static.
+  // Deploy command în Cloudflare: npx wrangler deploy
+  "name": "heat-businesstool",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./businesstool", "not_found_handling": "404-page" }
+}

@@ -69,3 +69,10 @@ CNAME  toolkit  →  arthurteut.github.io
 
 apoi în GitHub **Settings → Pages** verifică domeniul custom și bifează
 **Enforce HTTPS** (după ce se emite certificatul, câteva minute).
+
+## Actualizare: jurnalul de bonuri Heat
+
+Jurnalul de bonuri Heat salvează în `cafes/{cafeId}/receipts`. Dacă ai publicat
+regulile înainte de această secțiune, lipește din nou integral
+[`firestore.rules`](firestore.rules) în **Firestore → Rules → Publish** — altfel
+echipa vede mesajul „Jurnalul partajat nu poate fi citit".
