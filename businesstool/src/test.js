@@ -1,19 +1,33 @@
 /* Test automat (Playwright + clientul Supabase fals): node businesstool/src/test.js <seed.json>
    seed.json: { "coll/id": document, ... } exportat din baza de date a planului. */
 const { chromium } = require("playwright");
-const fs = require("fs"); const path = require("path");
+const fs = require("fs"); const path = require("path"); const http = require("http"); const crypto = require("crypto");
 const HERE = __dirname;
 const SEED = fs.readFileSync(process.argv[2], "utf8");
 const FAKE = fs.readFileSync(path.join(HERE, "fake-supabase.js"), "utf8");
-const PAGE = "file://" + path.join(HERE, "..", "index.html");
 const init = (extra) => "window.__SEED = " + SEED + ";" + (extra || "") + "\n" + FAKE;
+/* Pagina se servește prin http (service worker-ul și notificările nu merg pe file://). */
+const ROOT = path.join(HERE, "..");
+const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".json": "application/json", ".webmanifest": "application/manifest+json", ".png": "image/png", ".css": "text/css" };
+const server = http.createServer((req, res) => {
+  let p = decodeURIComponent(req.url.split("?")[0]); if (p === "/") p = "/index.html";
+  const f = path.normalize(path.join(ROOT, p));
+  if (!f.startsWith(ROOT) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
+  res.writeHead(200, { "Content-Type": MIME[path.extname(f)] || "application/octet-stream", "Cache-Control": "no-cache" }); fs.createReadStream(f).pipe(res);
+});
 
 (async () => {
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  const PAGE = "http://127.0.0.1:" + server.address().port + "/index.html";
+  const vapidPub = crypto.createECDH("prime256v1"); vapidPub.generateKeys();
+  const VAPID = vapidPub.getPublicKey().toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   const b = await chromium.launch();
-  const pg = await b.newPage({ viewport: { width: 1280, height: 900 } });
-  const errs = []; pg.on("pageerror", (e) => errs.push("PAGEERR " + e.message)); pg.on("console", (m) => { if (m.type() === "error" && !/ERR_CERT|fonts|supabase\.min|net::/.test(m.text())) errs.push("CONSOLE " + m.text()); });
+  const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, permissions: ["notifications"] });
+  const pg = await ctx.newPage();
+  const errs = []; pg.on("pageerror", (e) => errs.push("PAGEERR " + e.message)); pg.on("console", (m) => { if (m.type() === "error" && !/ERR_CERT|fonts|supabase\.min|net::|Push API in incognito/.test(m.text())) errs.push("CONSOLE " + m.text()); });
   await pg.route(/supabase-js|supabase\.min\.js/, (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: "/* înlocuit de clientul fals */" }));
-  await pg.addInitScript(init("window.__HB_MS = 400;"));
+  await pg.addInitScript(init("window.__HB_MS = 400; window.__VAPID = " + JSON.stringify(VAPID) + ";"
+    + "try { Object.defineProperty(Notification, 'permission', { get: function () { return 'default'; } }); Notification.requestPermission = function () { return Promise.resolve('granted'); }; } catch (e) {}"));
   await pg.goto(PAGE); await pg.waitForTimeout(1500);
   const t = async (sel) => ((await pg.textContent(sel)) || "").replace(/\s+/g, " ").trim();
   const cnt = (sel) => pg.locator(sel).count();
@@ -58,9 +72,22 @@ const init = (extra) => "window.__SEED = " + SEED + ";" + (extra || "") + "\n" +
   await pg.click("#act-btn"); await pg.waitForTimeout(600);
   console.log("activity open:", await pg.evaluate(() => document.getElementById("act-dlg").open), "| rows:", await cnt("#act-dlg tbody tr"), "| first row:", await t("#act-dlg tbody tr"), "| visits listed:", await cnt("#act-dlg .log-item"), "| first visit:", await t("#act-dlg .log-item"), "| fb:", await t("#act-fb"));
   await pg.screenshot({ path: path.join(HERE, "shot-activity.png") });
+  console.log("notices listed:", await cnt("#act-notices .log-item"), "| notif column:", await t("#act-dlg tbody tr:first-child td:last-child"));
+  await pg.fill("#act-msg", "Citiți azi blocul Food cost"); await pg.click("#act-msg-form .btn"); await pg.waitForTimeout(400);
+  console.log("message sent:", await t("#act-fb"), "| invoked:", JSON.stringify(await pg.evaluate(() => window.__fake.invoked)), "| notices now:", await cnt("#act-notices .log-item"));
   await pg.click("#act-close");
+  // aplicația: service worker, manifest, dialogul și notificările
+  console.log("sw active:", await pg.evaluate(() => Promise.race([navigator.serviceWorker.ready.then((r) => !!r.active), new Promise((r) => setTimeout(() => r("timeout"), 5000))])), "| manifest:", await pg.evaluate(() => fetch("manifest.webmanifest").then((r) => r.json()).then((m) => m.short_name + " " + m.icons.length + " icons").catch((e) => "ERR " + e.message)), "| sw.js version:", await pg.evaluate(() => fetch("sw.js").then((r) => r.text()).then((s) => (s.match(/VERSION = "([^"]+)"/) || [])[1])));
+  console.log("app btn visible:", await pg.locator("#app-btn").isVisible(), "| banner visible:", await pg.locator("#app-banner").isVisible());
+  await pg.click("#app-btn"); await pg.waitForTimeout(600);
+  console.log("app dialog:", await t("#app-install"), "||", await t("#app-push"));
+  const pushBtn = pg.locator("#app-push button", { hasText: "Pornește" });
+  if (await pushBtn.count()) { await pushBtn.click(); await pg.waitForTimeout(2500); console.log("after enable:", await t("#app-fb"), "| push:", await t("#app-push"), "| subs:", await pg.evaluate(() => window.__fake.pushSubs.size), "| vapid asked:", await pg.evaluate(() => window.__fake.invoked.some((i) => i.job === "vapid"))); }
+  await pg.screenshot({ path: path.join(HERE, "shot-app-dlg.png") });
+  await pg.click("#app-close");
+  await pg.click("#app-banner-close"); console.log("banner after close:", await pg.locator("#app-banner").isVisible());
   await pg.close();
-  // neautentificat
+  // neautentificat: trimiterea codului, apoi intrarea cu codul
   const out = await b.newPage({ viewport: { width: 1280, height: 900 } });
   await out.route(/supabase-js|supabase\.min\.js/, (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
   await out.addInitScript(init("window.__NO_SESSION = true;")); await out.goto(PAGE); await out.waitForTimeout(800);
@@ -68,11 +95,15 @@ const init = (extra) => "window.__SEED = " + SEED + ";" + (extra || "") + "\n" +
   await out.fill("#login-email", "cineva@test.ro"); await out.click("#login-form .btn"); await out.waitForTimeout(300);
   console.log("otp sent to:", await out.evaluate(() => window.__fake.otp), "| fb:", await out.textContent("#login-fb"));
   await out.screenshot({ path: path.join(HERE, "shot-login.png") });
+  await out.fill("#login-code", "000000"); await out.click("#login-verify"); await out.waitForTimeout(300);
+  console.log("wrong code:", await out.textContent("#login-fb"));
+  await out.fill("#login-code", "123456"); await out.press("#login-code", "Enter"); await out.waitForTimeout(800);
+  console.log("right code -> verify:", JSON.stringify(await out.evaluate(() => window.__fake.verify)), "| login hidden:", await out.locator("#login").isHidden(), "| denied msg:", (await out.textContent("#login-msg")).slice(0, 60));
   // autentificat, dar fără acces
   const den = await b.newPage({ viewport: { width: 1280, height: 900 } });
   await den.route(/supabase-js|supabase\.min\.js/, (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
   await den.addInitScript(init("window.__EMAIL = 'strain@test.ro';")); await den.goto(PAGE); await den.waitForTimeout(800);
   console.log("denied: msg", await den.textContent("#login-msg"), "| logout btn visible", await den.locator("#login-logout").isVisible());
   console.log("ERRORS", errs);
-  await b.close();
+  await b.close(); server.close();
 })();

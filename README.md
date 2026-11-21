@@ -8,7 +8,7 @@ Site-ul are două pagini:
 - **`app.html`** — aplicația propriu-zisă (toolkit-ul complet).
 - **`heat.html`** — jurnalul de bonuri al echipei Heat, în identitatea vizuală Heat.
 - **`research/`** — același jurnal, gata de publicat pe `research.heatcertifried.ro`, cu datele în Supabase-ul Heat (pașii în [`research/SETUP.md`](research/SETUP.md)). Se generează din `heat.html`; modificările de design se fac întâi acolo.
-- **`businesstool/`** — planul de afaceri Heat ca pagină proprie pentru `businesstool.heatcertifried.ro`: datele în Supabase, login prin email, actualizări live (pașii în [`businesstool/SETUP.md`](businesstool/SETUP.md)). Sursa e în `businesstool/src/`; `python3 businesstool/src/build.py` rescrie `index.html`.
+- **`businesstool/`** — planul de afaceri Heat ca pagină proprie pentru `businesstool.heatcertifried.ro`: datele în Supabase, login prin email (cod sau link), actualizări live, aplicație instalabilă pe telefon cu notificări push (pașii în [`businesstool/SETUP.md`](businesstool/SETUP.md)). Sursa e în `businesstool/src/`; `python3 businesstool/src/build.py` rescrie `index.html`.
 
 Pentru publicare: GitHub Pages (Settings → Pages → branch → root); landing-ul
 se servește automat ca pagină principală, iar aplicația la `/app.html`.

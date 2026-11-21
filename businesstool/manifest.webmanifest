@@ -1,0 +1,18 @@
+{
+  "name": "Heat · Plan de afaceri",
+  "short_name": "Heat Plan",
+  "description": "Planul de afaceri Heat: locul în care echipa intră zi de zi.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "lang": "ro",
+  "background_color": "#611923",
+  "theme_color": "#611923",
+  "icons": [
+    { "src": "assets/app/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/app/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/app/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

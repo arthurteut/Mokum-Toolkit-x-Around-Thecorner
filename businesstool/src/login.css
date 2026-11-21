@@ -29,3 +29,16 @@
   .act-dlg table.t td .pill { margin-left: 4px; font-size: 11px; }
   .act-dlg h4 { font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin: 18px 0 8px; }
   .act-dlg .tool-actions { margin-top: 14px; }
+  .login-code { display: flex; gap: 8px; align-items: stretch; }
+  .login-code input { flex: 1 1 auto; width: auto; min-width: 0; border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); font-size: 20px; letter-spacing: 0.2em; font-variant-numeric: tabular-nums; }
+  .login-card .login-code .btn { margin-top: 0; width: auto; }
+  .act-msg { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .act-msg input { flex: 1 1 260px; border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--bg); }
+  .app-dlg { max-width: 560px; }
+  .app-dlg h4 { font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin: 18px 0 8px; }
+  .app-dlg p { font-size: 15px; line-height: 1.5; margin: 0 0 8px; }
+  .app-dlg .btn { margin: 4px 8px 4px 0; }
+  .app-banner { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--yellow); color: var(--black); padding: 8px 16px; font-size: 14px; font-weight: 700; }
+  .app-banner[hidden] { display: none; }
+  .app-banner .btn { padding: 6px 12px; font-size: 12px; }
+  .app-banner .linkish { color: var(--black); }

@@ -9,11 +9,13 @@
   var members = [{ email: "arthur@test.ro", name: "Arthur", role: "ATC", is_admin: true }];
   var users = new Map();
   var visits = new Map();
-  var listeners = [];
+  var pushSubs = new Map();
+  var notices = [{ id: 1, kind: "daily", day: "2026-11-20", title: "Azi n-ai intrat pe plan", body: "", recipients: 3, sent: 3, created_by: "", created_at: "2026-11-20T17:00:00Z" }];
+  var listeners = [], authCb = null;
   var session = window.__NO_SESSION ? null : { user: { id: "11111111-2222-4333-8444-555555555555", email: window.__EMAIL || "arthur@test.ro" } };
   var isMember = function () { return !!session && members.some(function (m) { return m.email === session.user.email; }); };
   function emit(type, row, old) { listeners.forEach(function (fn) { setTimeout(function () { fn({ eventType: type, new: row || {}, old: old || {}, table: "plan_docs", schema: "public" }); }, 0); }); }
-  window.__fake = { rows: rows, emit: emit, members: members, users: users, visits: visits, writes: [] };
+  window.__fake = { rows: rows, emit: emit, members: members, users: users, visits: visits, pushSubs: pushSubs, invoked: [], writes: [] };
   function builder(table) {
     var st = { table: table, filters: [], op: "select", payload: null };
     var b = {
@@ -46,6 +48,16 @@
       if (st.op === "select") return { data: Array.from(users.values()).filter(keep), error: null };
       if (st.op === "upsert") { users.set(st.payload.id, st.payload); return { data: null, error: null }; }
     }
+    if (st.table === "plan_push_subs") {
+      var mine = function (r) { return !!session && r.user_id === session.user.id; };
+      var adm = isMember() && members.some(function (m) { return m.email === session.user.email && m.is_admin; });
+      if (st.op === "select") return { data: Array.from(pushSubs.values()).filter(keep).filter(function (r) { return adm || mine(r); }), error: null };
+      if (st.op === "upsert") { if (!isMember() || !mine(st.payload)) return { data: null, error: { code: "42501", message: "new row violates row-level security policy" } }; pushSubs.set(st.payload.endpoint, JSON.parse(JSON.stringify(st.payload))); return { data: null, error: null }; }
+      if (st.op === "delete") { Array.from(pushSubs.values()).filter(keep).filter(mine).forEach(function (r) { pushSubs.delete(r.endpoint); }); return { data: null, error: null }; }
+    }
+    if (st.table === "plan_notices") {
+      if (st.op === "select") return { data: isMember() ? notices.filter(keep) : [], error: null };
+    }
     if (st.table === "plan_visits") {
       var own = function (r) { return !!session && r.user_id === session.user.id; };
       var admin = isMember() && members.some(function (m) { return m.email === session.user.email && m.is_admin; });
@@ -58,8 +70,25 @@
     from: builder,
     channel: function () { var ch = { on: function (ev, opts, cb) { listeners.push(cb); return ch; }, subscribe: function () { return ch; } }; return ch; },
     removeChannel: function () {},
+    functions: {
+      invoke: function (name, opts) {
+        var body = (opts && opts.body) || {}; window.__fake.invoked.push(Object.assign({ fn: name }, body));
+        if (!session) return Promise.resolve({ data: null, error: { message: "Unauthorized" } });
+        if (body.job === "vapid") return Promise.resolve({ data: { ok: true, publicKey: window.__VAPID || "" }, error: null });
+        if (body.job === "test") return Promise.resolve({ data: { ok: true, sent: 1, recipients: 1 }, error: null });
+        if (body.job === "message") { notices.unshift({ id: notices.length + 1, kind: "message", day: null, title: "Mesaj", body: body.text, recipients: 2, sent: 2, created_by: session.user.email, created_at: new Date().toISOString() }); return Promise.resolve({ data: { ok: true, sent: 2, recipients: 2 }, error: null }); }
+        return Promise.resolve({ data: { ok: false, error: "job necunoscut" }, error: null });
+      }
+    },
     auth: {
-      onAuthStateChange: function (cb) { setTimeout(function () { cb(session ? "SIGNED_IN" : "SIGNED_OUT", session); }, 0); return { data: { subscription: { unsubscribe: function () {} } } }; },
+      onAuthStateChange: function (cb) { authCb = cb; setTimeout(function () { cb(session ? "SIGNED_IN" : "SIGNED_OUT", session); }, 0); return { data: { subscription: { unsubscribe: function () {} } } }; },
+      verifyOtp: function (o) {
+        window.__fake.verify = o;
+        if (o.token !== "123456") return Promise.resolve({ data: { session: null }, error: { message: "Token has expired or is invalid" } });
+        session = { user: { id: "11111111-2222-4333-8444-555555555555", email: o.email }, access_token: "fake-token" };
+        setTimeout(function () { if (authCb) authCb("SIGNED_IN", session); }, 0);
+        return Promise.resolve({ data: { session: session }, error: null });
+      },
       getSession: function () { return Promise.resolve({ data: { session: session }, error: null }); },
       signInWithOtp: function (o) { window.__fake.otp = o.email; return Promise.resolve({ data: {}, error: null }); },
       signOut: function () { session = null; return Promise.resolve({ error: null }); }

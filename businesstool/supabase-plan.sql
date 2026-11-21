@@ -109,6 +109,74 @@ drop policy if exists "adminul vede activitatea" on public.plan_visits;
 create policy "adminul vede activitatea" on public.plan_visits
   for select to authenticated using (public.plan_is_admin() or user_id = auth.uid());
 
+-- ── Notificări push + aplicația pe telefon (funcția Supabase `notify`, sursa în supabase/functions/notify) ──
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+
+-- abonările push ale dispozitivelor (una pe dispozitiv/browser)
+create table if not exists public.plan_push_subs (
+  endpoint   text primary key,
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  email      text not null default '',
+  sub        jsonb not null,
+  device     text not null default '',
+  ua         text not null default '',
+  failed     integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.plan_push_subs enable row level security;
+drop policy if exists "fiecare isi vede abonarile" on public.plan_push_subs;
+create policy "fiecare isi vede abonarile" on public.plan_push_subs
+  for select to authenticated using (user_id = auth.uid() or public.plan_is_admin());
+drop policy if exists "fiecare isi adauga abonarile" on public.plan_push_subs;
+create policy "fiecare isi adauga abonarile" on public.plan_push_subs
+  for insert to authenticated with check (user_id = auth.uid() and public.plan_is_member());
+drop policy if exists "fiecare isi actualizeaza abonarile" on public.plan_push_subs;
+create policy "fiecare isi actualizeaza abonarile" on public.plan_push_subs
+  for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "fiecare isi sterge abonarile" on public.plan_push_subs;
+create policy "fiecare isi sterge abonarile" on public.plan_push_subs
+  for delete to authenticated using (user_id = auth.uid());
+
+-- ce s-a trimis; (kind, day) unic = o notificare programată o singură dată pe zi
+create table if not exists public.plan_notices (
+  id         bigserial primary key,
+  kind       text not null,              -- daily | milestones | weekly | message
+  day        date,                       -- ziua locală pentru cele programate
+  title      text not null default '',
+  body       text not null default '',
+  recipients integer not null default 0,
+  sent       integer not null default 0,
+  created_by text not null default '',
+  created_at timestamptz not null default now()
+);
+create unique index if not exists plan_notices_once on public.plan_notices (kind, day) where day is not null;
+alter table public.plan_notices enable row level security;
+drop policy if exists "echipa vede ce s-a trimis" on public.plan_notices;
+create policy "echipa vede ce s-a trimis" on public.plan_notices
+  for select to authenticated using (public.plan_is_member());
+
+-- secretele funcției: cheile VAPID (se generează singure la prima rulare) și secretul pentru cron; fără politici = doar service role
+create table if not exists public.plan_secrets (
+  key        text primary key,
+  value      text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.plan_secrets enable row level security;
+insert into public.plan_secrets (key, value) values ('cron', encode(extensions.gen_random_bytes(24), 'hex')) on conflict (key) do nothing;
+
+-- o dată pe oră, funcția decide ce e de trimis la ora României (19 reminder, 9 repere, luni 9 rezumat)
+-- (înlocuiește <ref> cu referința proiectului)
+select cron.schedule('heat-notify-hourly', '0 * * * *', $$
+  select net.http_post(
+    url := 'https://tckcmfdolaickwtxglvt.supabase.co/functions/v1/notify',
+    body := '{"job":"cron"}'::jsonb,
+    headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', (select value from public.plan_secrets where key = 'cron')),
+    timeout_milliseconds := 30000
+  );
+$$);
+
 -- ── Actualizări live între dispozitivele echipei ──
 do $$ begin
   alter publication supabase_realtime add table public.plan_docs;

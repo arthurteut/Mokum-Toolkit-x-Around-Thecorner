@@ -6,8 +6,10 @@
     <form id="login-form">
       <label for="login-email">Emailul tău de echipă</label>
       <input type="email" id="login-email" autocomplete="email" required placeholder="nume@exemplu.ro">
-      <button type="submit" class="btn yellow">Trimite-mi linkul de intrare</button>
-      <p class="hint">Primești un link pe email, fără parolă. Deschide-l de pe același dispozitiv și rămâi conectat.</p>
+      <button type="submit" class="btn yellow">Trimite-mi codul de intrare</button>
+      <p class="hint">Primești pe email un cod de 6 cifre și un link, fără parolă. Tastează codul mai jos (merge și din aplicația de pe ecranul principal) sau deschide linkul de pe același dispozitiv. Rămâi conectat.</p>
+      <label for="login-code">Codul din email</label>
+      <div class="login-code"><input type="text" id="login-code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"><button type="button" class="btn" id="login-verify">Intră</button></div>
     </form>
     <p class="login-fb" id="login-fb" role="status" aria-live="polite"></p>
     <button type="button" class="btn ghost" id="login-logout" hidden>Ieși din cont</button>
@@ -31,5 +33,19 @@
   <p class="hint">Cine intră pe pagină, cât stă și ce citește. Timpul se numără doar cât pagina e în față și e folosită; un tab lăsat deschis în fundal nu contează. Un bloc e „văzut” dacă a stat pe ecran măcar câteva secunde. Modificările sunt scrierile salvate în plan.</p>
   <div id="act-body"></div>
   <div class="tool-actions"><button type="button" class="btn ghost" id="act-close">Închide</button></div>
+  <h4>Mesaj pentru echipă</h4>
+  <p class="hint">Ajunge ca notificare pe dispozitivele celor care au pornit notificările (din butonul „Aplicația”).</p>
+  <form id="act-msg-form" class="act-msg"><input type="text" id="act-msg" maxlength="140" placeholder="ex. Citiți azi blocul Food cost și răspundeți la întrebări" required><button type="submit" class="btn yellow">Trimite notificare</button></form>
+  <div id="act-notices"></div>
   <p class="hint" id="act-fb" role="status" aria-live="polite"></p>
+</dialog>
+<dialog id="app-dlg" class="team-dlg app-dlg" aria-labelledby="app-title">
+  <h3 id="app-title">Aplicația Heat Plan</h3>
+  <p class="hint">Pune planul pe ecranul principal al telefonului, ca o aplicație, și pornește notificările: seara, dacă n-ai intrat în ziua aceea; dimineața, reperele cu termen aproape sau depășit; luni, rezumatul săptămânii; plus mesajele administratorului.</p>
+  <h4>Pe ecranul principal</h4>
+  <div id="app-install"></div>
+  <h4>Notificări pe acest dispozitiv</h4>
+  <div id="app-push"></div>
+  <div class="tool-actions"><button type="button" class="btn ghost" id="app-close">Închide</button></div>
+  <p class="hint" id="app-fb" role="status" aria-live="polite"></p>
 </dialog>

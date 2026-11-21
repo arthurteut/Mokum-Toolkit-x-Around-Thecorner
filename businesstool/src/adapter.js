@@ -4,7 +4,8 @@
    un singur tabel `plan_docs` (coll, id, data jsonb), login prin link pe email (Supabase Auth),
    acces doar pentru emailurile din `plan_members`, actualizări live prin Realtime.
    Tot aici: vizitele fiecăruia (`plan_visits`: cât stă pe pagină, ce blocuri citește, câte modificări
-   salvează) și panoul „Activitate”, vizibil doar administratorului. */
+   salvează), panoul „Activitate” (doar administrator), aplicația instalabilă (service worker, dialogul „Aplicația”)
+   și notificările push (`plan_push_subs`, trimise de funcția Supabase `notify`). */
 (function () {
   "use strict";
   var cfg = window.HEAT_SUPABASE;
@@ -139,7 +140,7 @@
   window.claude = { use: function (ns) { return ready.then(function () { return ns === "db" ? db : ns === "user" ? user : null; }); } };
 
   /* ── Login și echipa ── */
-  var ui = { box: $("login"), form: $("login-form"), email: $("login-email"), fb: $("login-fb"), msg: $("login-msg"), out: $("login-logout"), hdrOut: $("logout"), who: $("who"), team: $("team-btn"), act: $("act-btn") };
+  var ui = { box: $("login"), form: $("login-form"), email: $("login-email"), fb: $("login-fb"), msg: $("login-msg"), out: $("login-logout"), hdrOut: $("logout"), who: $("who"), team: $("team-btn"), act: $("act-btn"), app: $("app-btn"), banner: $("app-banner") };
   function show(state, text) { ui.box.hidden = false; ui.form.hidden = state !== "form"; ui.msg.textContent = text || ""; ui.out.hidden = state === "form"; }
   function feedback(t, ok) { ui.fb.textContent = t || ""; ui.fb.className = "login-fb" + (t ? (ok ? " ok" : " err") : ""); }
   ui.form.addEventListener("submit", function (e) {
@@ -147,9 +148,20 @@
     var email = ui.email.value.trim().toLowerCase(); if (!email) return;
     feedback("Se trimite…", true);
     sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname.replace(/\/$/, "") } })
-      .then(function (res) { if (res.error) throw res.error; feedback("Ți-am trimis linkul de intrare pe " + email + ". Deschide-l de pe acest dispozitiv.", true); })
+      .then(function (res) { if (res.error) throw res.error; feedback("Ți-am trimis codul și linkul pe " + email + ". Tastează codul aici sau deschide linkul de pe acest dispozitiv.", true); $("login-code").focus(); })
       .catch(function (err) { feedback("Nu am putut trimite linkul: " + ((err && err.message) || "eroare"), false); });
   });
+  function verifyCode() {
+    var email = ui.email.value.trim().toLowerCase(), code = $("login-code").value.replace(/\D/g, "");
+    if (!email) { feedback("Scrie întâi emailul.", false); ui.email.focus(); return; }
+    if (code.length < 6) { feedback("Codul are 6 cifre; e în emailul cu linkul.", false); $("login-code").focus(); return; }
+    feedback("Verific codul…", true);
+    sb.auth.verifyOtp({ email: email, token: code, type: "email" })
+      .then(function (res) { if (res.error) throw res.error; feedback("Gata, intri…", true); })
+      .catch(function (err) { feedback("Codul nu e bun sau a expirat: " + ((err && err.message) || "eroare") + ". Cere unul nou cu butonul de sus.", false); });
+  }
+  $("login-verify").addEventListener("click", verifyCode);
+  $("login-code").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); verifyCode(); } });
   function logout() { sb.auth.signOut().then(function () { location.reload(); }); }
   ui.out.addEventListener("click", logout); ui.hdrOut.addEventListener("click", logout);
 
@@ -260,8 +272,9 @@
   function dayKey(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function cell(tr, text, cls) { var td = document.createElement("td"); if (cls) td.className = cls; td.textContent = text; tr.appendChild(td); return td; }
   function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
-  function renderActivity(visits) {
+  function renderActivity(visits, subs, notices) {
     var body = $("act-body"); body.innerHTML = "";
+    var subsBy = {}; (subs || []).forEach(function (s) { var k = (s.email || "").toLowerCase(); (subsBy[k] = subsBy[k] || []).push(s.device || "dispozitiv"); });
     var nBlocks = document.querySelectorAll(".block[data-id]").length, week = Date.now() - 7 * 86400000;
     var stats = {}, order = [];
     function statFor(k) { if (!stats[k]) { stats[k] = { last: 0, days: {}, sec7: 0, sec: 0, blocks: {}, edits7: 0, edits: 0, n: 0 }; order.push(k); } return stats[k]; }
@@ -275,18 +288,20 @@
     var names = {}; members.forEach(function (m) { names[m.email] = m.name; statFor(m.email); });
     order.sort(function (x, y) { return stats[y].last - stats[x].last; });
     var tbl = document.createElement("table"); tbl.className = "t";
-    tbl.innerHTML = "<thead><tr><th>Persoană</th><th>Ultima vizită</th><th class=\"n\">Zile active<small>ultimele 7 zile</small></th><th class=\"n\">Timp<small>ultimele 7 zile</small></th><th class=\"n\">Timp total</th><th class=\"n\">Blocuri văzute<small>din " + nBlocks + "</small></th><th class=\"n\">Modificări<small>7 zile / total</small></th></tr></thead>";
+    tbl.innerHTML = "<thead><tr><th>Persoană</th><th>Ultima vizită</th><th class=\"n\">Zile active<small>ultimele 7 zile</small></th><th class=\"n\">Timp<small>ultimele 7 zile</small></th><th class=\"n\">Timp total</th><th class=\"n\">Blocuri văzute<small>din " + nBlocks + "</small></th><th class=\"n\">Modificări<small>7 zile / total</small></th><th>Notificări</th></tr></thead>";
     var tb = document.createElement("tbody");
     order.forEach(function (k) {
       var a = stats[k], tr = document.createElement("tr");
       var who = cell(tr, names[k] || k); if (!names[k]) who.title = "nu mai e în echipă";
       if (a.last && Date.now() - a.last < 2 * 60000) { var on = document.createElement("span"); on.className = "pill good"; on.textContent = "acum pe pagină"; who.appendChild(document.createTextNode(" ")); who.appendChild(on); }
-      if (!a.n) { var td = cell(tr, "nu a intrat încă", "muted"); td.colSpan = 6; tb.appendChild(tr); return; }
+      var devs = subsBy[k] || [];
+      if (!a.n) { var td = cell(tr, "nu a intrat încă", "muted"); td.colSpan = 6; cell(tr, devs.length ? "da · " + devs.join(", ") : "—", devs.length ? "" : "muted"); tb.appendChild(tr); return; }
       cell(tr, when(new Date(a.last).toISOString()) + " · " + plural(a.n, "vizită", "vizite"));
       cell(tr, Object.keys(a.days).filter(Boolean).length + " / 7", "n");
       cell(tr, dur(a.sec7), "n"); cell(tr, dur(a.sec), "n");
       cell(tr, String(Object.keys(a.blocks).length), "n");
       cell(tr, a.edits7 + " / " + a.edits, "n");
+      cell(tr, devs.length ? "da · " + devs.join(", ") : "—", devs.length ? "" : "muted");
       tb.appendChild(tr);
     });
     tbl.appendChild(tb);
@@ -303,17 +318,130 @@
       d.appendChild(s2); log.appendChild(d);
     });
     body.appendChild(log);
+    renderNotices(notices || []);
+  }
+  var NOTICE_KIND = { daily: "reminder de seară", milestones: "repere cu termen", weekly: "rezumat săptămânal", message: "mesaj", test: "probă" };
+  function renderNotices(notices) {
+    var box = $("act-notices"); box.innerHTML = "";
+    if (!notices.length) return;
+    var h = document.createElement("h4"); h.textContent = "Trimise"; box.appendChild(h);
+    var log = document.createElement("div"); log.className = "log";
+    notices.slice(0, 8).forEach(function (n) {
+      var d = document.createElement("div"); d.className = "log-item";
+      var s1 = document.createElement("span"); s1.className = "d"; s1.textContent = when(n.created_at); d.appendChild(s1);
+      var s2 = document.createElement("span"); s2.textContent = (NOTICE_KIND[n.kind] || n.kind) + (n.kind === "message" && n.body ? ": „" + n.body + "”" : "") + " · " + plural(n.sent || 0, "dispozitiv", "dispozitive") + (n.created_by ? " · " + (n.created_by) : ""); d.appendChild(s2);
+      log.appendChild(d);
+    });
+    box.appendChild(log);
   }
   function openActivity() {
-    $("act-fb").textContent = "Se încarcă…"; $("act-body").innerHTML = ""; $("act-dlg").showModal();
-    Promise.all([refreshTeam(), sb.from("plan_visits").select("*").order("last_seen_at", { ascending: false }).limit(5000)]).then(function (r) {
+    $("act-fb").textContent = "Se încarcă…"; $("act-body").innerHTML = ""; $("act-notices").innerHTML = ""; $("act-dlg").showModal();
+    Promise.all([refreshTeam(), sb.from("plan_visits").select("*").order("last_seen_at", { ascending: false }).limit(5000),
+      sb.from("plan_push_subs").select("email,device"), sb.from("plan_notices").select("*").order("created_at", { ascending: false }).limit(8)]).then(function (r) {
       var res = r[1];
       if (res.error) { $("act-fb").textContent = "Nu am putut citi activitatea: " + res.error.message; return; }
-      $("act-fb").textContent = ""; renderActivity(res.data || []);
+      $("act-fb").textContent = ""; renderActivity(res.data || [], r[2].data || [], r[3].data || []);
     }).catch(function (e) { $("act-fb").textContent = "Nu am putut citi activitatea: " + ((e && e.message) || "eroare"); });
   }
   ui.act.addEventListener("click", openActivity);
   $("act-close").addEventListener("click", function () { $("act-dlg").close(); });
+  $("act-msg-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var text = $("act-msg").value.trim(); if (!text) return;
+    $("act-fb").textContent = "Se trimite…";
+    invoke("message", { text: text }).then(function (r) {
+      if (r.error) { $("act-fb").textContent = "Nu s-a trimis: " + r.error; return; }
+      $("act-fb").textContent = "Trimis la " + plural(r.sent || 0, "dispozitiv", "dispozitive") + " (" + plural(r.recipients || 0, "persoană", "persoane") + " cu notificări pornite).";
+      $("act-msg").value = "";
+      sb.from("plan_notices").select("*").order("created_at", { ascending: false }).limit(8).then(function (res) { renderNotices(res.data || []); });
+    });
+  });
+
+  /* ── Aplicația: pe ecranul principal (service worker + manifest) și notificări push ── */
+  var swReg = null, installEvt = null, vapid = null;
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register("sw.js").then(function (r) { swReg = r; }).catch(function (e) { console.warn("sw: " + ((e && e.message) || e)); });
+  }
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installEvt = e; renderApp(); updateBanner(); });
+  window.addEventListener("appinstalled", function () { installEvt = null; renderApp(); updateBanner(); });
+  function standalone() { try { return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; } catch (e) { return false; } }
+  function isIOS() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+  function invoke(job, extra) {
+    return sb.functions.invoke("notify", { body: Object.assign({ job: job }, extra || {}) })
+      .then(function (r) {
+        if (r.error) { var ctx = r.error.context; var msg = r.error.message || "eroare"; if (ctx && typeof ctx.json === "function") return ctx.json().then(function (d) { return { error: (d && d.error) || msg }; }).catch(function () { return { error: msg }; }); return { error: msg }; }
+        var d = r.data || {}; if (d.ok === false) return { error: d.error || "eroare" }; return d;
+      })
+      .catch(function (e) { return { error: (e && e.message) || "eroare" }; });
+  }
+  function b64ToU8(s) { var pad = "=".repeat((4 - s.length % 4) % 4); var bin = atob((s + pad).replace(/-/g, "+").replace(/_/g, "/")); var out = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
+  function getVapid() { if (vapid) return Promise.resolve(vapid); return invoke("vapid").then(function (r) { if (r.error || !r.publicKey) throw new Error(r.error || "serverul nu a dat cheia"); vapid = r.publicKey; return vapid; }); }
+  function pushSupported() { return "Notification" in window && "PushManager" in window && "serviceWorker" in navigator && /^https?:$/.test(location.protocol); }
+  function swReady() { return Promise.race([navigator.serviceWorker.ready, new Promise(function (_, rej) { setTimeout(function () { rej(new Error("service worker-ul nu a pornit")); }, 8000); })]); }
+  function pushStatus() {
+    if (!pushSupported()) return Promise.resolve({ state: "unsupported" });
+    if (Notification.permission === "denied") return Promise.resolve({ state: "denied" });
+    return swReady().then(function (reg) { return reg.pushManager.getSubscription().then(function (s) { return { state: s ? "on" : "off", sub: s, reg: reg }; }); }).catch(function () { return { state: "unsupported" }; });
+  }
+  function saveSub(sub) {
+    var j = sub.toJSON ? sub.toJSON() : sub;
+    return sb.from("plan_push_subs").upsert({ endpoint: j.endpoint, user_id: me.id, email: String(me.email || "").toLowerCase(), sub: j, device: deviceKind(), ua: String(navigator.userAgent || "").slice(0, 160), updated_at: new Date().toISOString() })
+      .then(function (res) { if (res.error) throw new Error(res.error.message); });
+  }
+  function enablePush() {
+    return swReady().then(function (reg) {
+      return Notification.requestPermission().then(function (perm) {
+        if (perm !== "granted") throw new Error("nu ai permis notificările");
+        return getVapid().then(function (k) { return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(k) }); });
+      });
+    }).then(saveSub);
+  }
+  function disablePush() {
+    return pushStatus().then(function (st) {
+      if (!st.sub) return;
+      var ep = st.sub.endpoint;
+      return st.sub.unsubscribe().then(function () { return sb.from("plan_push_subs").delete().eq("endpoint", ep); });
+    });
+  }
+  function syncPush() { pushStatus().then(function (st) { if (st.state === "on") saveSub(st.sub).catch(function () {}); updateBanner(st); }); }
+  function appFb(t) { $("app-fb").textContent = t || ""; }
+  function para(t) { var p = document.createElement("p"); p.textContent = t; return p; }
+  function button(t, cls, fn) { var b = document.createElement("button"); b.type = "button"; b.className = cls; b.textContent = t; b.addEventListener("click", fn); return b; }
+  function renderApp() {
+    var inst = $("app-install"), push = $("app-push"); if (!inst || !push) return;
+    inst.innerHTML = ""; push.innerHTML = "";
+    if (standalone()) inst.appendChild(para("Deschisă ca aplicație, de pe ecranul principal. ✓"));
+    else if (installEvt) inst.appendChild(button("Instalează aplicația", "btn yellow", function () { installEvt.prompt(); installEvt.userChoice.then(function () { installEvt = null; renderApp(); }); }));
+    else if (isIOS()) inst.appendChild(para("Pe iPhone sau iPad: deschide pagina în Safari, apasă Partajare (pătratul cu săgeată în sus), apoi „Adaugă pe ecranul principal”. În aplicație intri cu codul din email."));
+    else inst.appendChild(para("Pe Android, în Chrome: meniul ⋮ → „Adaugă pe ecranul principal” sau „Instalează aplicația”. Pe calculator: pictograma de instalare din bara de adresă."));
+    pushStatus().then(function (st) {
+      if (st.state === "unsupported") { push.appendChild(para(isIOS() && !standalone() ? "Pe iPhone, notificările merg doar din aplicația pusă pe ecranul principal (iOS 16.4 sau mai nou). Instaleaz-o întâi, apoi pornește-le de acolo." : "Browserul acesta nu are notificări push.")); return; }
+      if (st.state === "denied") { push.appendChild(para("Notificările sunt blocate pentru această pagină din setările browserului. Deblochează-le acolo, apoi revino aici.")); return; }
+      if (st.state === "on") {
+        push.appendChild(para("Pornite pe acest dispozitiv. ✓"));
+        push.appendChild(button("Trimite o notificare de probă", "btn", function () { appFb("Se trimite…"); invoke("test").then(function (r) { appFb(r.error ? "Nu s-a trimis: " + r.error : (r.sent ? "Trimisă. Apare în câteva secunde." : "Serverul nu a găsit abonarea acestui dispozitiv; oprește și pornește din nou notificările.")); }); }));
+        push.appendChild(button("Oprește notificările", "btn ghost", function () { disablePush().then(function () { appFb("Oprite pe acest dispozitiv."); renderApp(); updateBanner(); }); }));
+        return;
+      }
+      push.appendChild(button("Pornește notificările", "btn yellow", function () {
+        appFb("Se pornesc…");
+        enablePush().then(function () { appFb("Notificările sunt pornite pe acest dispozitiv."); renderApp(); updateBanner(); })
+          .catch(function (e) { appFb("Nu am putut porni notificările: " + ((e && e.message) || "eroare") + "."); });
+      }));
+    });
+  }
+  function openApp() { renderApp(); appFb(""); $("app-dlg").showModal(); }
+  ui.app.addEventListener("click", openApp);
+  $("app-close").addEventListener("click", function () { $("app-dlg").close(); });
+  $("app-banner-open").addEventListener("click", openApp);
+  $("app-banner-close").addEventListener("click", function () { try { localStorage.setItem("heat-app-banner", String(Date.now())); } catch (e) { /* */ } ui.banner.hidden = true; });
+  function updateBanner(st) {
+    if (!member) return;
+    var snoozed = 0; try { snoozed = parseInt(localStorage.getItem("heat-app-banner") || "0", 10) || 0; } catch (e) { /* */ }
+    if (Date.now() - snoozed < 14 * 86400000) { ui.banner.hidden = true; return; }
+    var done = function (s) { ui.banner.hidden = (standalone() && s.state === "on") || (s.state === "unsupported" && !isIOS() && !installEvt); };
+    if (st) done(st); else pushStatus().then(done);
+  }
 
   var current;
   sb.auth.onAuthStateChange(function (event, session) {
@@ -329,9 +457,10 @@
       if (res.error || !mine) { show("denied", "Emailul " + email + " nu e în echipa Heat. Cere-i administratorului să te adauge, apoi reîncarcă pagina."); return; }
       member = mine; isAdmin = !!mine.is_admin; members = rows;
       sb.from("plan_users").upsert({ id: me.id, email: email, name: mine.name, updated_at: new Date().toISOString() }).then(function (r) { if (r.error) console.warn(r.error); });
-      ui.box.hidden = true; ui.hdrOut.hidden = false; ui.who.textContent = mine.name; ui.team.hidden = !isAdmin; ui.act.hidden = !isAdmin;
+      ui.box.hidden = true; ui.hdrOut.hidden = false; ui.who.textContent = mine.name; ui.team.hidden = !isAdmin; ui.act.hidden = !isAdmin; ui.app.hidden = false;
       readyResolve();
       startVisit();
+      syncPush();
     });
   });
 })();
