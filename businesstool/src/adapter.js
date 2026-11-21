@@ -2,7 +2,9 @@
    Pagina (part3.js) vorbește cu o bază de date prin interfața `window.claude.use("db" | "user")`
    (documente și colecții, cu onSnapshot). Aici aceeași interfață e implementată peste Supabase:
    un singur tabel `plan_docs` (coll, id, data jsonb), login prin link pe email (Supabase Auth),
-   acces doar pentru emailurile din `plan_members`, actualizări live prin Realtime. */
+   acces doar pentru emailurile din `plan_members`, actualizări live prin Realtime.
+   Tot aici: vizitele fiecăruia (`plan_visits`: cât stă pe pagină, ce blocuri citește, câte modificări
+   salvează) și panoul „Activitate”, vizibil doar administratorului. */
 (function () {
   "use strict";
   var cfg = window.HEAT_SUPABASE;
@@ -80,11 +82,11 @@
       get: function () { return loadAll().then(function () { return snapDoc(coll, id); }); },
       set: function (data) {
         var row = Object.assign({ coll: coll, id: id, data: data }, stamp());
-        return sb.from(TABLE).upsert(row).then(function (res) { if (res.error) fail(res.error); map(coll).set(id, clone(data)); notifyCol(coll); notifyDoc(coll, id); });
+        return sb.from(TABLE).upsert(row).then(function (res) { if (res.error) fail(res.error); map(coll).set(id, clone(data)); noteEdit(coll, id); notifyCol(coll); notifyDoc(coll, id); });
       },
       update: function (patch) { var cur = map(coll).get(id) || {}; return ref.set(Object.assign({}, cur, patch)); },
       delete: function () {
-        return sb.from(TABLE).delete().match({ coll: coll, id: id }).then(function (res) { if (res.error) fail(res.error); map(coll).delete(id); notifyCol(coll); notifyDoc(coll, id); });
+        return sb.from(TABLE).delete().match({ coll: coll, id: id }).then(function (res) { if (res.error) fail(res.error); map(coll).delete(id); noteEdit(coll, id); notifyCol(coll); notifyDoc(coll, id); });
       },
       onSnapshot: function (next, onErr) {
         var k = coll + "/" + id; (docFns[k] = docFns[k] || []).push(next);
@@ -137,7 +139,7 @@
   window.claude = { use: function (ns) { return ready.then(function () { return ns === "db" ? db : ns === "user" ? user : null; }); } };
 
   /* ── Login și echipa ── */
-  var ui = { box: $("login"), form: $("login-form"), email: $("login-email"), fb: $("login-fb"), msg: $("login-msg"), out: $("login-logout"), hdrOut: $("logout"), who: $("who"), team: $("team-btn") };
+  var ui = { box: $("login"), form: $("login-form"), email: $("login-email"), fb: $("login-fb"), msg: $("login-msg"), out: $("login-logout"), hdrOut: $("logout"), who: $("who"), team: $("team-btn"), act: $("act-btn") };
   function show(state, text) { ui.box.hidden = false; ui.form.hidden = state !== "form"; ui.msg.textContent = text || ""; ui.out.hidden = state === "form"; }
   function feedback(t, ok) { ui.fb.textContent = t || ""; ui.fb.className = "login-fb" + (t ? (ok ? " ok" : " err") : ""); }
   ui.form.addEventListener("submit", function (e) {
@@ -182,8 +184,140 @@
     });
   });
 
+  /* ── Activitate: cât stă fiecare pe pagină, ce citește, cât modifică ──
+     O vizită = o deschidere a paginii. La fiecare 30 s, cât pagina e în față și folosită (nu un tab uitat în fundal),
+     se adună timpul și se salvează rândul vizitei în `plan_visits`. Un bloc e „văzut” dacă a stat pe ecran
+     cel puțin 1,5 s (măcar 40 % din el sau 40 % din ecran). Modificările = scrierile în plan (fără jurnal și fără spațiul privat). */
+  var HB_MS = window.__HB_MS || 30000, IDLE_MS = 2 * 60000, DWELL_MS = 1500;
+  var visit = null, token = "";
+  function deviceKind() { try { return ((navigator.userAgentData && navigator.userAgentData.mobile) || window.matchMedia("(pointer: coarse)").matches) ? "telefon" : "desktop"; } catch (e) { return ""; } }
+  function noteEdit(coll, id) { if (visit && coll !== "private" && !(coll === "settings" && id === "log")) { visit.edits++; visit.dirty = true; } }
+  function visitRow() {
+    return { id: visit.id, user_id: me.id, email: String(me.email || "").toLowerCase(), started_at: visit.started, last_seen_at: new Date().toISOString(),
+      seconds: Math.round(visit.seconds), device: deviceKind(), blocks: Object.keys(visit.blocks), edits: visit.edits };
+  }
+  function flushVisit(final) {
+    if (!visit || !me) return;
+    visit.dirty = false;
+    var r = visitRow();
+    if (final) {
+      /* la ascunderea/închiderea paginii: o cerere care supraviețuiește navigării (keepalive) */
+      if (!token || typeof fetch !== "function") return;
+      try {
+        fetch(cfg.url + "/rest/v1/plan_visits?on_conflict=id", { method: "POST", keepalive: true, body: JSON.stringify(r),
+          headers: { apikey: cfg.anonKey, Authorization: "Bearer " + token, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" } }).catch(function () {});
+      } catch (e) { /* secundar */ }
+      return;
+    }
+    sb.from("plan_visits").upsert(r).then(function (res) { if (res.error) console.warn("activitate: " + res.error.message); });
+  }
+  function tickVisit(final) {
+    if (!visit) return;
+    var now = Date.now();
+    if ((final === true || document.visibilityState === "visible") && now - visit.lastActive < IDLE_MS) { visit.seconds += Math.min(HB_MS, now - visit.lastTick) / 1000; visit.dirty = true; }
+    visit.lastTick = now;
+    if (visit.dirty) flushVisit(final === true);
+  }
+  function watchBlocks() {
+    if (!("IntersectionObserver" in window)) return;
+    var timers = {};
+    var io = new IntersectionObserver(function (entries) {
+      var vh = window.innerHeight || 800;
+      entries.forEach(function (e) {
+        var id = e.target.dataset.id; if (!id || visit.blocks[id]) return;
+        var on = e.isIntersecting && (e.intersectionRatio >= 0.4 || e.intersectionRect.height >= vh * 0.4);
+        if (on && !timers[id]) timers[id] = setTimeout(function () { delete timers[id]; visit.blocks[id] = 1; visit.dirty = true; io.unobserve(e.target); }, DWELL_MS);
+        else if (!on && timers[id]) { clearTimeout(timers[id]); delete timers[id]; }
+      });
+    }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1] });
+    var observe = function () { var nodes = document.querySelectorAll(".block[data-id]"); if (!nodes.length) return false; nodes.forEach(function (n) { io.observe(n); }); return true; };
+    if (!observe()) setTimeout(observe, 1500);
+  }
+  function startVisit() {
+    if (visit || !me) return;
+    visit = { id: newId(), started: new Date().toISOString(), seconds: 0, blocks: {}, edits: 0, dirty: true, lastActive: Date.now(), lastTick: Date.now() };
+    var active = function () { visit.lastActive = Date.now(); };
+    ["pointerdown", "keydown", "touchstart", "wheel", "scroll"].forEach(function (ev) { document.addEventListener(ev, active, { passive: true, capture: true }); });
+    var mm = 0; document.addEventListener("pointermove", function () { var t = Date.now(); if (t - mm > 5000) { mm = t; active(); } }, { passive: true });
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") tickVisit(true); else { visit.lastTick = Date.now(); active(); } });
+    window.addEventListener("pagehide", function () { tickVisit(true); });
+    setInterval(tickVisit, HB_MS);
+    watchBlocks();
+    flushVisit(false);
+  }
+
+  /* ── Panoul „Activitate” (doar administrator) ── */
+  function dur(s) { s = Math.round(s || 0); if (s < 60) return s ? "sub 1 min" : "0 min"; var m = Math.round(s / 60); if (m < 60) return m + " min"; return Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " min" : ""); }
+  function when(iso) {
+    var d = new Date(iso); if (isNaN(d)) return "—";
+    var mins = (Date.now() - d.getTime()) / 60000, hm = d.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" });
+    if (mins < 2) return "acum"; if (mins < 60) return "acum " + Math.round(mins) + " min";
+    var today = new Date(), y = new Date(); y.setDate(y.getDate() - 1);
+    if (d.toDateString() === today.toDateString()) return "azi " + hm;
+    if (d.toDateString() === y.toDateString()) return "ieri " + hm;
+    return d.toLocaleDateString("ro-RO", { day: "numeric", month: "short" }) + " " + hm;
+  }
+  function dayKey(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function cell(tr, text, cls) { var td = document.createElement("td"); if (cls) td.className = cls; td.textContent = text; tr.appendChild(td); return td; }
+  function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
+  function renderActivity(visits) {
+    var body = $("act-body"); body.innerHTML = "";
+    var nBlocks = document.querySelectorAll(".block[data-id]").length, week = Date.now() - 7 * 86400000;
+    var stats = {}, order = [];
+    function statFor(k) { if (!stats[k]) { stats[k] = { last: 0, days: {}, sec7: 0, sec: 0, blocks: {}, edits7: 0, edits: 0, n: 0 }; order.push(k); } return stats[k]; }
+    visits.forEach(function (v) {
+      var a = statFor((v.email || "").toLowerCase() || v.user_id), t = new Date(v.last_seen_at).getTime() || 0;
+      if (t > a.last) a.last = t;
+      a.sec += v.seconds || 0; a.edits += v.edits || 0; a.n++;
+      (v.blocks || []).forEach(function (b) { a.blocks[b] = 1; });
+      if (t >= week) { a.sec7 += v.seconds || 0; a.edits7 += v.edits || 0; a.days[dayKey(v.started_at)] = 1; a.days[dayKey(v.last_seen_at)] = 1; }
+    });
+    var names = {}; members.forEach(function (m) { names[m.email] = m.name; statFor(m.email); });
+    order.sort(function (x, y) { return stats[y].last - stats[x].last; });
+    var tbl = document.createElement("table"); tbl.className = "t";
+    tbl.innerHTML = "<thead><tr><th>Persoană</th><th>Ultima vizită</th><th class=\"n\">Zile active<small>ultimele 7 zile</small></th><th class=\"n\">Timp<small>ultimele 7 zile</small></th><th class=\"n\">Timp total</th><th class=\"n\">Blocuri văzute<small>din " + nBlocks + "</small></th><th class=\"n\">Modificări<small>7 zile / total</small></th></tr></thead>";
+    var tb = document.createElement("tbody");
+    order.forEach(function (k) {
+      var a = stats[k], tr = document.createElement("tr");
+      var who = cell(tr, names[k] || k); if (!names[k]) who.title = "nu mai e în echipă";
+      if (a.last && Date.now() - a.last < 2 * 60000) { var on = document.createElement("span"); on.className = "pill good"; on.textContent = "acum pe pagină"; who.appendChild(document.createTextNode(" ")); who.appendChild(on); }
+      if (!a.n) { var td = cell(tr, "nu a intrat încă", "muted"); td.colSpan = 6; tb.appendChild(tr); return; }
+      cell(tr, when(new Date(a.last).toISOString()) + " · " + plural(a.n, "vizită", "vizite"));
+      cell(tr, Object.keys(a.days).filter(Boolean).length + " / 7", "n");
+      cell(tr, dur(a.sec7), "n"); cell(tr, dur(a.sec), "n");
+      cell(tr, String(Object.keys(a.blocks).length), "n");
+      cell(tr, a.edits7 + " / " + a.edits, "n");
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    var sc = document.createElement("div"); sc.className = "table-scroll"; sc.appendChild(tbl); body.appendChild(sc);
+    var h = document.createElement("h4"); h.textContent = "Ultimele vizite"; body.appendChild(h);
+    var log = document.createElement("div"); log.className = "log";
+    if (!visits.length) { var p = document.createElement("p"); p.className = "muted"; p.textContent = "Nicio vizită înregistrată încă."; log.appendChild(p); }
+    visits.slice().sort(function (x, y) { return String(y.started_at).localeCompare(String(x.started_at)); }).slice(0, 40).forEach(function (v) {
+      var d = document.createElement("div"); d.className = "log-item";
+      var s1 = document.createElement("span"); s1.className = "d"; s1.textContent = when(v.started_at); d.appendChild(s1);
+      var nb = (v.blocks || []).length;
+      var s2 = document.createElement("span");
+      s2.textContent = (names[(v.email || "").toLowerCase()] || v.email || "cineva") + " · " + dur(v.seconds) + (v.device ? " · " + v.device : "") + " · " + plural(nb, "bloc", "blocuri") + (v.edits ? " · " + plural(v.edits, "modificare", "modificări") : "");
+      d.appendChild(s2); log.appendChild(d);
+    });
+    body.appendChild(log);
+  }
+  function openActivity() {
+    $("act-fb").textContent = "Se încarcă…"; $("act-body").innerHTML = ""; $("act-dlg").showModal();
+    Promise.all([refreshTeam(), sb.from("plan_visits").select("*").order("last_seen_at", { ascending: false }).limit(5000)]).then(function (r) {
+      var res = r[1];
+      if (res.error) { $("act-fb").textContent = "Nu am putut citi activitatea: " + res.error.message; return; }
+      $("act-fb").textContent = ""; renderActivity(res.data || []);
+    }).catch(function (e) { $("act-fb").textContent = "Nu am putut citi activitatea: " + ((e && e.message) || "eroare"); });
+  }
+  ui.act.addEventListener("click", openActivity);
+  $("act-close").addEventListener("click", function () { $("act-dlg").close(); });
+
   var current;
   sb.auth.onAuthStateChange(function (event, session) {
+    if (session && session.access_token) token = session.access_token;
     var uid = session && session.user ? session.user.id : null;
     if (uid === current) return; current = uid;
     if (!session || !session.user) { me = null; member = null; show("form"); return; }
@@ -195,8 +329,9 @@
       if (res.error || !mine) { show("denied", "Emailul " + email + " nu e în echipa Heat. Cere-i administratorului să te adauge, apoi reîncarcă pagina."); return; }
       member = mine; isAdmin = !!mine.is_admin; members = rows;
       sb.from("plan_users").upsert({ id: me.id, email: email, name: mine.name, updated_at: new Date().toISOString() }).then(function (r) { if (r.error) console.warn(r.error); });
-      ui.box.hidden = true; ui.hdrOut.hidden = false; ui.who.textContent = mine.name; ui.team.hidden = !isAdmin;
+      ui.box.hidden = true; ui.hdrOut.hidden = false; ui.who.textContent = mine.name; ui.team.hidden = !isAdmin; ui.act.hidden = !isAdmin;
       readyResolve();
+      startVisit();
     });
   });
 })();

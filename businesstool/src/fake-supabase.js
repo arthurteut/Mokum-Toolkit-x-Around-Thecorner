@@ -8,11 +8,12 @@
   });
   var members = [{ email: "arthur@test.ro", name: "Arthur", role: "ATC", is_admin: true }];
   var users = new Map();
+  var visits = new Map();
   var listeners = [];
   var session = window.__NO_SESSION ? null : { user: { id: "11111111-2222-4333-8444-555555555555", email: window.__EMAIL || "arthur@test.ro" } };
   var isMember = function () { return !!session && members.some(function (m) { return m.email === session.user.email; }); };
   function emit(type, row, old) { listeners.forEach(function (fn) { setTimeout(function () { fn({ eventType: type, new: row || {}, old: old || {}, table: "plan_docs", schema: "public" }); }, 0); }); }
-  window.__fake = { rows: rows, emit: emit, members: members, users: users, writes: [] };
+  window.__fake = { rows: rows, emit: emit, members: members, users: users, visits: visits, writes: [] };
   function builder(table) {
     var st = { table: table, filters: [], op: "select", payload: null };
     var b = {
@@ -44,6 +45,12 @@
     if (st.table === "plan_users") {
       if (st.op === "select") return { data: Array.from(users.values()).filter(keep), error: null };
       if (st.op === "upsert") { users.set(st.payload.id, st.payload); return { data: null, error: null }; }
+    }
+    if (st.table === "plan_visits") {
+      var own = function (r) { return !!session && r.user_id === session.user.id; };
+      var admin = isMember() && members.some(function (m) { return m.email === session.user.email && m.is_admin; });
+      if (st.op === "select") return { data: Array.from(visits.values()).filter(keep).filter(function (r) { return admin || own(r); }), error: null };
+      if (st.op === "upsert") { if (!isMember() || !own(st.payload)) return { data: null, error: { code: "42501", message: "new row violates row-level security policy" } }; visits.set(st.payload.id, JSON.parse(JSON.stringify(st.payload))); return { data: null, error: null }; }
     }
     return { data: null, error: { message: "unsupported " + st.table + " " + st.op } };
   }

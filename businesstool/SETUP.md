@@ -22,7 +22,10 @@ schimbă `url` și `anonKey` din `config.js`.
    - `plan_users`: numele celor care au intrat, pentru „modificat de …”;
    - `plan_docs`: documentele planului (o colecție + un id + conținut JSON),
      cu reguli de acces: echipa citește și scrie tot, iar „De ce”-ul fiecăruia
-     e privat (coll `private`, id = utilizatorul).
+     e privat (coll `private`, id = utilizatorul);
+   - `plan_visits`: vizitele fiecăruia (cât stă pe pagină, ce blocuri citește,
+     câte modificări salvează); fiecare își scrie doar vizitele lui, iar
+     administratorul le vede pe toate în pagină, butonul **Activitate**.
 3. Primul administrator: decomentează ultimele linii din fișier, pune emailul
    și numele, rulează. Colegii se adaugă apoi din pagină (butonul **Echipa**).
 4. Conținutul de pornire (planul scris până acum în pagina Claude) se importă

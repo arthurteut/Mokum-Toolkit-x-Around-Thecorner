@@ -30,9 +30,9 @@ head, body = p1.split("</style>", 1)
 head = rep(head, '<meta name="claude:viewport-fit-sides" content="cover">\n', "", 1)
 head = head.strip() + "\n" + login_css.rstrip() + "\n</style>"
 
-# ── antetul: cine e conectat, echipa (admin), ieșire ──
+# ── antetul: cine e conectat, activitatea și echipa (admin), ieșire ──
 body = rep(body, '      <div class="progress" role="img"',
-           '      <span class="who" id="who"></span>\n      <button type="button" class="hdr-link" id="team-btn" hidden>Echipa</button>\n      <button type="button" class="hdr-link" id="logout" hidden>Ieși</button>\n      <div class="progress" role="img"', 1)
+           '      <span class="who" id="who"></span>\n      <button type="button" class="hdr-link" id="act-btn" hidden>Activitate</button>\n      <button type="button" class="hdr-link" id="team-btn" hidden>Echipa</button>\n      <button type="button" class="hdr-link" id="logout" hidden>Ieși</button>\n      <div class="progress" role="img"', 1)
 
 # ── texte care pomeneau pagina Claude ──
 p3 = rep(p3, "Deschide pagina din Claude ca să vezi și să completezi planul.", "Pagina nu e legată de Supabase: completează config.js.", 1)

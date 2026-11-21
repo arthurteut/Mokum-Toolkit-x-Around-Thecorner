@@ -83,6 +83,32 @@ create policy "echipa sterge din plan" on public.plan_docs
   for delete to authenticated
   using (public.plan_is_member() and (coll <> 'private' or id = auth.uid()::text));
 
+-- ── Activitate: vizitele fiecăruia (cine intră, cât stă, ce citește, cât modifică) ──
+-- Un rând = o deschidere a paginii; pagina îl actualizează la 30 s cât e folosită.
+create table if not exists public.plan_visits (
+  id           text primary key,
+  user_id      uuid not null references auth.users (id) on delete cascade,
+  email        text not null default '',
+  started_at   timestamptz not null default now(),
+  last_seen_at timestamptz not null default now(),
+  seconds      integer not null default 0,          -- timp activ (pagina în față și folosită)
+  device       text not null default '',            -- telefon / desktop
+  blocks       jsonb not null default '[]'::jsonb,  -- blocurile văzute
+  edits        integer not null default 0           -- modificări salvate în vizită
+);
+create index if not exists plan_visits_user_time on public.plan_visits (user_id, last_seen_at desc);
+alter table public.plan_visits enable row level security;
+
+drop policy if exists "fiecare isi noteaza vizitele" on public.plan_visits;
+create policy "fiecare isi noteaza vizitele" on public.plan_visits
+  for insert to authenticated with check (user_id = auth.uid() and public.plan_is_member());
+drop policy if exists "fiecare isi actualizeaza vizitele" on public.plan_visits;
+create policy "fiecare isi actualizeaza vizitele" on public.plan_visits
+  for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "adminul vede activitatea" on public.plan_visits;
+create policy "adminul vede activitatea" on public.plan_visits
+  for select to authenticated using (public.plan_is_admin() or user_id = auth.uid());
+
 -- ── Actualizări live între dispozitivele echipei ──
 do $$ begin
   alter publication supabase_realtime add table public.plan_docs;

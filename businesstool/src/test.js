@@ -13,7 +13,7 @@ const init = (extra) => "window.__SEED = " + SEED + ";" + (extra || "") + "\n" +
   const pg = await b.newPage({ viewport: { width: 1280, height: 900 } });
   const errs = []; pg.on("pageerror", (e) => errs.push("PAGEERR " + e.message)); pg.on("console", (m) => { if (m.type() === "error" && !/ERR_CERT|fonts|supabase\.min|net::/.test(m.text())) errs.push("CONSOLE " + m.text()); });
   await pg.route(/supabase-js|supabase\.min\.js/, (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: "/* înlocuit de clientul fals */" }));
-  await pg.addInitScript(init());
+  await pg.addInitScript(init("window.__HB_MS = 400;"));
   await pg.goto(PAGE); await pg.waitForTimeout(1500);
   const t = async (sel) => ((await pg.textContent(sel)) || "").replace(/\s+/g, " ").trim();
   const cnt = (sel) => pg.locator(sel).count();
@@ -52,6 +52,13 @@ const init = (extra) => "window.__SEED = " + SEED + ";" + (extra || "") + "\n" +
   await pg.click("#team-close");
   console.log("scrollWidth:", await pg.evaluate(() => document.documentElement.scrollWidth));
   await pg.screenshot({ path: path.join(HERE, "shot-app.png") });
+  // activitate: semnalul din pagină (HB_MS scurtat în test) și panoul administratorului
+  await pg.waitForTimeout(1000);
+  console.log("visits:", JSON.stringify(await pg.evaluate(() => Array.from(window.__fake.visits.values()).map((v) => ({ user: v.user_id.slice(0, 8), email: v.email, sec: v.seconds, blocks: v.blocks, edits: v.edits, dev: v.device, started: !!v.started_at, seen: !!v.last_seen_at })))));
+  await pg.click("#act-btn"); await pg.waitForTimeout(600);
+  console.log("activity open:", await pg.evaluate(() => document.getElementById("act-dlg").open), "| rows:", await cnt("#act-dlg tbody tr"), "| first row:", await t("#act-dlg tbody tr"), "| visits listed:", await cnt("#act-dlg .log-item"), "| first visit:", await t("#act-dlg .log-item"), "| fb:", await t("#act-fb"));
+  await pg.screenshot({ path: path.join(HERE, "shot-activity.png") });
+  await pg.click("#act-close");
   await pg.close();
   // neautentificat
   const out = await b.newPage({ viewport: { width: 1280, height: 900 } });
