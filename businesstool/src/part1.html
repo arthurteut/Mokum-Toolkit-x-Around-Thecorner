@@ -230,6 +230,28 @@
   .next-list { display: flex; flex-direction: column; gap: 6px; }
   .next-item { display: grid; grid-template-columns: 92px 1fr; gap: 10px; align-items: baseline; font-size: 14px; }
   .next-item .d { font-family: var(--font-display); font-weight: 900; font-size: 16px; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .tl { display: flex; flex-direction: column; gap: 6px; }
+  .tl-item { display: grid; grid-template-columns: 100px 1fr auto auto; gap: 6px 12px; align-items: center; padding: 8px 10px; border: 2px solid var(--line); border-radius: 12px; background: var(--bg); font-size: 14px; }
+  .tl-item .d { font-family: var(--font-display); font-weight: 900; font-size: 15px; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .tl-item .t .pill { margin-left: 8px; }
+  .tl-item.doing { border-color: var(--yellow); }
+  .tl-item.done { opacity: 0.72; } .tl-item.done .t b { text-decoration: line-through; }
+  .tl-item.late .d { color: var(--bad); }
+  .tl-status { display: inline-flex; border: 2px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .tl-status button { border: 0; background: var(--surface); padding: 3px 10px; font-family: var(--font-display); font-weight: 800; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+  .tl-status button + button { border-left: 2px solid var(--line); }
+  .tl-status button.on { background: var(--black); color: var(--cream); }
+  .tl-item.doing .tl-status button.on { background: var(--yellow); color: var(--black); }
+  .tl-item.done .tl-status button.on { background: var(--good); color: #fff; }
+  .tl-acts { display: flex; gap: 10px; }
+  .tl-edit { grid-column: 1 / -1; display: grid; grid-template-columns: 2fr 1fr 160px; gap: 8px; }
+  .tl-edit input { width: 100%; border: 2px solid var(--line); border-radius: 10px; padding: 7px 10px; background: var(--surface); }
+  .tl-edit .row { grid-column: 1 / -1; display: flex; gap: 8px; }
+  .tl-done { margin-top: 6px; }
+  .tl-done summary { cursor: pointer; font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+  .tl-done .tl-item { margin-bottom: 6px; }
+  .tl-add { display: grid; grid-template-columns: 2fr 1fr 170px auto; gap: 10px; align-items: end; margin-top: 12px; }
+  @media (max-width: 760px) { .tl-item { grid-template-columns: 1fr; gap: 6px; } .tl-add, .tl-edit { grid-template-columns: 1fr; } }
   .start-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 18px; }
   @media (min-width: 760px) { .start-grid { grid-template-columns: 1.2fr 1fr; } }
 

@@ -25,6 +25,9 @@ const LESSONS = {
 };
 function srcLabel(s) { const k = s.split(" ")[0]; const L = LESSONS[k]; if (!L) return s; const rest = s.slice(k.length).trim(); return L.n + " · " + L.t + (rest ? " · " + rest : ""); }
 
+const MS_STATES = ["Nu s-a făcut", "În curs", "S-a făcut"];
+function msStatus(r) { return MS_STATES.includes(r.status) ? r.status : (r.done ? "S-a făcut" : "Nu s-a făcut"); }
+
 const AUD_ALL = ["atc", "client", "investor", "team"];
 const AUD_NO_INV = ["atc", "client", "team"];
 const AUD_NO_TEAM = ["atc", "client", "investor"];
@@ -165,7 +168,7 @@ const SECTIONS = [
         guide: `Nivelul 3 al piramidei: de ce ai nevoie ca să produci. Resurse-cheie (locația, echipamentele, echipa, brandul, capitalul de lucru) și parteneri-cheie (furnizori de carne, pâine, cartofi, ambalaje, service, software, platforme). Resursele se stabilesc după produse, nu invers.`,
         prompts: ["Ce furnizor, dacă dispare mâine, oprește producția?"] },
       { id: "deschidere", title: "Planul de deschidere", q: "Ce se întâmplă, când și cine răspunde?", aud: AUD_ALL, kind: "rows", tool: "milestones", src: ["S1", "CBE"],
-        guide: `Reperele cu dată și responsabil: avize, devize, amenajare, echipamente, furnizori, angajare, training, SOP-uri, meniu final, soft opening, deschidere. Orice plan se schimbă la primul contact cu realitatea; actualizează datele, nu le ascunde.`,
+        guide: `Reperele cu termen, responsabil și stare: avize, devize, amenajare, echipamente, furnizori, angajare, training, SOP-uri, meniu final, soft opening, deschidere. Aceleași repere sunt în timeline-ul din Start, unde se schimbă starea cu un click. Orice plan se schimbă la primul contact cu realitatea; actualizează termenele, nu le ascunde.`,
         prompts: ["Care reper, dacă întârzie, mută data deschiderii?"] },
       { id: "echipa-org", title: "Organizarea echipei", q: "Cine face, cine răspunde?", aud: AUD_NO_INV, kind: "org", src: ["CBE", "L1 cap. 05.3"],
         guide: `Organigrama arată rolurile și cine raportează cui. RACI clarifică pentru fiecare sarcină cine face (R), cine răspunde (A), cine e consultat (C), cine e informat (I): un R și un A pe sarcină. Angajare: interviuri structurate și scorecard (aliniere la valori ×3, inițiativă ×2, disponibilitate ×1), apoi onboarding pe SOP-uri.`,
@@ -271,10 +274,10 @@ const TOOLS = {
     ] },
   milestones: { coll: "milestones", layout: "table", add: "Adaugă reper", label: "Reper", sort: "date",
     cols: [
-      { k: "date", l: "Data", t: "date", w: "16%" },
-      { k: "title", l: "Reper", t: "text", w: "44%" },
-      { k: "owner", l: "Responsabil", t: "text", w: "24%" },
-      { k: "done", l: "Gata", t: "check", w: "8%" }
+      { k: "date", l: "Termen", t: "date", w: "16%" },
+      { k: "title", l: "Reper", t: "text", w: "42%" },
+      { k: "owner", l: "Responsabil", t: "text", w: "22%" },
+      { k: "status", l: "Stare", t: "select", o: MS_STATES, w: "14%", dv: msStatus }
     ] },
   risks: { coll: "risks", layout: "cards", add: "Adaugă risc", label: "Risc", sort: "order",
     cols: [

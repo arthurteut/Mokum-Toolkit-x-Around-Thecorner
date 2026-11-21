@@ -25,6 +25,15 @@ const init = (extra) => "window.__SEED = " + SEED + ";" + (extra || "") + "\n" +
   // scriere: bloc text
   await pg.click("#b-cultura .linkish.edit-only"); await pg.fill("#t-cultura", "Test Supabase.\n\n- linia unu"); await pg.click("#b-cultura .editor .btn"); await pg.waitForTimeout(500);
   console.log("cultura saved:", await t("#c-cultura .rendered"), "| write:", JSON.stringify(await pg.evaluate(() => window.__fake.writes.filter((w) => w[1] === "plan/cultura"))), "| stored text:", await pg.evaluate(() => window.__fake.rows.get("plan/cultura").data.text));
+  // timeline-ul reperelor din Start
+  console.log("timeline items:", await cnt("#next-list .tl-item"), "| done details:", await cnt("#next-list .tl-done"), "| hint:", await t("#next-list .hint"));
+  await pg.locator("#next-list .tl-item").first().locator(".tl-status button", { hasText: "În curs" }).click(); await pg.waitForTimeout(400);
+  console.log("first item after În curs:", await pg.locator("#next-list .tl-item").first().evaluate((x) => x.className + " | " + x.querySelector(".tl-status .on").textContent), "| stored:", await pg.evaluate(() => { const id = document.querySelector("#next-list .tl-item").dataset.id; const r = window.__fake.rows.get("milestones/" + id); return r && r.data.status; }));
+  await pg.fill("#tl-title", "Reper de test"); await pg.fill("#tl-owner", "Cristian"); await pg.fill("#tl-date", "2027-02-01"); await pg.click("#tl-add .btn"); await pg.waitForTimeout(500);
+  console.log("timeline after add:", await cnt("#next-list .tl-item"), "| table rows:", await cnt("#c-deschidere tbody tr"), "| table rows with status:", await pg.evaluate(() => Array.from(document.querySelectorAll("#c-deschidere tbody tr")).map((tr) => tr.querySelector("select").value).filter(Boolean).length));
+  await pg.locator("#next-list .tl-item", { hasText: "Reper de test" }).locator("button", { hasText: "Editează" }).click(); await pg.waitForTimeout(200);
+  await pg.fill("#next-list .tl-edit input[type=text]", "Reper de test editat"); await pg.locator("#next-list .tl-edit .btn", { hasText: "Salvează" }).click(); await pg.waitForTimeout(400);
+  console.log("edited present:", await cnt("#next-list .tl-item:has-text('Reper de test editat')"));
   // scriere: rând nou + ștergere
   const before = await cnt("#c-deschidere tbody tr");
   await pg.locator("#c-deschidere .tool-actions .btn").click(); await pg.waitForTimeout(400);

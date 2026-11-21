@@ -163,8 +163,11 @@ function renderStart() {
   grid.appendChild(pyr);
   frag.appendChild(grid);
 
-  const next = el("div", "card"); next.style.marginTop = "18px";
-  next.innerHTML = '<div class="blk-head"><h3>Următoarele repere<span class="q">din planul de deschidere</span></h3></div><div class="next-list" id="next-list" style="margin-top:10px"></div>';
+  const next = el("div", "card"); next.style.marginTop = "18px"; next.id = "next-card";
+  next.innerHTML = '<div class="blk-head"><h3>Reperele<span class="q">cine, ce, până când</span></h3></div>'
+    + '<p class="muted" style="font-size:14px;margin:6px 0 10px">Timeline-ul deschiderii. Oricine din echipă adaugă un reper, îi pune termen și responsabil și îi schimbă starea cu un click. Aceleași repere apar și în planul de deschidere (secțiunea 07).</p>'
+    + '<div class="tl" id="next-list"></div>'
+    + '<form class="tl-add edit-only" id="tl-add" autocomplete="off"><div class="field"><label for="tl-title">Reper nou</label><input type="text" id="tl-title" maxlength="200" placeholder="ce trebuie făcut" required></div><div class="field"><label for="tl-owner">Responsabil</label><input type="text" id="tl-owner" maxlength="80" placeholder="cine"></div><div class="field"><label for="tl-date">Termen</label><input type="date" id="tl-date"></div><div class="field"><button type="submit" class="btn yellow">Adaugă reper</button></div></form>';
   frag.appendChild(next);
   return frag;
 }
@@ -200,11 +203,51 @@ const saveMeta = debounce(() => {
   saveDoc("settings/meta", d, "stadiul");
 }, 700);
 
+const tlEditing = new Set();
 function renderNext() {
-  const box = $("next-list"); box.innerHTML = "";
-  const ms = Object.values(rows.milestones || {}).filter((r) => !r.done).sort((a, b) => (a.date || "9999") < (b.date || "9999") ? -1 : 1).slice(0, 5);
-  if (!ms.length) { box.appendChild(el("p", "muted", "Niciun reper deschis. Adaugă-le în planul de deschidere (secțiunea 07).")); return; }
-  ms.forEach((r) => { const d = el("div", "next-item"); d.appendChild(el("span", "d", r.date ? fmtDay(r.date) : "fără dată")); const t = el("span", "", r.title || "—"); if (r.owner) { t.appendChild(el("span", "muted", " · " + r.owner)); } d.appendChild(t); box.appendChild(d); });
+  const box = $("next-list"); if (!box) return;
+  guardRender(box, "next", () => {
+    box.innerHTML = "";
+    if (dbState !== "ready") { box.appendChild(el("p", "muted", dbState === "loading" ? "Se încarcă…" : "Intră cu emailul echipei.")); return; }
+    const all = Object.values(rows.milestones || {});
+    const today = new Date().toISOString().slice(0, 10);
+    const byDate = (a, b) => { const x = a.date || "9999", y = b.date || "9999"; return x < y ? -1 : x > y ? 1 : (a.order || 0) - (b.order || 0); };
+    const open = all.filter((r) => msStatus(r) !== "S-a făcut").sort(byDate);
+    const done = all.filter((r) => msStatus(r) === "S-a făcut").sort((a, b) => byDate(b, a));
+    if (!all.length) box.appendChild(el("p", "muted", "Niciun reper încă. Adaugă primul mai jos."));
+    open.forEach((r) => box.appendChild(tlItem(r, today)));
+    if (done.length) { const det = el("details", "tl-done"); det.appendChild(el("summary", "", "S-au făcut · " + done.length)); done.forEach((r) => det.appendChild(tlItem(r, today))); box.appendChild(det); }
+    const late = open.filter((r) => r.date && r.date < today).length;
+    const p = el("p", "hint", open.length + " deschise · " + done.length + " făcute" + (late ? " · " + late + " cu termenul depășit" : "")); p.style.marginTop = "8px"; box.appendChild(p);
+  });
+}
+function tlSave(r, patch, kind) {
+  const d = Object.assign({}, r, patch, { updatedAt: Date.now(), updatedBy: uid || "" }); delete d.id;
+  return db.doc("milestones/" + r.id).set(d).then(() => { appendLogThrottled("ms:" + r.id + ":" + kind, "deschidere", kind); }).catch(writeFailed);
+}
+function tlItem(r, today) {
+  const st = msStatus(r); const late = st !== "S-a făcut" && !!r.date && r.date < today;
+  const d = el("div", "tl-item" + (st === "În curs" ? " doing" : st === "S-a făcut" ? " done" : "") + (late ? " late" : "")); d.dataset.id = r.id;
+  if (tlEditing.has(r.id)) {
+    const f = el("div", "tl-edit");
+    const t = el("input"); t.type = "text"; t.value = r.title || ""; t.maxLength = 200; t.setAttribute("aria-label", "Reper"); t.id = "tl-e-title-" + r.id;
+    const o = el("input"); o.type = "text"; o.value = r.owner || ""; o.maxLength = 80; o.placeholder = "responsabil"; o.setAttribute("aria-label", "Responsabil");
+    const dt = el("input"); dt.type = "date"; dt.value = r.date || ""; dt.setAttribute("aria-label", "Termen");
+    const save = el("button", "btn", "Salvează"); save.type = "button"; const cancel = el("button", "btn ghost", "Renunță"); cancel.type = "button";
+    save.addEventListener("click", () => { tlEditing.delete(r.id); tlSave(r, { title: t.value.trim(), owner: o.value.trim(), date: dt.value }, "reper").then(renderNext); });
+    cancel.addEventListener("click", () => { tlEditing.delete(r.id); renderNext(); });
+    f.appendChild(t); f.appendChild(o); f.appendChild(dt); const row = el("div", "row"); row.appendChild(save); row.appendChild(cancel); f.appendChild(row); d.appendChild(f); return d;
+  }
+  d.appendChild(el("span", "d", r.date ? fmtDay(r.date) : "fără termen"));
+  const t = el("div", "t"); t.appendChild(el("b", "", r.title || "—")); if (r.owner) t.appendChild(el("span", "muted", " · " + r.owner)); if (late) t.appendChild(el("span", "pill bad", "termen depășit")); d.appendChild(t);
+  const g = el("div", "tl-status"); g.setAttribute("role", "group"); g.setAttribute("aria-label", "Starea reperului");
+  MS_STATES.forEach((s) => { const b = el("button", s === st ? "on" : "", s); b.type = "button"; if (canWrite === false) b.disabled = true; b.addEventListener("click", () => { if (s !== st) tlSave(r, { status: s, done: s === "S-a făcut" }, "stare reper"); }); g.appendChild(b); });
+  d.appendChild(g);
+  const acts = el("div", "tl-acts edit-only");
+  const ed = el("button", "linkish", "Editează"); ed.type = "button"; ed.addEventListener("click", () => { tlEditing.add(r.id); renderNext(); setTimeout(() => { const i = $("tl-e-title-" + r.id); if (i) i.focus(); }, 0); }); acts.appendChild(ed);
+  const del = el("button", "linkish danger", "Șterge"); del.type = "button"; armButton(del, "Șterge", "Sigur? Șterge", async () => { try { await db.doc("milestones/" + r.id).delete(); appendLog("deschidere", "reper șters"); } catch (e) { writeFailed(e); } }); acts.appendChild(del);
+  d.appendChild(acts);
+  return d;
 }
 
 /* ─── Instrumente ─── */
@@ -433,7 +476,7 @@ function renderRows(tool, c, blockId) {
 function rowInput(tool, row, col) {
   const id = tool + "-" + row.id + "-" + col.k;
   let i;
-  if (col.t === "select") { i = el("select"); const o0 = el("option", "", "—"); o0.value = ""; i.appendChild(o0); col.o.forEach((o) => { const op = el("option", "", o); op.value = o; i.appendChild(op); }); i.value = row[col.k] || ""; }
+  if (col.t === "select") { i = el("select"); const o0 = el("option", "", "—"); o0.value = ""; i.appendChild(o0); col.o.forEach((o) => { const op = el("option", "", o); op.value = o; i.appendChild(op); }); i.value = (col.dv ? col.dv(row) : row[col.k]) || ""; }
   else if (col.t === "long") { i = el("textarea"); i.value = row[col.k] || ""; i.rows = 2; }
   else if (col.t === "check") { i = el("input"); i.type = "checkbox"; i.checked = !!row[col.k]; i.style.width = "auto"; i.style.transform = "scale(1.3)"; }
   else { i = el("input"); i.type = col.t === "num" ? "number" : col.t === "date" ? "date" : "text"; if (col.t === "num") { if (col.min !== undefined) i.min = col.min; if (col.max !== undefined) i.max = col.max; i.step = col.step || "any"; i.inputMode = "decimal"; } if (col.ph) i.placeholder = col.ph; i.value = row[col.k] === null || row[col.k] === undefined ? "" : row[col.k]; }
@@ -842,6 +885,11 @@ function start(hot) {
   $("reader").addEventListener("change", applyReader); applyReader();
   ["m-stage", "m-city", "m-opening", "m-company"].forEach((id) => { $(id).addEventListener("change", saveMeta); $(id).addEventListener("input", saveMeta); });
   $("gl-q").addEventListener("input", () => renderGlossary($("gl-q").value));
+  $("tl-add").addEventListener("submit", async (e) => {
+    e.preventDefault(); const title = $("tl-title").value.trim(); if (!title || !db) return;
+    try { await db.collection("milestones").add({ title, owner: $("tl-owner").value.trim(), date: $("tl-date").value, status: "Nu s-a făcut", done: false, order: Date.now(), createdAt: Date.now(), createdBy: uid || "" }); $("tl-title").value = ""; $("tl-owner").value = ""; $("tl-date").value = ""; appendLog("deschidere", "reper nou"); toast("Reper adăugat"); }
+    catch (err) { writeFailed(err); }
+  });
   setupNav(); renderAll();
   if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === "function") window.claude.hot.snapshot(() => ({ drafts, reader: $("reader").value }));
   connect();
