@@ -65,7 +65,7 @@ function initIdeas() {
     var chip = e.target.closest(".idea-chip");
     if (!chip) return;
     var box = chip.closest(".ideas"), v = chip.getAttribute("data-v");
-    if (box.id === "sg-name") { $("i-name").value = v; $("i-name").closest(".f-row").classList.remove("miss"); }
+    if (box.id === "sg-name") { $("i-name").value = v; $("i-name").closest(".field").classList.remove("miss"); }
     if (box.id === "sg-zone") { $("i-zone").value = v; }
     if (box.id === "sg-idea") {
       var t = $("i-idea");
@@ -414,7 +414,7 @@ function gwHome() { show("scr-intro"); $("top-step").textContent = "groundwork";
 function gwStart() {
   var miss = [];
   [["i-name", "name"], ["i-city", "city"]].forEach(function (p) {
-    var el = $(p[0]), row = el.closest(".f-row");
+    var el = $(p[0]), row = el.closest(".field");
     if (!el.value.trim()) { row.classList.add("miss"); miss.push(el); }
     else row.classList.remove("miss");
   });
@@ -458,31 +458,24 @@ function gwReset() {
   location.reload();
 }
 
-/* ── rail-ul lateral ─────────────────────────────────────────────────── */
-function railItem(cls, click, n, label) {
-  return '<button type="button" class="rail-item ' + cls + '" ' + (click || "") + ">" +
-    '<span class="n">' + n + "</span><span>" + label + "</span></button>";
-}
-
-function renderRail(mode, C) {
-  var nav = $("rail-nav"), h = "";
-  if (mode === "wizard") {
-    STEPS.forEach(function (s, i) {
-      var cls = i === step ? "now" : (i <= maxStepSeen ? "done" : "");
-      h += railItem(cls, i <= maxStepSeen ? 'onclick="gwJump(' + i + ')"' : "", String(i + 1).padStart(2, "0"), s.short);
-    });
-    var ccls = step === CONCEPT_STEP ? "now" : (maxStepSeen >= CONCEPT_STEP ? "done" : "");
-    h += railItem(ccls, maxStepSeen >= CONCEPT_STEP ? 'onclick="gwJump(' + CONCEPT_STEP + ')"' : "", "08", "The Concept");
-    h += '<div class="rail-rule"></div>' + railItem("", "", "→", "The Plan");
-  } else if (mode === "plan" && C) {
-    C.forEach(function (c, i) {
-      h += railItem("link", 'onclick="document.getElementById(\'ch' + (i + 1) + '\').scrollIntoView({behavior:\'smooth\'})"', String(i + 1).padStart(2, "0"), c.t);
-    });
-  } else {
-    h = '<div class="rail-item"><span class="n">··</span><span>8 pași · 15 minute</span></div>' +
-        '<div class="rail-item"><span class="n">→</span><span>Planul tău, scris</span></div>';
-  }
+/* ── stepper-ul orizontal ────────────────────────────────────────────── */
+function renderRail(mode) {
+  var nav = $("stepper");
+  if (mode !== "wizard") { nav.hidden = true; return; }
+  var h = "";
+  STEPS.forEach(function (s, i) {
+    var cls = i === step ? "now" : (i <= maxStepSeen ? "done" : "");
+    h += '<button type="button" class="stp ' + cls + '" ' + (i <= maxStepSeen ? 'onclick="gwJump(' + i + ')"' : "") + ">" +
+      '<span class="n">' + String(i + 1).padStart(2, "0") + "</span><span>" + s.short + "</span></button>";
+  });
+  var ccls = step === CONCEPT_STEP ? "now" : (maxStepSeen >= CONCEPT_STEP ? "done" : "");
+  h += '<button type="button" class="stp ' + ccls + '" ' + (maxStepSeen >= CONCEPT_STEP ? 'onclick="gwJump(' + CONCEPT_STEP + ')"' : "") + ">" +
+    '<span class="n">08</span><span>The Concept</span></button>';
+  h += '<span class="stp goal"><span class="n">→</span><span>The Plan</span></span>';
   nav.innerHTML = h;
+  nav.hidden = false;
+  var now = nav.querySelector(".stp.now");
+  if (now && now.scrollIntoView) now.scrollIntoView({ block: "nearest", inline: "center" });
 }
 
 /* ── render wizard ───────────────────────────────────────────────────── */
@@ -524,9 +517,10 @@ function renderStep() {
   applyDefaults(s);
 
   var h = '<div class="step-enter">' +
+          '<div class="shead"><div>' +
           '<div class="step-kick caps">' + s.kick + "</div>" +
-          '<h2 class="step-title">' + s.title + "</h2>" +
-          '<p class="step-lead">' + s.lead + "</p>";
+          '<h2 class="step-title">' + s.title + "</h2></div>" +
+          '<p class="step-lead">' + s.lead + "</p></div>";
 
   visibleQuestions(s).forEach(function (q, qi) {
     var why = typeof q.why === "function" ? q.why() : q.why;
@@ -589,6 +583,7 @@ function renderStep() {
       var v = parseFloat(inp.value);
       if (!isNaN(v)) { A[id] = Math.max(parseFloat(inp.min) || 0, v); updateCtx(); }
     });
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); gwNext(); } });
   });
 }
 
@@ -639,9 +634,10 @@ function renderConcept() {
   }
 
   var h = '<div class="step-enter">' +
+    '<div class="shead"><div>' +
     '<div class="step-kick caps">step 8 · the concept</div>' +
-    '<h2 class="step-title">Does this sound right?</h2>' +
-    '<p class="step-lead">Așa arată conceptul tău, pus cap la cap din răspunsuri. Dacă ceva sună greșit, modifică acum: planul întreg se construiește pe propozițiile de mai jos.</p>' +
+    '<h2 class="step-title">Does this sound right?</h2></div>' +
+    '<p class="step-lead">Așa arată conceptul tău, pus cap la cap din răspunsuri. Dacă ceva sună greșit, modifică acum: planul întreg se construiește pe propozițiile de mai jos.</p></div>' +
     '<div class="concept"><p class="lede">' + conceptText() + "</p>" +
     '<div class="facts">' +
     fact("Formatul & spațiul", FORMAT_NAME[one("format")] + " · " + nrDe(A.mp, "mp", "mp") + " · " + nrDe(A.seats, "loc", "locuri") + (A.terrace > 0 ? " + " + nrDe(A.terrace, "loc", "locuri") + " la terasă" : "") + " · chirie " + lei(A.rent) + "/lună", 0) +
@@ -756,5 +752,8 @@ function buildPlan(C) {
     r.hidden = false;
   }
   initIdeas();
+  ["i-name", "i-city", "i-zone"].forEach(function (id) {
+    $(id).addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); gwStart(); } });
+  });
   renderRail("intro");
 })();
