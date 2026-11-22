@@ -15,9 +15,10 @@
     --brand: #50534A;
     --brand-deep: #3E4139;
     --brand-darker: #2F322B;
-    --bg: #F4F4F0;
+    --bg: #EFEFE9;
     --surface: #FFFFFF;
-    --surface-2: #E9EAE3;
+    --surface-2: #E7E8E0;
+    --field: #EDEEE7;
     --ink: #2C2E28;
     --ink-soft: #6D7066;
     --line: #D8DAD0;
@@ -25,25 +26,22 @@
     --on-brand: #FFFFFF;
     --on-brand-soft: rgba(255,255,255,0.68);
     --on-brand-faint: rgba(255,255,255,0.38);
-    --grid-line: rgba(80,83,74,0.11);
     --amber: #96660F;
     --amber-soft: #C98500;
     --green: #47713F;
-    --r: 6px;
+    --red: #A33A24;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --brand-deep: #34372F; --brand-darker: #22251F;
-      --bg: #1E201B; --surface: #262922; --surface-2: #31342C;
-      --ink: #E9EAE3; --ink-soft: #A2A599; --line: #43473E; --hairline: #3A3E35;
-      --grid-line: rgba(233,234,227,0.06);
+      --bg: #191B17; --surface: #24271F; --surface-2: #2E312A; --field: #32352D;
+      --ink: #E9EAE3; --ink-soft: #A2A599; --line: #43473E; --hairline: #363A31;
     }
   }
   :root[data-theme="dark"] {
     --brand-deep: #34372F; --brand-darker: #22251F;
-    --bg: #1E201B; --surface: #262922; --surface-2: #31342C;
-    --ink: #E9EAE3; --ink-soft: #A2A599; --line: #43473E; --hairline: #3A3E35;
-    --grid-line: rgba(233,234,227,0.06);
+    --bg: #191B17; --surface: #24271F; --surface-2: #2E312A; --field: #32352D;
+    --ink: #E9EAE3; --ink-soft: #A2A599; --line: #43473E; --hairline: #363A31;
   }
 
   * { box-sizing: border-box; }
@@ -55,20 +53,23 @@
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 { font-weight: 900; line-height: 1.08; text-wrap: balance; margin: 0; letter-spacing: -0.015em; }
-  :focus-visible { outline: 3px solid var(--amber-soft); outline-offset: 3px; border-radius: 4px; }
+  :focus-visible { outline: 3px solid var(--amber-soft); outline-offset: 3px; }
   .caps { font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; }
-  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 clamp(16px, 3.5vw, 40px); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 clamp(16px, 3.5vw, 40px); }
+
+  /* rigla dublă, ca în situațiile financiare */
+  .rule2 { height: 5px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); }
 
   /* ═══ BARA DE SUS + STEPPER ═══ */
   .chrome {
     position: sticky; top: 0; z-index: 20;
-    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--line);
   }
   .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px clamp(16px, 3.5vw, 40px); }
   .topbar .brand { display: flex; align-items: center; gap: 10px; }
-  .topbar .brand img { height: 30px; background: var(--brand); border-radius: 7px; padding: 5px 6px; }
+  .topbar .brand img { height: 30px; background: var(--brand); padding: 5px 6px; }
   .topbar .brand b { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
   .topbar #top-step { font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
   .stepper { display: flex; gap: 2px; overflow-x: auto; padding: 0 clamp(12px, 3vw, 36px) 8px; scrollbar-width: none; }
@@ -77,14 +78,13 @@
     display: flex; align-items: baseline; gap: 7px; white-space: nowrap;
     border: none; background: none; font: inherit; font-size: 12px; font-weight: 700;
     color: var(--ink-soft); opacity: 0.4; cursor: default;
-    padding: 6px 10px 8px; border-radius: 4px 4px 0 0; border-bottom: 2px solid transparent;
+    padding: 6px 10px 8px; border-bottom: 2px solid transparent;
   }
-  .stp .n { font-size: 10px; letter-spacing: 0.1em; }
+  .stp .n { font-size: 10px; letter-spacing: 0.1em; color: var(--amber); }
   .stp.done { opacity: 1; cursor: pointer; }
   .stp.done:hover { color: var(--ink); }
   .stp.now { opacity: 1; color: var(--ink); border-bottom-color: var(--amber-soft); }
   .stp.goal { opacity: 0.55; margin-left: auto; }
-  .stp .n { color: var(--amber); }
   .progress { height: 2px; }
   .progress i { display: block; height: 100%; background: var(--amber-soft); transition: width 0.35s ease; width: 0; }
 
@@ -93,7 +93,7 @@
     background: var(--brand-darker); color: var(--on-brand); border: 1px solid var(--brand-darker);
     cursor: pointer; font: inherit; font-weight: 700; font-size: 13px;
     letter-spacing: 0.14em; text-transform: uppercase;
-    padding: 15px 28px; border-radius: 4px; text-decoration: none;
+    padding: 15px 28px; border-radius: 0; text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease;
   }
   .btn:hover { background: var(--brand); border-color: var(--brand); }
@@ -103,67 +103,68 @@
   .btn.amber:hover { background: #7D5717; border-color: #7D5717; }
   .btn.sm { padding: 10px 16px; font-size: 11.5px; }
 
-  /* ═══ INTRO ═══ */
-  .intro2 { padding: clamp(18px, 3.5vh, 36px) 0 60px; }
-  .ihead {
-    background: var(--brand-darker); color: var(--on-brand); border-radius: var(--r);
+  /* ═══ BANDA DE TITLU (full-bleed, nu casetă) ═══ */
+  .band-dark {
+    background: var(--brand-darker); color: var(--on-brand);
     background-image:
-      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
     background-size: 96px 96px;
-    padding: clamp(22px, 3.5vw, 40px);
+    border-bottom: 2px solid var(--amber);
+  }
+  .band-dark .in {
     display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.95fr);
-    gap: clamp(20px, 4vw, 60px); align-items: center;
+    gap: clamp(20px, 4vw, 64px); align-items: center;
+    padding: clamp(26px, 4.5vh, 52px) 0;
   }
-  .ihead .kick { font-size: 11px; color: var(--amber-soft); margin-bottom: 12px; }
-  .ihead h1 { font-size: clamp(28px, 3.6vw, 46px); color: #fff; }
-  .ihead h1 em { font-style: normal; color: var(--amber-soft); }
-  .ihead .sub { color: var(--on-brand-soft); font-size: 15.5px; margin: 0; }
+  .band-dark .kick { font-size: 11px; color: var(--amber-soft); margin-bottom: 12px; }
+  .band-dark h1 { font-size: clamp(28px, 3.6vw, 46px); color: #fff; }
+  .band-dark h1 em { font-style: normal; color: var(--amber-soft); }
+  .band-dark .sub { color: var(--on-brand-soft); font-size: 15.5px; margin: 0; border-left: 1px solid rgba(255,255,255,0.2); padding-left: clamp(16px, 2.5vw, 32px); }
 
-  .formgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
-  .field {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-    padding: 14px 16px 13px; transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  /* ═══ COALA (sheet) ═══ */
+  .sheet {
+    background: var(--surface); border: 1px solid var(--line);
+    padding: clamp(22px, 4vw, 52px);
+    margin: clamp(20px, 3.5vh, 36px) 0 60px;
+    box-shadow: 0 1px 0 var(--line);
   }
+  .sec-label { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+  .sec-label .caps { font-size: 11px; color: var(--amber); }
+  .sec-label .note { font-size: 11px; color: var(--ink-soft); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
+  .sec-label + .rule2 { margin: 10px 0 6px; }
+
+  /* câmpuri de formular: fâșie plină, linie groasă jos */
+  .formgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; margin-top: 22px; }
   .field.full { grid-column: 1 / -1; }
-  .field:focus-within { border-color: var(--amber); box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 14%, transparent); }
-  .field.miss { border-color: #A33A24; }
-  .field.miss .f-label { color: #A33A24; }
-  .f-label { display: flex; align-items: baseline; gap: 9px; font-size: 10.5px; margin-bottom: 7px; color: var(--ink-soft); }
+  .f-label { display: flex; align-items: baseline; gap: 9px; font-size: 10.5px; color: var(--ink-soft); }
   .f-label .fn { color: var(--amber); font-weight: 900; letter-spacing: 0.08em; }
-  .f-hint { font-size: 12.5px; color: var(--ink-soft); margin: -2px 0 8px; }
+  .f-hint { font-size: 12.5px; color: var(--ink-soft); margin: 4px 0 0; }
+  .fbox {
+    margin-top: 8px; background: var(--field);
+    border: 1px solid var(--line); border-bottom: 2px solid var(--ink-soft);
+    padding: 12px 14px;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .fbox:focus-within { border-bottom-color: var(--amber); background: var(--surface-2); }
+  .field.miss .fbox { border-bottom-color: var(--red); }
+  .field.miss .f-label { color: var(--red); }
   input[type="text"], input[type="number"], textarea {
-    width: 100%; font: inherit; font-size: 17px; color: var(--ink);
-    background: transparent; border: none; border-radius: 0; padding: 2px 0;
+    width: 100%; font: inherit; font-size: 17px; font-weight: 700; color: var(--ink);
+    background: transparent; border: none; border-radius: 0; padding: 0;
   }
-  textarea { min-height: 52px; resize: vertical; }
+  textarea { min-height: 50px; resize: vertical; font-weight: 400; }
   input:focus, textarea:focus { outline: none; }
-  input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--ink-soft) 55%, transparent); }
+  input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--ink-soft) 60%, transparent); font-weight: 400; }
 
-  .introgo { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 22px; }
+  .introgo { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 28px; }
   .introgo .meta { font-size: 11px; color: var(--ink-soft); }
-
-  /* idei sugerate */
-  .ideas { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 10px; }
-  .ideas .lbl { font-size: 10.5px; color: var(--ink-soft); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; margin-right: 2px; }
-  .idea-chip {
-    border: 1px dashed var(--line); background: transparent; color: var(--ink-soft);
-    font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
-    padding: 6px 12px; border-radius: 999px;
-    transition: color 0.12s ease, border-color 0.12s ease;
-  }
-  .idea-chip:hover { color: var(--ink); border-color: var(--ink-soft); border-style: solid; }
-  .idea-more {
-    border: none; background: none; color: var(--amber); font: inherit; font-size: 11.5px;
-    font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; padding: 6px 4px;
-  }
-  .idea-more:hover { color: var(--amber-soft); }
 
   /* reluare */
   .resume {
     border: 1px solid var(--line); border-left: 2px solid var(--amber);
-    border-radius: 0 var(--r) var(--r) 0; background: var(--surface);
-    padding: 16px 20px; margin: 16px 0 0;
+    background: var(--surface-2);
+    padding: 16px 20px; margin: 0 0 22px;
     display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between;
   }
   .resume p { margin: 2px 0 0; font-size: 14.5px; }
@@ -171,28 +172,29 @@
   .resume .acts { display: flex; gap: 8px; flex-wrap: wrap; }
 
   /* ═══ WIZARD ═══ */
-  .wiz { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: clamp(24px, 3.5vw, 56px); padding-top: clamp(20px, 3.5vh, 36px); }
+  .wiz { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: clamp(24px, 3.5vw, 48px); align-items: start; }
+  .wiz .sheet { margin-bottom: 0; }
   .shead {
-    display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 40%);
-    gap: clamp(16px, 3vw, 48px); align-items: end;
-    border-bottom: 2px solid var(--ink); padding-bottom: 16px;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 38%);
+    gap: clamp(16px, 3vw, 44px); align-items: end; padding-bottom: 14px;
   }
   .step-kick { font-size: 11px; color: var(--amber); }
-  .step-title { font-size: clamp(26px, 3.2vw, 40px); margin: 8px 0 0; }
-  .step-lead { color: var(--ink-soft); font-size: 14.5px; margin: 0; }
+  .step-title { font-size: clamp(25px, 3vw, 37px); margin: 8px 0 0; }
+  .step-lead { color: var(--ink-soft); font-size: 14px; margin: 0; }
   .step-enter { animation: rise 0.35s ease both; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-  .q { margin-top: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: clamp(16px, 2.4vw, 24px); }
+  .q { border-bottom: 1px solid var(--hairline); padding: 24px 0; }
+  .q:last-child { border-bottom: none; padding-bottom: 6px; }
   .q .q-n { font-size: 10.5px; color: var(--amber); letter-spacing: 0.2em; font-weight: 700; }
-  .q h3 { font-size: 19px; margin: 5px 0 5px; }
-  .q .why { font-size: 14px; color: var(--ink-soft); margin: 0 0 14px; max-width: 68ch; }
+  .q h3 { font-size: 19px; margin: 4px 0 5px; }
+  .q .why { font-size: 14px; color: var(--ink-soft); margin: 0 0 14px; max-width: 70ch; }
   .q .why strong { color: var(--ink); }
-  .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip {
-    border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+    border: 1px solid var(--line); background: transparent; color: var(--ink);
     font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer;
-    padding: 11px 16px; border-radius: 4px;
+    padding: 11px 16px; border-radius: 0;
     transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
     display: inline-flex; align-items: center; gap: 8px;
   }
@@ -202,33 +204,31 @@
   .chip small { font-weight: 400; opacity: 0.7; font-size: 12.5px; }
   .chip .rec { font-size: 10px; color: var(--amber); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
   .chip.on .rec { color: var(--amber-soft); }
-  .num-row { display: flex; flex-wrap: wrap; gap: 12px; }
-  .num-row > div {
-    flex: 0 1 190px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r);
-    padding: 11px 14px 9px; transition: border-color 0.12s ease, box-shadow 0.12s ease;
-  }
-  .num-row > div:focus-within { border-color: var(--amber); box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 14%, transparent); }
-  .num-row .f-label { margin-bottom: 2px; color: var(--ink-soft); }
+  .num-row { display: flex; flex-wrap: wrap; gap: 12px 16px; }
+  .num-row > div { flex: 0 1 200px; }
+  .num-row .f-label { font-size: 10px; }
+  .num-row .fbox { margin-top: 6px; padding: 9px 13px; }
   .num-row input { font-size: 24px; font-weight: 700; }
 
-  .ctx { position: sticky; top: 92px; align-self: start; }
+  .ctx { position: sticky; top: 104px; }
   .ctx-tile {
-    background: var(--brand); color: var(--on-brand); border-radius: var(--r);
+    background: var(--brand-darker); color: var(--on-brand); border-top: 2px solid var(--amber);
     padding: 24px; min-height: 300px; display: flex; flex-direction: column; overflow: hidden;
   }
   .ctx-kick { font-size: 10.5px; color: var(--on-brand-soft); }
   .ctx-spacer { flex: 1; }
   .ctx-art { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px 6px; }
-  .ctx-art img { max-width: 86%; max-height: 200px; filter: invert(1); mix-blend-mode: screen; opacity: 0.95; }
-  .ctx-stat { font-size: 28px; font-weight: 900; line-height: 1.15; letter-spacing: -0.01em; }
+  .ctx-art img { max-width: 86%; max-height: 190px; filter: invert(1); mix-blend-mode: screen; opacity: 0.95; }
+  .ctx-stat { font-size: 27px; font-weight: 900; line-height: 1.15; letter-spacing: -0.01em; }
   .ctx-sub { font-size: 13px; color: var(--on-brand-soft); margin-top: 6px; }
-  .wiz-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; padding-bottom: 70px; }
+  .wiz-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; padding-bottom: 70px; }
 
   /* ═══ THE CONCEPT ═══ */
-  .concept { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: clamp(20px, 3vw, 34px); margin-top: 26px; }
-  .concept .lede { font-size: 17px; line-height: 1.75; margin: 0; }
-  .facts { margin-top: 24px; border-top: 1px solid var(--line); }
-  .fact { display: flex; gap: 16px; align-items: baseline; padding: 13px 2px; border-bottom: 1px solid var(--hairline); }
+  .concept { margin-top: 24px; }
+  .concept .lede { font-size: 17px; line-height: 1.8; margin: 0; }
+  .facts { margin-top: 22px; }
+  .facts .rule2 { margin-bottom: 4px; }
+  .fact { display: flex; gap: 16px; align-items: baseline; padding: 12px 2px; border-bottom: 1px solid var(--hairline); }
   .fact:last-child { border-bottom: none; }
   .fact .k { font-size: 10.5px; min-width: 138px; color: var(--ink-soft); }
   .fact .v { flex: 1; font-size: 14.5px; }
@@ -252,9 +252,9 @@
   @media (max-width: 700px) { #gen ul { columns: 1; } }
 
   /* ═══ PLAN ═══ */
-  .plan { padding: clamp(20px, 3.5vh, 40px) 0 70px; max-width: 1040px; margin: 0 auto; }
+  .plan { padding: clamp(20px, 3.5vh, 40px) 0 70px; max-width: 1020px; margin: 0 auto; }
   .cover {
-    background: var(--brand-darker); color: var(--on-brand); border-radius: var(--r);
+    background: var(--brand-darker); color: var(--on-brand); border-top: 2px solid var(--amber);
     padding: clamp(30px, 5vw, 56px); margin-bottom: 14px; position: relative; overflow: hidden;
   }
   .cover .caps { font-size: 11px; color: var(--on-brand-soft); }
@@ -268,13 +268,13 @@
   .toc-mobile::-webkit-scrollbar { display: none; }
   .toc-mobile a {
     white-space: nowrap; text-decoration: none; color: var(--ink-soft);
-    border: 1px solid var(--line); border-radius: 4px; padding: 7px 12px;
+    border: 1px solid var(--line); padding: 7px 12px;
     font-size: 12.5px; font-weight: 700;
   }
   .toc-mobile a:hover { color: var(--ink); border-color: var(--ink-soft); }
 
   .chapter {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--surface); border: 1px solid var(--line);
     padding: clamp(24px, 4.5vw, 46px); margin-top: 14px; position: relative;
   }
   .chapter .ch-head { display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--hairline); padding-bottom: 16px; margin-bottom: 20px; }
@@ -291,23 +291,25 @@
   .chapter tr:last-child td { border-bottom: none; }
   .callout {
     border-left: 2px solid var(--amber); background: var(--surface-2);
-    border-radius: 0 4px 4px 0; padding: 13px 16px; font-size: 14.5px; margin: 0 0 14px;
+    padding: 13px 16px; font-size: 14.5px; margin: 0 0 14px;
   }
   .callout strong:first-child { color: var(--amber); }
   .pro-badge {
     position: absolute; top: 18px; right: 18px;
     border: 1px solid var(--amber); color: var(--amber); font-size: 10px; font-weight: 700;
     letter-spacing: 0.18em; text-transform: uppercase;
-    padding: 4px 10px; border-radius: 3px;
+    padding: 4px 10px;
   }
   .foot-note { color: var(--ink-soft); font-size: 13px; text-align: center; padding: 26px 0 0; }
   .print-foot { display: none; }
 
   /* ═══ MOBIL ═══ */
   @media (max-width: 960px) {
-    .ihead { grid-template-columns: 1fr; gap: 14px; }
+    .band-dark .in { grid-template-columns: 1fr; gap: 14px; }
+    .band-dark .sub { border-left: none; padding-left: 0; }
     .formgrid { grid-template-columns: 1fr; }
     .field.full { grid-column: auto; }
+    .sheet { padding: 18px 16px; margin-top: 16px; }
     .shead { grid-template-columns: 1fr; gap: 8px; align-items: start; }
     .wiz { grid-template-columns: 1fr; }
     .ctx { position: static; }
@@ -330,10 +332,10 @@
     body { background: #fff; font-size: 12pt; }
     .chrome, .toc-mobile, .pro-badge, .foot-note, .cover .actions { display: none !important; }
     .plan { padding: 0; max-width: none; }
-    .cover { border-radius: 0; padding: 40pt 0; background: #fff; color: #2C2E28; }
+    .cover { padding: 40pt 0; background: #fff; color: #2C2E28; border-top: none; }
     .cover .caps, .cover .meta { color: #6D7066; }
     .cover .cover-art { display: none; }
-    .chapter { border: none; border-radius: 0; padding: 0 0 24pt; margin: 0; page-break-inside: avoid; }
+    .chapter { border: none; padding: 0 0 24pt; margin: 0; page-break-inside: avoid; }
     .print-foot { display: block; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 9pt; color: #6D7066; }
   }
 </style>
@@ -352,43 +354,46 @@
 <main>
   <!-- ═══ INTRO ═══ -->
   <section id="scr-intro">
-    <div class="wrap intro2">
-      <div class="ihead">
+    <div class="band-dark">
+      <div class="wrap in">
         <div>
           <div class="kick caps">the business plan kit for coffee people</div>
           <h1>Good plans aren&rsquo;t guessed. <em>They&rsquo;re built.</em></h1>
         </div>
         <p class="sub">Răspunzi la 8 pași de întrebări, fiecare cu un răspuns propus și motivul lui. La final primești planul scris: în română, cu cifrele tale, cu picioarele pe pământ.</p>
       </div>
-
-      <div class="resume" id="resume" hidden></div>
-
-      <div class="formgrid">
-        <div class="field full">
-          <label class="f-label caps" for="i-name"><span class="fn">01</span>Cum se va numi locul?</label>
-          <input type="text" id="i-name" placeholder="Scrie numele aici, sau alege o idee de mai jos" autocomplete="off">
-          <div class="ideas" id="sg-name" hidden></div>
+    </div>
+    <div class="wrap">
+      <div class="sheet">
+        <div class="resume" id="resume" hidden></div>
+        <div class="sec-label">
+          <span class="caps">start · datele de pornire</span>
+          <span class="note">4 răspunsuri</span>
         </div>
-        <div class="field full">
-          <label class="f-label caps" for="i-idea"><span class="fn">02</span>Care e ideea, într-o propoziție?</label>
-          <p class="f-hint">Nu trebuie să sune a brandbook. Scrie cum i-ai povesti unui prieten; ideile de mai jos se adaugă la text.</p>
-          <textarea id="i-idea" placeholder="ex. O cafenea specialty mică, cu viennoiserie făcută în casă, pentru oamenii din cartier."></textarea>
-          <div class="ideas" id="sg-idea" hidden></div>
+        <div class="rule2"></div>
+        <div class="formgrid">
+          <div class="field" id="fld-name">
+            <label class="f-label caps" for="i-name"><span class="fn">01</span>Cum se va numi locul?</label>
+            <div class="fbox"><input type="text" id="i-name" placeholder="Scrie numele aici; merge și numele de lucru" autocomplete="off"></div>
+          </div>
+          <div class="field" id="fld-city">
+            <label class="f-label caps" for="i-city"><span class="fn">02</span>Orașul</label>
+            <div class="fbox"><input type="text" id="i-city" placeholder="ex. București" autocomplete="off"></div>
+          </div>
+          <div class="field full">
+            <label class="f-label caps" for="i-idea"><span class="fn">03</span>Care e ideea, într-o propoziție?</label>
+            <p class="f-hint">Nu trebuie să sune a brandbook. Scrie cum i-ai povesti unui prieten.</p>
+            <div class="fbox"><textarea id="i-idea" placeholder="ex. O cafenea specialty mică, cu viennoiserie făcută în casă, pentru oamenii din cartier."></textarea></div>
+          </div>
+          <div class="field full">
+            <label class="f-label caps" for="i-zone"><span class="fn">04</span>Zona / cartierul</label>
+            <div class="fbox"><input type="text" id="i-zone" placeholder="ex. Floreasca, zonă de birouri" autocomplete="off"></div>
+          </div>
         </div>
-        <div class="field">
-          <label class="f-label caps" for="i-city"><span class="fn">03</span>Orașul</label>
-          <input type="text" id="i-city" placeholder="ex. București" autocomplete="off">
+        <div class="introgo">
+          <button class="btn amber" onclick="gwStart()">Pune fundația &rarr;</button>
+          <span class="meta caps">8 pași · ~15 minute · gratuit</span>
         </div>
-        <div class="field">
-          <label class="f-label caps" for="i-zone"><span class="fn">04</span>Zona / cartierul</label>
-          <input type="text" id="i-zone" placeholder="ex. Floreasca" autocomplete="off">
-          <div class="ideas" id="sg-zone" hidden></div>
-        </div>
-      </div>
-
-      <div class="introgo">
-        <button class="btn amber" onclick="gwStart()">Pune fundația &rarr;</button>
-        <span class="meta caps">8 pași · ~15 minute · gratuit</span>
       </div>
     </div>
   </section>
@@ -396,8 +401,8 @@
   <!-- ═══ WIZARD ═══ -->
   <section id="scr-wizard" hidden>
     <div class="wrap">
-      <div class="wiz">
-        <div id="step-host"></div>
+      <div class="wiz" style="padding-top: clamp(18px, 3vh, 32px)">
+        <div class="sheet" style="margin-top: 0" id="step-host"></div>
         <aside class="ctx" id="ctx"></aside>
       </div>
       <div class="wiz-nav">
