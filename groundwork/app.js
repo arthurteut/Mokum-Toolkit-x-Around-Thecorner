@@ -86,7 +86,7 @@ var STEPS = [
   {
     id: "position", kick: "step 3 · the position", short: "The Position", title: "Where do we sit in the market?",
     lead: "Prețul e cel mai vizibil mesaj de poziționare pe care îl trimiți. Trebuie să spună aceeași poveste ca spațiul, meniul și servirea.",
-    panel: { photo: "food-1.jpg", stat: "Prețul face parte din produs.", sub: "Farfuria, ceașca și bonul spun aceeași poveste." },
+    panel: { stat: "14 – 22 lei", sub: "intervalul sănătos al unui flat white mid-range în orașele mari. Prețul face parte din produs." },
     questions: [
       {
         id: "segment", type: "single",
@@ -145,7 +145,7 @@ var STEPS = [
   {
     id: "guests", kick: "step 5 · the guests", short: "The Guests", title: "Who are we serving?",
     lead: "Nu poți fi cafeneaua tuturor. Alege două, trei momente din zi pe care vrei să le câștigi, și construiește totul în jurul lor.",
-    panel: { photo: "food-2.jpg", stat: "Brunch-ul de weekend", sub: "bonuri duble, timp lung la masă, alt fel de oaspete." },
+    panel: { art: "a36", stat: "Brunch-ul de weekend", sub: "bonuri duble, timp lung la masă, alt fel de oaspete." },
     questions: [
       {
         id: "moments", type: "multi",
@@ -176,7 +176,7 @@ var STEPS = [
   {
     id: "team", kick: "step 6 · the team", short: "The Team", title: "Who runs the place?",
     lead: "În primele luni, cafeneaua seamănă izbitor cu omul care stă cel mai mult în ea. Decide din start cine e omul ăla.",
-    panel: { art: "a36", stat: "2 pe tură", sub: "minimul care ține calitatea în viață la orele de vârf." },
+    panel: { stat: "2 pe tură", sub: "minimul care ține calitatea în viață la orele de vârf." },
     questions: [
       {
         id: "founder", type: "single",
@@ -350,16 +350,10 @@ function renderStep() {
 
   /* panoul de context */
   var p = s.panel || {};
-  var ctx = "";
-  if (p.photo) {
-    ctx = '<div class="ctx-tile photo step-enter"><img src="assets/art/' + p.photo + '" alt="">' +
-          '<div class="ctx-cap"><div class="ctx-stat" style="font-size:22px">' + p.stat + '</div><div class="ctx-sub">' + p.sub + "</div></div></div>";
-  } else {
-    ctx = '<div class="ctx-tile step-enter"><div class="ctx-kick caps">groundwork knows</div>' +
-          '<div class="ctx-art"><img src="assets/art/' + p.art + '.png" alt=""></div>' +
-          '<div class="ctx-stat">' + p.stat + '</div><div class="ctx-sub">' + p.sub + "</div></div>";
-  }
-  $("ctx").innerHTML = ctx;
+  $("ctx").innerHTML =
+    '<div class="ctx-tile step-enter' + (p.art ? "" : " noart") + '"><div class="ctx-kick caps">groundwork knows</div>' +
+    (p.art ? '<div class="ctx-art"><img src="assets/art/' + p.art + '.png" alt=""></div>' : '<div class="ctx-spacer"></div>') +
+    '<div class="ctx-stat">' + p.stat + '</div><div class="ctx-sub">' + p.sub + "</div></div>";
 
   $("prog").style.width = Math.round(((step + 1) / (STEPS.length + 1)) * 100) + "%";
   $("top-step").textContent = "pas " + (step + 1) + " / " + STEPS.length;
