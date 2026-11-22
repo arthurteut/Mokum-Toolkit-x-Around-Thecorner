@@ -23,58 +23,6 @@ function answersKey() {
   return JSON.stringify(o);
 }
 
-/* ── sugestii la intro ───────────────────────────────────────────────── */
-var SG = {
-  name: ["Doza", "Origini", "La Filtru", "Primul Shot", "Tura de Dimineață", "Colțul Cald",
-    "Apropo", "Pauza Bună", "Strada Nouă", "Undeva Aproape", "Ritual", "Boabe",
-    "Partea Bună", "Dimineți", "Al Doilea Shot", "Pe Colț", "Crema", "Mers pe Jos"],
-  idea: ["cu viennoiserie din cuptor propriu", "cu filter rotit lunar", "pentru oamenii care lucrează remote",
-    "cu brunch de weekend", "cu bar la vedere și locuri puține", "cu boabe la raft de la prăjitori români",
-    "pentru părinții din cartier", "cu abonament de cafea pentru birourile din zonă",
-    "cu terasă spre stradă", "unde barista îți știe comanda", "cu prăjitorie proprie, la vedere",
-    "deschisă de la 7 dimineața, pentru drumul spre birou"],
-  zone: ["zonă de birouri", "cartier rezidențial", "centru istoric", "lângă universitate",
-    "stradă comercială", "lângă parc"]
-};
-var sgOff = { name: 0, idea: 0, zone: 0 };
-
-function renderIdeas(kind) {
-  var box = $("sg-" + kind);
-  if (!box) return;
-  var pool = SG[kind], n = kind === "zone" ? pool.length : 5;
-  var h = '<span class="lbl">Idei</span>';
-  for (var i = 0; i < Math.min(n, pool.length); i++) {
-    var v = pool[(sgOff[kind] + i) % pool.length];
-    h += '<button type="button" class="idea-chip" data-v="' + v.replace(/"/g, "&quot;") + '">' + v + "</button>";
-  }
-  if (pool.length > n) h += '<button type="button" class="idea-more" data-more="' + kind + '">Altele &rarr;</button>';
-  box.innerHTML = h;
-  box.hidden = false;
-}
-
-function initIdeas() {
-  ["name", "idea", "zone"].forEach(renderIdeas);
-  document.addEventListener("click", function (e) {
-    var more = e.target.closest(".idea-more");
-    if (more) {
-      var k = more.getAttribute("data-more");
-      sgOff[k] = (sgOff[k] + 5) % SG[k].length;
-      renderIdeas(k);
-      return;
-    }
-    var chip = e.target.closest(".idea-chip");
-    if (!chip) return;
-    var box = chip.closest(".ideas"), v = chip.getAttribute("data-v");
-    if (box.id === "sg-name") { $("i-name").value = v; $("i-name").closest(".field").classList.remove("miss"); }
-    if (box.id === "sg-zone") { $("i-zone").value = v; }
-    if (box.id === "sg-idea") {
-      var t = $("i-idea");
-      if (!t.value.trim()) t.value = "O cafenea " + v + ".";
-      else t.value = t.value.trim().replace(/\.+$/, "") + ", " + v + ".";
-    }
-  });
-}
-
 /* ── configurația wizard-ului ────────────────────────────────────────── */
 var STEPS = [
   {
@@ -520,7 +468,8 @@ function renderStep() {
           '<div class="shead"><div>' +
           '<div class="step-kick caps">' + s.kick + "</div>" +
           '<h2 class="step-title">' + s.title + "</h2></div>" +
-          '<p class="step-lead">' + s.lead + "</p></div>";
+          '<p class="step-lead">' + s.lead + "</p></div>" +
+          '<div class="rule2"></div>';
 
   visibleQuestions(s).forEach(function (q, qi) {
     var why = typeof q.why === "function" ? q.why() : q.why;
@@ -529,7 +478,7 @@ function renderStep() {
       h += '<div class="num-row">';
       q.nums.forEach(function (n) {
         h += "<div><label class=\"f-label caps\" for=\"n-" + n.id + "\">" + n.label + "</label>" +
-             '<input type="number" id="n-' + n.id + '" min="' + n.min + '" value="' + A[n.id] + '"></div>';
+             '<div class="fbox"><input type="number" id="n-' + n.id + '" min="' + n.min + '" value="' + A[n.id] + '"></div></div>';
       });
       h += "</div>";
     } else {
@@ -638,8 +587,9 @@ function renderConcept() {
     '<div class="step-kick caps">step 8 · the concept</div>' +
     '<h2 class="step-title">Does this sound right?</h2></div>' +
     '<p class="step-lead">Așa arată conceptul tău, pus cap la cap din răspunsuri. Dacă ceva sună greșit, modifică acum: planul întreg se construiește pe propozițiile de mai jos.</p></div>' +
+    '<div class="rule2"></div>' +
     '<div class="concept"><p class="lede">' + conceptText() + "</p>" +
-    '<div class="facts">' +
+    '<div class="facts"><div class="rule2"></div>' +
     fact("Formatul & spațiul", FORMAT_NAME[one("format")] + " · " + nrDe(A.mp, "mp", "mp") + " · " + nrDe(A.seats, "loc", "locuri") + (A.terrace > 0 ? " + " + nrDe(A.terrace, "loc", "locuri") + " la terasă" : "") + " · chirie " + lei(A.rent) + "/lună", 0) +
     fact("Meniul", lbl("coffee") + " · " + lbl("food") + " · " + lbl("roaster"), 1) +
     fact("Poziționarea", lbl("segment") + " · espresso " + lei(A.p_esp) + " · flat white " + lei(A.p_fw), 2) +
@@ -751,7 +701,6 @@ function buildPlan(C) {
       '<button class="btn sm ghost" onclick="gwReset()">Ia de la capăt</button></div>';
     r.hidden = false;
   }
-  initIdeas();
   ["i-name", "i-city", "i-zone"].forEach(function (id) {
     $(id).addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); gwStart(); } });
   });
