@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Groundwork · the business plan kit for coffee people</title>
+<meta name="description" content="Groundwork transformă ideea ta de cafenea într-un plan de business complet: întrebările potrivite, propuneri justificate și cifre cu picioarele pe pământ.">
+<meta name="robots" content="noindex">
+<style>
+  @font-face { font-family: "Avenir Next LT Pro"; src: url(assets/avenir-regular.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Avenir Next LT Pro"; src: url(assets/avenir-bold.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Avenir Next LT Pro"; src: url(assets/avenir-heavy.woff2) format("woff2"); font-weight: 900; font-display: swap; }
+
+  :root {
+    --brand: #50534A; --brand-deep: #3E4139; --brand-darker: #2F322B;
+    --bg: #F4F4F0; --surface: #FFFFFF; --surface-2: #E9EAE3;
+    --ink: #2C2E28; --ink-soft: #6D7066; --line: #D8DAD0; --hairline: #E2E3DC;
+    --on-brand: #FFFFFF; --on-brand-soft: rgba(255,255,255,0.68); --on-brand-faint: rgba(255,255,255,0.38);
+    --amber: #96660F; --amber-soft: #C98500; --r: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --brand-deep: #34372F; --brand-darker: #22251F;
+      --bg: #1E201B; --surface: #262922; --surface-2: #31342C;
+      --ink: #E9EAE3; --ink-soft: #A2A599; --line: #43473E; --hairline: #3A3E35;
+    }
+  }
+  :root[data-theme="dark"] {
+    --brand-deep: #34372F; --brand-darker: #22251F;
+    --bg: #1E201B; --surface: #262922; --surface-2: #31342C;
+    --ink: #E9EAE3; --ink-soft: #A2A599; --line: #43473E; --hairline: #3A3E35;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; color: var(--ink); background: var(--bg);
+    font-family: "Avenir Next LT Pro", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-weight: 900; line-height: 1.06; text-wrap: balance; margin: 0; letter-spacing: -0.015em; }
+  :focus-visible { outline: 3px solid var(--amber-soft); outline-offset: 3px; border-radius: 4px; }
+  .caps { font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(20px, 4.5vw, 56px); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--brand-darker); color: var(--on-brand); border: 1px solid var(--brand-darker);
+    cursor: pointer; font: inherit; font-weight: 700; font-size: 13px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 15px 28px; border-radius: 4px; text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:hover { background: var(--brand); border-color: var(--brand); }
+  .btn.amber { background: var(--amber); border-color: var(--amber); color: #F7ECD4; }
+  .btn.amber:hover { background: #7D5717; border-color: #7D5717; }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--ink-soft); background: transparent; }
+  .btn.onDark.ghost { color: var(--on-brand); border-color: rgba(255,255,255,0.3); }
+  .btn.onDark.ghost:hover { border-color: rgba(255,255,255,0.65); }
+
+  /* reveal la scroll, in cascada */
+  .rv { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; transition-delay: var(--d, 0s); }
+  .rv.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .rv { opacity: 1; transform: none; transition: none; }
+    .mq-track { animation: none !important; }
+    .hero .rv { animation: none !important; opacity: 1 !important; }
+  }
+
+  /* ═══ SUBNAV STICKY ═══ */
+  .subnav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 30;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--hairline);
+    transform: translateY(-100%); transition: transform 0.3s ease;
+  }
+  .subnav.show { transform: none; }
+  .subnav .in { display: flex; align-items: center; gap: 22px; padding: 10px clamp(20px, 4.5vw, 56px); max-width: 1180px; margin: 0 auto; }
+  .subnav .name { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; margin-right: auto; display: flex; align-items: center; gap: 10px; }
+  .subnav .name img { height: 26px; background: var(--brand); border-radius: 6px; padding: 4px 5px; }
+  .subnav a.lnk { color: var(--ink-soft); text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .subnav a.lnk:hover { color: var(--ink); }
+  .subnav a.lnk.on { color: var(--ink); border-bottom-color: var(--amber-soft); }
+  .subnav .btn { padding: 9px 16px; font-size: 11px; }
+  @media (max-width: 860px) { .subnav a.lnk { display: none; } }
+
+  /* ═══ HERO ═══ */
+  .hero {
+    min-height: 100vh; min-height: 100dvh;
+    background: var(--brand-darker); color: var(--on-brand);
+    background-image:
+      linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 112px 112px;
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+    align-items: center; position: relative; overflow: hidden;
+  }
+  .hero-copy { padding: clamp(80px, 12vh, 140px) clamp(22px, 5vw, 76px) clamp(90px, 14vh, 150px); max-width: 720px; justify-self: end; width: 100%; }
+  .hero .kick { font-size: 11.5px; color: var(--amber-soft); margin-bottom: 24px; }
+  .hero h1 { font-size: clamp(44px, 6vw, 84px); color: #fff; }
+  .hero h1 em { font-style: normal; color: var(--amber-soft); }
+  .hero .sub { color: var(--on-brand-soft); font-size: 17.5px; max-width: 52ch; margin: 26px 0 36px; }
+  .hero .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-visual { position: relative; height: 100%; min-height: 420px; display: flex; align-items: center; justify-content: center; }
+  .hero-visual img { width: min(86%, 560px); filter: invert(1); mix-blend-mode: screen; opacity: 0.92; }
+  .hero .est { position: absolute; right: clamp(22px, 4vw, 56px); bottom: 26px; color: var(--on-brand-soft); font-size: 11px; }
+  @keyframes heroUp { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+  .hero .rv { opacity: 0; animation: heroUp 0.8s ease forwards; animation-delay: var(--d, 0s); transform: none; transition: none; }
+
+  .scrollcue {
+    position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+    color: var(--on-brand-soft); font-size: 10.5px; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 700;
+    display: flex; flex-direction: column; align-items: center; gap: 10px; text-decoration: none;
+  }
+  .scrollcue i { display: block; width: 1px; height: 44px; background: rgba(255,255,255,0.25); position: relative; overflow: hidden; }
+  .scrollcue i::after { content: ""; position: absolute; left: 0; top: -40%; width: 100%; height: 40%; background: var(--amber-soft); animation: cue 1.8s ease-in-out infinite; }
+  @keyframes cue { 0% { top: -40%; } 70%, 100% { top: 110%; } }
+  @media (prefers-reduced-motion: reduce) { .scrollcue i::after { animation: none; } }
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-visual { min-height: 32vh; order: -1; padding-top: 50px; }
+    .hero-visual img { width: min(62%, 340px); }
+    .hero-copy { padding-top: 10px; justify-self: start; }
+    .hero .est { display: none; }
+  }
+
+  /* ═══ SECTIUNI ═══ */
+  section.band { padding: clamp(70px, 11vh, 130px) 0; scroll-margin-top: 56px; }
+  .kick { font-size: 11.5px; color: var(--amber); }
+  .band h2 { font-size: clamp(32px, 4.4vw, 56px); margin: 14px 0 18px; }
+  .band .lead { color: var(--ink-soft); font-size: 17px; max-width: 62ch; margin: 0; }
+
+  /* trio numerotat */
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px, 3vw, 40px); margin-top: clamp(36px, 6vh, 64px); }
+  .trio > div { border-top: 1px solid var(--ink); padding-top: 18px; }
+  .trio .n { font-size: 12px; color: var(--amber); font-weight: 900; letter-spacing: 0.12em; }
+  .trio h3 { font-size: 21px; margin: 8px 0 10px; }
+  .trio p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+  @media (max-width: 860px) { .trio { grid-template-columns: 1fr; } }
+
+  /* ═══ SCROLL-TELLING PINNED ═══ */
+  .tell { display: grid; grid-template-columns: minmax(300px, 46%) 1fr; gap: clamp(24px, 5vw, 70px); align-items: start; }
+  .tell-visual { position: sticky; top: 76px; }
+  .tell-panel {
+    background: var(--brand-darker); color: var(--on-brand); border-radius: var(--r);
+    aspect-ratio: 4 / 4.6; position: relative; overflow: hidden;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 84px 84px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tell-panel img { position: absolute; width: 72%; max-height: 64%; object-fit: contain; filter: invert(1); mix-blend-mode: screen; opacity: 0; transition: opacity 0.5s ease; }
+  .tell-panel img.on { opacity: 0.92; }
+  .tell-panel .big {
+    position: absolute; left: 22px; top: 14px; font-size: clamp(60px, 7vw, 92px); font-weight: 900;
+    color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.35); letter-spacing: -0.02em;
+  }
+  .tell-panel .cap { position: absolute; left: 24px; right: 24px; bottom: 20px; display: flex; justify-content: space-between; color: var(--on-brand-soft); font-size: 10.5px; }
+  .tell-steps { padding: 4vh 0; }
+  .tstep { padding: clamp(34px, 7vh, 72px) 0; border-bottom: 1px solid var(--hairline); opacity: 0.35; transition: opacity 0.4s ease; }
+  .tstep:last-child { border-bottom: none; }
+  .tstep.on { opacity: 1; }
+  .tstep .n { font-size: 12px; color: var(--amber); font-weight: 900; letter-spacing: 0.12em; }
+  .tstep h3 { font-size: clamp(22px, 2.6vw, 30px); margin: 10px 0 12px; }
+  .tstep p { margin: 0; color: var(--ink-soft); max-width: 54ch; }
+  .tstep .ex {
+    margin-top: 18px; border-left: 2px solid var(--amber); background: var(--surface);
+    border-radius: 0 4px 4px 0; padding: 13px 16px; font-size: 14px; color: var(--ink);
+  }
+  .tstep .ex .caps { font-size: 9.5px; color: var(--amber); display: block; margin-bottom: 5px; }
+  @media (max-width: 860px) {
+    .tell { grid-template-columns: 1fr; }
+    .tell-visual { position: static; }
+    .tell-panel { aspect-ratio: 16 / 10; }
+    .tstep { opacity: 1; }
+  }
+
+  /* ═══ CAROUSEL CAPITOLE ═══ */
+  .car-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+  .car-btns { display: flex; gap: 8px; }
+  .car-btn {
+    width: 46px; height: 46px; border-radius: 4px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); font-size: 18px; cursor: pointer;
+    transition: border-color 0.12s ease;
+  }
+  .car-btn:hover { border-color: var(--ink-soft); }
+  .car {
+    display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin-top: 34px; padding-bottom: 10px; scrollbar-width: none;
+  }
+  .car::-webkit-scrollbar { display: none; }
+  .ch-card {
+    flex: 0 0 min(300px, 78vw); scroll-snap-align: start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 22px; min-height: 168px; display: flex; flex-direction: column; position: relative;
+  }
+  .ch-card .no { font-size: 11px; color: var(--amber); font-weight: 900; letter-spacing: 0.1em; }
+  .ch-card h3 { font-size: 18px; margin: 8px 0 8px; }
+  .ch-card p { margin: 0; font-size: 13.5px; color: var(--ink-soft); flex: 1; }
+  .ch-card .pro { position: absolute; top: 16px; right: 16px; border: 1px solid var(--amber); color: var(--amber); font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; }
+
+  /* ═══ STATS ═══ */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(16px, 3vw, 40px); border-top: 1px solid var(--ink); margin-top: 8px; }
+  .stats > div { padding-top: 20px; border-top: 1px solid transparent; }
+  .stats .v { font-size: clamp(36px, 4.6vw, 58px); font-weight: 900; letter-spacing: -0.02em; line-height: 1; }
+  .stats .v small { font-size: 0.5em; font-weight: 900; }
+  .stats .k { color: var(--ink-soft); font-size: 13.5px; margin-top: 8px; }
+  @media (max-width: 860px) { .stats { grid-template-columns: 1fr 1fr; } }
+
+  /* ═══ NUMBERS DARK ═══ */
+  .dark { background: var(--brand-darker); color: var(--on-brand); }
+  .dark .kick { color: var(--amber-soft); }
+  .dark h2 { color: #fff; }
+  .dark .lead { color: var(--on-brand-soft); }
+  .num-grid { display: grid; grid-template-columns: 1fr minmax(300px, 46%); gap: clamp(28px, 5vw, 70px); align-items: center; }
+  .num-list { list-style: none; margin: 30px 0 0; padding: 0; }
+  .num-list li { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; gap: 14px; font-size: 15.5px; color: var(--on-brand-soft); }
+  .num-list li::before { content: "✓"; color: var(--amber-soft); font-weight: 900; }
+  .mock {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14); border-radius: var(--r);
+    padding: 22px; font-size: 13.5px;
+  }
+  .mock .caps { font-size: 10px; color: var(--amber-soft); display: block; margin-bottom: 12px; }
+  .mock table { width: 100%; border-collapse: collapse; color: var(--on-brand); }
+  .mock th { text-align: left; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-brand-faint); padding: 6px 8px 6px 0; border-bottom: 1px solid rgba(255,255,255,0.3); }
+  .mock td { padding: 9px 8px 9px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .mock tr:last-child td { border-bottom: none; }
+  .mock .plus { color: #9BC68F; }
+  .mock .minus { color: #D98E7A; }
+  .mock .note { color: var(--on-brand-faint); font-size: 11.5px; margin: 12px 0 0; }
+  @media (max-width: 860px) { .num-grid { grid-template-columns: 1fr; } }
+
+  /* ═══ MARQUEE ═══ */
+  .mq { overflow: hidden; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 18px 0; background: var(--surface); }
+  .mq-track { display: flex; gap: 48px; width: max-content; animation: mq 36s linear infinite; }
+  .mq span { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+  .mq b { color: var(--amber); font-weight: 900; }
+  @keyframes mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ═══ PRET ═══ */
+  .price-card {
+    border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
+    padding: clamp(30px, 5vw, 56px); display: grid; grid-template-columns: 1fr auto; gap: 26px; align-items: center;
+  }
+  .price-card .big { font-size: clamp(30px, 3.6vw, 44px); font-weight: 900; letter-spacing: -0.015em; line-height: 1.1; }
+  .price-card p { color: var(--ink-soft); margin: 12px 0 0; max-width: 58ch; }
+  @media (max-width: 860px) { .price-card { grid-template-columns: 1fr; } }
+
+  /* ═══ SPECS ═══ */
+  .specs { margin-top: 36px; }
+  .spec-g { display: grid; grid-template-columns: 240px 1fr; gap: 20px; padding: 26px 0; border-top: 1px solid var(--line); }
+  .spec-g:first-child { border-top: 2px solid var(--ink); }
+  .spec-g h3 { font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+  .spec-g dl { margin: 0; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .spec-g .row { display: grid; grid-template-columns: minmax(140px, 220px) 1fr; gap: 16px; font-size: 14.5px; }
+  .spec-g dt { color: var(--ink-soft); }
+  .spec-g dd { margin: 0; }
+  @media (max-width: 860px) { .spec-g { grid-template-columns: 1fr; gap: 10px; } }
+
+  /* ═══ FAQ ═══ */
+  .faq { margin-top: 30px; border-top: 2px solid var(--ink); }
+  .faq details { border-bottom: 1px solid var(--hairline); }
+  .faq summary {
+    cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px;
+    padding: 20px 2px; font-weight: 700; font-size: 16.5px;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--amber); font-weight: 900; font-size: 20px; line-height: 1; }
+  .faq details[open] summary::after { content: "–"; }
+  .faq .a { padding: 0 2px 22px; color: var(--ink-soft); max-width: 68ch; }
+
+  /* ═══ FOOTER CTA ═══ */
+  .foot { position: relative; overflow: hidden; text-align: center; padding: clamp(80px, 14vh, 150px) 0; }
+  .foot h2 { font-size: clamp(38px, 5.6vw, 72px); color: #fff; }
+  .foot .lead { margin: 18px auto 34px; max-width: 54ch; }
+  .foot img.bg { position: absolute; right: -30px; bottom: -24px; width: min(42%, 420px); filter: invert(1); mix-blend-mode: screen; opacity: 0.22; pointer-events: none; }
+  .foot .fine { margin-top: 56px; color: var(--on-brand-faint); font-size: 11px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<!-- subnav sticky: apare dupa hero -->
+<nav class="subnav" id="subnav" aria-label="Secțiuni">
+  <div class="in">
+    <span class="name"><img src="assets/logo-white.png" alt="">groundwork</span>
+    <a class="lnk" href="#how">Cum funcționează</a>
+    <a class="lnk" href="#chapters">Capitolele</a>
+    <a class="lnk" href="#numbers">Cifrele</a>
+    <a class="lnk" href="#price">Preț</a>
+    <a class="lnk" href="#faq">Întrebări</a>
+    <a class="btn amber" href="./">Începe planul</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<header class="hero" id="top">
+  <div class="hero-copy">
+    <div class="kick caps rv" style="--d:0.05s">around the corner · groundwork</div>
+    <h1 class="rv" style="--d:0.15s">Good plans aren&rsquo;t guessed.<br><em>They&rsquo;re built.</em></h1>
+    <p class="sub rv" style="--d:0.3s">Kitul care transformă ideea ta de cafenea într-un plan de business complet. Întrebările pe care ți le-ar pune un om care a deschis cafenele, propuneri justificate la fiecare pas și cifre cu picioarele pe pământ. În română.</p>
+    <div class="ctas rv" style="--d:0.42s">
+      <a class="btn amber" href="./">Construiește planul &rarr;</a>
+      <a class="btn onDark ghost" href="#how">Vezi cum funcționează</a>
+    </div>
+  </div>
+  <div class="hero-visual rv" style="--d:0.25s">
+    <img src="assets/art/a36.png" alt="">
+  </div>
+  <span class="est caps">built by coffee people · est. around the corner</span>
+  <a class="scrollcue" href="#how">scroll<i></i></a>
+</header>
+
+<!-- ═══ INTRO ═══ -->
+<section class="band" id="how">
+  <div class="wrap">
+    <div class="kick caps rv">the kit</div>
+    <h2 class="rv" style="--d:0.08s">Un om care a deschis cafenele,<br>în browserul tău.</h2>
+    <p class="lead rv" style="--d:0.16s">Groundwork nu îți dă un șablon gol de completat. Îți pune întrebările în ordinea corectă, îți propune răspunsuri și îți spune de fiecare dată de ce contează. La final, planul e scris: al tău, în cuvintele tale, cu cifrele tale.</p>
+
+    <div class="trio">
+      <div class="rv" style="--d:0.1s">
+        <div class="n">01</div>
+        <h3>You answer</h3>
+        <p>8 pași despre format, meniu, poziționare, servire, oaspeți, echipă și bani. La fiecare întrebare ai o propunere și motivul din spatele ei; poți fi de acord sau nu.</p>
+      </div>
+      <div class="rv" style="--d:0.22s">
+        <div class="n">02</div>
+        <h3>You confirm</h3>
+        <p>Înainte de plan, Groundwork îți pune conceptul cap la cap, într-un paragraf. Dacă ceva sună greșit, modifici pe loc: planul întreg se construiește pe propozițiile alea.</p>
+      </div>
+      <div class="rv" style="--d:0.34s">
+        <div class="n">03</div>
+        <h3>You get the plan</h3>
+        <p>16 capitole scrise în română, de la Executive Summary la roadmap-ul deschiderii. Editabile direct în pagină, exportabile în PDF, salvate în browserul tău.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCROLL-TELLING ═══ -->
+<section class="band" style="padding-top: 0" id="steps">
+  <div class="wrap">
+    <div class="tell">
+      <div class="tell-visual">
+        <div class="tell-panel">
+          <span class="big" id="tell-no">01</span>
+          <img src="assets/art/a31.png" data-t="0" class="on" alt="">
+          <img src="assets/art/a32.png" data-t="1" alt="">
+          <img src="assets/art/a30.png" data-t="2" alt="">
+          <img src="assets/art/a35.png" data-t="3" alt="">
+          <div class="cap"><span class="caps">groundwork</span><span class="caps">the wizard</span></div>
+        </div>
+      </div>
+      <div class="tell-steps">
+        <div class="tstep on" data-t="0">
+          <div class="n">PROPUNERI, NU CÂMPURI GOALE</div>
+          <h3>Fiecare întrebare vine cu un răspuns propus. Și cu motivul.</h3>
+          <p>Nu te lăsăm singur în fața unui formular. La fiecare decizie, Groundwork propune varianta pe care ar alege-o un om din breaslă și îți explică de ce: ce ridică bonul mediu, ce complică operarea, ce așteaptă piața.</p>
+          <div class="ex"><span class="caps">exemplu</span>Propunem viennoiserie și snacks: impact maxim pe bonul mediu, cu complexitate minimă în operare.</div>
+        </div>
+        <div class="tstep" data-t="1">
+          <div class="n">SEMNALE LIVE</div>
+          <h3>Planul te contrazice când e cazul.</h3>
+          <p>Pui un preț care nu se potrivește cu segmentul ales, iar panoul din dreapta ți-o spune pe loc. Bugetul declarat nu acoperă estimarea formatului, afli înainte să semnezi vreun contract, nu după.</p>
+          <div class="ex"><span class="caps">exemplu</span>Un flat white de 26 de lei iese din banda mid-range. Ori muți prețul, ori îți asumi alt segment.</div>
+        </div>
+        <div class="tstep" data-t="2">
+          <div class="n">THE CONCEPT</div>
+          <h3>Confirmi conceptul înainte să se scrie planul.</h3>
+          <p>La pasul 8, tot ce ai răspuns devine un paragraf: locul, poziționarea, oaspeții, echipa, banii. Îl citești, modifici ce nu sună a tine și abia apoi se generează cele 16 capitole.</p>
+        </div>
+        <div class="tstep" data-t="3">
+          <div class="n">SCRIS, NU TABELAT</div>
+          <h3>Primești un plan de citit, nu un tabel de descifrat.</h3>
+          <p>Capitolele sunt text: argumentat, în română, cu tabele doar acolo unde cifrele cer tabel. Orice paragraf se editează direct în pagină, iar exportul în PDF e la un click.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CAROUSEL CAPITOLE ═══ -->
+<section class="band" style="background: var(--surface-2)" id="chapters">
+  <div class="wrap">
+    <div class="car-head">
+      <div>
+        <div class="kick caps rv">the plan</div>
+        <h2 class="rv" style="--d:0.08s">16 capitole. Niciunul de umplutură.</h2>
+      </div>
+      <div class="car-btns rv" style="--d:0.1s">
+        <button class="car-btn" type="button" data-dir="-1" aria-label="Înapoi">&larr;</button>
+        <button class="car-btn" type="button" data-dir="1" aria-label="Înainte">&rarr;</button>
+      </div>
+    </div>
+    <div class="car" id="car"></div>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="rv"><div class="v"><span class="cnt" data-n="16">0</span></div><div class="k">capitole generate din răspunsurile tale</div></div>
+      <div class="rv" style="--d:0.1s"><div class="v"><span class="cnt" data-n="8">0</span> <small>pași</small></div><div class="k">de la idee la concept confirmat</div></div>
+      <div class="rv" style="--d:0.2s"><div class="v">~<span class="cnt" data-n="15">0</span><small>&nbsp;min</small></div><div class="k">durata reală a wizard-ului</div></div>
+      <div class="rv" style="--d:0.3s"><div class="v">60 – 120</div><div class="k">clienți pe zi, realismul pe care e construit planul</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THE NUMBERS ═══ -->
+<section class="band dark" id="numbers">
+  <div class="wrap">
+    <div class="num-grid">
+      <div>
+        <div class="kick caps rv">the numbers</div>
+        <h2 class="rv" style="--d:0.08s">Cifre pe care le poți duce la bancă.</h2>
+        <p class="lead rv" style="--d:0.16s">Fără procente optimiste scoase din aer. Groundwork construiește venitul de jos în sus, din clienți pe zi și bonul mediu, și îți spune exact unde e pragul de la care locul se ține singur.</p>
+        <ul class="num-list">
+          <li class="rv">venit bottom-up: clienți pe zi × bon mediu, pe rampa reală a primului an</li>
+          <li class="rv" style="--d:0.08s">pragul de rentabilitate, în clienți pe zi, cu rata creditului inclusă</li>
+          <li class="rv" style="--d:0.16s">P&amp;L pe trimestre, scenarii pesimist / de bază / optimist în lei</li>
+          <li class="rv" style="--d:0.24s">plan de finanțare cu DSCR, exact cum îl citește banca</li>
+        </ul>
+      </div>
+      <div class="mock rv" style="--d:0.2s">
+        <span class="caps">din plan · scenarii</span>
+        <table>
+          <tr><th>Scenariu</th><th>Clienți/zi</th><th>Rezultat lunar</th></tr>
+          <tr><td>Pesimist</td><td>56</td><td class="minus">&minus;7.900 lei</td></tr>
+          <tr><td>De bază</td><td>80</td><td class="plus">+4.200 lei</td></tr>
+          <tr><td>Optimist</td><td>112</td><td class="plus">+21.800 lei</td></tr>
+        </table>
+        <p class="note">Cifre de exemplu. Ale tale se calculează din răspunsurile tale, pe aceleași formule, capitol cu capitol.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE REPERE ═══ -->
+<div class="mq" aria-hidden="true">
+  <div class="mq-track" id="mq"></div>
+</div>
+
+<!-- ═══ PRET ═══ -->
+<section class="band" id="price">
+  <div class="wrap">
+    <div class="kick caps rv">the deal</div>
+    <h2 class="rv" style="--d:0.08s">Give first.</h2>
+    <div class="price-card rv" style="--d:0.16s">
+      <div>
+        <div class="big">Începi gratuit.<br>Planul e al tău.</div>
+        <p>Wizard-ul, conceptul și capitolele de bază sunt gratuite, fără cont și fără card. Capitolele Pro, de la programul de furnizori la planul de finanțare pentru bancă, se deschid curând pentru cei care vor dosarul complet.</p>
+      </div>
+      <a class="btn amber" href="./">Construiește planul &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SPECS ═══ -->
+<section class="band" style="padding-top: 0" id="specs">
+  <div class="wrap">
+    <div class="kick caps rv">specifications</div>
+    <h2 class="rv" style="--d:0.08s">Ce primești, exact.</h2>
+    <div class="specs">
+      <div class="spec-g rv">
+        <h3>The Kit</h3>
+        <dl>
+          <div class="row"><dt>Wizard</dt><dd>8 pași, cu propuneri justificate și semnale live la fiecare decizie</dd></div>
+          <div class="row"><dt>The Concept</dt><dd>pasul de confirmare: conceptul sintetizat, de modificat înainte de generare</dd></div>
+          <div class="row"><dt>Planul</dt><dd>16 capitole, de la Executive Summary la The Scoreboard</dd></div>
+        </dl>
+      </div>
+      <div class="spec-g rv">
+        <h3>The Numbers</h3>
+        <dl>
+          <div class="row"><dt>Investiția</dt><dd>estimare pe formatul ales: amenajare, echipamente, capital de lucru</dd></div>
+          <div class="row"><dt>Venitul</dt><dd>bottom-up, din clienți pe zi și bon mediu, cu rampă pe trimestre</dd></div>
+          <div class="row"><dt>Pragul</dt><dd>break-even în clienți pe zi, scenarii în lei, DSCR pentru bancă</dd></div>
+        </dl>
+      </div>
+      <div class="spec-g rv">
+        <h3>Cum funcționează</h3>
+        <dl>
+          <div class="row"><dt>Unde rulează</dt><dd>în browser, pe telefon sau pe laptop; fără instalare</dd></div>
+          <div class="row"><dt>Datele tale</dt><dd>rămân la tine, salvate în browserul tău; fără cont la început</dd></div>
+          <div class="row"><dt>Export</dt><dd>editezi direct în pagină și exporți planul în PDF</dd></div>
+        </dl>
+      </div>
+      <div class="spec-g rv">
+        <h3>Limba &amp; tonul</h3>
+        <dl>
+          <div class="row"><dt>Limba</dt><dd>română, cu diacritice puse unde le e locul; titluri în engleză</dd></div>
+          <div class="row"><dt>Tonul</dt><dd>de breaslă: calm, direct, fără promisiuni umflate</dd></div>
+          <div class="row"><dt>Specializarea</dt><dd>cafea și food, cu reperele pieței din România, la zi</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="band" style="padding-top: 0" id="faq">
+  <div class="wrap">
+    <div class="kick caps rv">questions</div>
+    <h2 class="rv" style="--d:0.08s">Întrebări puse des.</h2>
+    <div class="faq rv" style="--d:0.14s">
+      <details>
+        <summary>Cât durează până am planul?</summary>
+        <div class="a">Cam 15 minute, dacă îți știi ideea. Fiecare întrebare are deja un răspuns propus, deci în ritm alert doar confirmi și corectezi. Poți oricând să te întorci la orice pas.</div>
+      </details>
+      <details>
+        <summary>Trebuie să mă pricep la cifre?</summary>
+        <div class="a">Nu. Tu răspunzi la întrebări simple: câți metri pătrați, ce chirie, ce prețuri. Formulele, pragul de rentabilitate, scenariile și indicatorii pentru bancă le face Groundwork, și îți explică în plan ce înseamnă fiecare.</div>
+      </details>
+      <details>
+        <summary>Pot schimba răspunsurile după ce văd planul?</summary>
+        <div class="a">Da. Din plan te întorci oricând în wizard, iar capitolele se rescriu din noile răspunsuri. În plus, orice paragraf din plan se editează direct în pagină, iar modificările tale rămân salvate în browser.</div>
+      </details>
+      <details>
+        <summary>Unde se salvează datele mele?</summary>
+        <div class="a">În browserul tău, pe dispozitivul tău. Nu îți cerem cont și nu trimitem răspunsurile nicăieri. Dacă ștergi datele browserului, se șterge și planul, deci exportă PDF-ul când ești mulțumit.</div>
+      </details>
+      <details>
+        <summary>E suficient pentru bancă sau pentru un program de finanțare?</summary>
+        <div class="a">E scheletul corect, cu structura și indicatorii pe care îi caută un analist: surse și utilizări, prag de rentabilitate, DSCR, scenarii. Cifrele de lucru se înlocuiesc cu devize pe oferte reale înainte de depunere; planul îți spune exact care sunt acelea.</div>
+      </details>
+      <details>
+        <summary>Ce urmează după planul scris?</summary>
+        <div class="a">Modulul Groundwork Financials: proiecții complete pe 5 ani, P&amp;L lunar și cash flow, construite din aceleași răspunsuri. Iar pentru cei care deschid efectiv: toolkit-ul Around The Corner, sistemul de operare al cafenelei de zi cu zi.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER CTA ═══ -->
+<footer class="foot dark">
+  <img class="bg" src="assets/art/a32.png" alt="">
+  <div class="wrap">
+    <div class="kick caps rv">groundwork</div>
+    <h2 class="rv" style="--d:0.08s">Ready when you are.</h2>
+    <p class="lead rv" style="--d:0.16s">Ideea ta de cafenea merită mai mult decât un caiet cu notițe. Pune-i fundația.</p>
+    <a class="btn amber rv" style="--d:0.24s" href="./">Construiește planul &rarr;</a>
+    <div class="fine caps">
+      <span>built by coffee people</span>
+      <span>est. around the corner</span>
+      <span>&copy; around the corner</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* capitolele pentru carusel */
+  var CH = [
+    ["Executive Summary", "Pagina pe care o citește toată lumea: conceptul, cifrele de lucru, obiectivul.", 0],
+    ["The Concept", "Povestea locului și formatul, transformate în decizii concrete.", 0],
+    ["The Market", "Zona ta, competiția directă și tema de teren care bate orice studiu.", 0],
+    ["The Guests", "Momentele zilei pe care le câștigi, cu drumul fiecărui oaspete prin local.", 0],
+    ["Menu & Pricing", "Ancorele de preț, costul pe porție și semnalele când ceva nu se leagă.", 0],
+    ["Suppliers & The Coffee Program", "Kilogramele de cafea pe lună, furnizorii și planul B al fiecăruia.", 1],
+    ["Marketing & Launch", "Curiozitate înainte de deschidere, obișnuință după.", 1],
+    ["Operations & Team", "Cine deține fiecare zonă, cu costul real al unui barista bun.", 1],
+    ["Space & Equipment", "Fluxul prin spațiu, echipamentele pe format și unde nu se fac economii.", 1],
+    ["The Numbers", "Venit bottom-up, P&L pe trimestre și pragul de rentabilitate.", 0],
+    ["The Financing", "Surse și utilizări, rata creditului și DSCR, cum le citește banca.", 1],
+    ["Funding Programs", "Start-Up Nation, IMM Plus și ce e de fapt eligibil.", 1],
+    ["Risks & Plan B", "Scenarii în lei și reacții decise dinainte, nu sub presiune.", 1],
+    ["Legal & Compliance", "SRL, coduri CAEN și obligatoriile din ziua 1.", 1],
+    ["Opening Roadmap", "14 săptămâni, de la antecontract la prima cafea vândută.", 1],
+    ["The Scoreboard", "Cifrele de urmărit săptămânal după deschidere.", 1]
+  ];
+  var car = document.getElementById("car");
+  car.innerHTML = CH.map(function (c, i) {
+    return '<article class="ch-card">' + (c[2] ? '<span class="pro">Pro</span>' : "") +
+      '<div class="no">' + String(i + 1).padStart(2, "0") + '</div><h3>' + c[0] + "</h3><p>" + c[1] + "</p></article>";
+  }).join("");
+  document.querySelectorAll(".car-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      car.scrollBy({ left: 316 * parseInt(b.getAttribute("data-dir"), 10), behavior: "smooth" });
+    });
+  });
+
+  /* marquee */
+  var reps = "chirie sub <b>15%</b> din vânzări · COGS <b>25 – 35%</b> · echipă <b>30 – 35%</b> · <b>60 – 120</b> clienți pe zi · capital de lucru <b>3 – 4 luni</b> · marjă netă <b>8 – 15%</b> · ";
+  document.getElementById("mq").innerHTML = "<span>" + reps + reps + "</span><span>" + reps + reps + "</span>";
+
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* reveal la scroll */
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".rv").forEach(function (el) {
+    if (el.closest(".hero")) return; // hero se anima la incarcare
+    io.observe(el);
+  });
+
+  /* contoare */
+  var cio = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      cio.unobserve(e.target);
+      var el = e.target, n = parseInt(el.getAttribute("data-n"), 10);
+      if (reduced) { el.textContent = n; return; }
+      var t0 = null;
+      function tick(t) {
+        if (!t0) t0 = t;
+        var p = Math.min(1, (t - t0) / 900);
+        el.textContent = Math.round(n * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }, { threshold: 0.6 });
+  document.querySelectorAll(".cnt").forEach(function (el) { cio.observe(el); });
+
+  /* scroll-telling: activeaza pasul + arta din panoul pinned */
+  var imgs = document.querySelectorAll(".tell-panel img");
+  var no = document.getElementById("tell-no");
+  var tio = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var t = e.target.getAttribute("data-t");
+      document.querySelectorAll(".tstep").forEach(function (s) { s.classList.toggle("on", s === e.target); });
+      imgs.forEach(function (im) { im.classList.toggle("on", im.getAttribute("data-t") === t); });
+      no.textContent = String(parseInt(t, 10) + 1).padStart(2, "0");
+    });
+  }, { rootMargin: "-42% 0px -42% 0px" });
+  document.querySelectorAll(".tstep").forEach(function (s) { tio.observe(s); });
+
+  /* subnav: apare dupa hero, marcheaza sectiunea curenta */
+  var subnav = document.getElementById("subnav");
+  var hero = document.querySelector(".hero");
+  var hio = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { subnav.classList.toggle("show", !e.isIntersecting); });
+  }, { threshold: 0.08 });
+  hio.observe(hero);
+  var links = document.querySelectorAll(".subnav a.lnk");
+  var secs = ["how", "chapters", "numbers", "price", "faq"].map(function (id) { return document.getElementById(id); });
+  var sio = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (l) { l.classList.toggle("on", l.getAttribute("href") === "#" + e.target.id); });
+    });
+  }, { rootMargin: "-30% 0px -60% 0px" });
+  secs.forEach(function (s) { if (s) sio.observe(s); });
+})();
+</script>
+</body>
+</html>

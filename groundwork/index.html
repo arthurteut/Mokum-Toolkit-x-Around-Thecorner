@@ -251,6 +251,67 @@
   }
   .foot-note { color: var(--ink-soft); font-size: 13px; text-align: center; padding: 26px 0 0; }
 
+  /* ═══ IDEI SUGERATE ═══ */
+  .ideas { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 12px; }
+  .ideas .lbl { font-size: 10.5px; color: var(--ink-soft); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; margin-right: 2px; }
+  .idea-chip {
+    border: 1px dashed var(--line); background: transparent; color: var(--ink-soft);
+    font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    padding: 6px 12px; border-radius: 999px;
+    transition: color 0.12s ease, border-color 0.12s ease;
+  }
+  .idea-chip:hover { color: var(--ink); border-color: var(--ink-soft); border-style: solid; }
+  .idea-more {
+    border: none; background: none; color: var(--amber); font: inherit; font-size: 11.5px;
+    font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; padding: 6px 4px;
+  }
+  .idea-more:hover { color: var(--amber-soft); }
+  .f-row.miss .f-label { color: #A33A24; }
+  .f-row.miss { border-bottom-color: #A33A24; }
+  .chip .rec { font-size: 10px; color: var(--amber); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
+  .chip.on .rec { color: var(--amber-soft); }
+
+  /* ═══ RELUARE PLAN ═══ */
+  .resume {
+    border: 1px solid var(--line); border-left: 2px solid var(--amber);
+    border-radius: 0 var(--r) var(--r) 0; background: var(--surface);
+    padding: 18px 20px; margin: 30px 0 -8px;
+    display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between;
+  }
+  .resume p { margin: 2px 0 0; font-size: 14.5px; }
+  .resume .caps { font-size: 10.5px; color: var(--amber); }
+  .resume .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn.sm { padding: 10px 16px; font-size: 11.5px; }
+
+  /* ═══ THE CONCEPT ═══ */
+  .concept { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: clamp(20px, 3vw, 34px); margin-top: 34px; }
+  .concept .lede { font-size: 17px; line-height: 1.75; margin: 0; }
+  .facts { margin-top: 24px; border-top: 1px solid var(--line); }
+  .fact { display: flex; gap: 16px; align-items: baseline; padding: 13px 2px; border-bottom: 1px solid var(--hairline); }
+  .fact:last-child { border-bottom: none; }
+  .fact .k { font-size: 10.5px; min-width: 138px; color: var(--ink-soft); }
+  .fact .v { flex: 1; font-size: 14.5px; }
+  .fact .ed {
+    border: none; background: none; color: var(--amber); font: inherit; font-size: 12px;
+    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; padding: 0;
+  }
+  .fact .ed:hover { color: var(--amber-soft); }
+  @media (max-width: 700px) { .fact { flex-direction: column; gap: 3px; } }
+
+  /* ═══ GENERARE ═══ */
+  #gen { position: fixed; inset: 0; z-index: 50; background: var(--brand-darker); color: var(--on-brand); display: flex; align-items: center; justify-content: center; padding: 24px; }
+  #gen .inner { min-width: min(520px, 88vw); }
+  #gen .caps { font-size: 11px; color: var(--amber-soft); }
+  #gen h2 { font-size: clamp(26px, 4vw, 38px); margin: 10px 0 24px; color: #fff; }
+  #gen ul { list-style: none; margin: 0; padding: 0; font-size: 14px; color: var(--on-brand-faint); columns: 2; column-gap: 36px; }
+  #gen li { padding: 4px 0; transition: color 0.2s ease; break-inside: avoid; }
+  #gen li::before { content: "·  "; }
+  #gen li.ok { color: var(--on-brand); }
+  #gen li.ok::before { content: "✓  "; color: var(--amber-soft); font-weight: 900; }
+  @media (max-width: 700px) { #gen ul { columns: 1; } }
+
+  .print-foot { display: none; }
+
   /* ═══ MOBIL ═══ */
   @media (max-width: 960px) {
     .shell { grid-template-columns: 1fr; }
@@ -285,6 +346,7 @@
     .cover .caps, .cover .meta { color: #6D7066; }
     .cover .cover-art { display: none; }
     .chapter { border: none; border-radius: 0; padding: 0 0 24pt; margin: 0; page-break-inside: avoid; }
+    .print-foot { display: block; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 9pt; color: #6D7066; }
   }
 </style>
 </head>
@@ -317,15 +379,19 @@
           <h1>Good plans aren&rsquo;t guessed.<br><em>They&rsquo;re built.</em></h1>
           <p class="sub">Groundwork îți transformă ideea de cafenea într-un plan de business complet: îți pune întrebările pe care ți le-ar pune un om care a deschis cafenele, îți propune răspunsuri cu care poți fi de acord sau nu, și scrie planul pentru tine. În română, cu cifre cu picioarele pe pământ.</p>
 
+          <div class="resume" id="resume" hidden></div>
+
           <div class="intro-form">
             <div class="f-row">
               <label class="f-label caps" for="i-name">Cum se va numi locul?</label>
               <input type="text" id="i-name" placeholder="ex. Doza, Strada Nouă, Cafeneaua din colț" autocomplete="off">
+              <div class="ideas" id="sg-name" hidden></div>
             </div>
             <div class="f-row">
               <label class="f-label caps" for="i-idea">Care e ideea, într-o propoziție?</label>
               <p class="f-hint">Nu trebuie să sune a brandbook. Scrie cum i-ai povesti unui prieten.</p>
               <textarea id="i-idea" placeholder="ex. O cafenea specialty mică, cu viennoiserie făcută în casă, pentru oamenii din cartier."></textarea>
+              <div class="ideas" id="sg-idea" hidden></div>
             </div>
             <div class="grid2">
               <div class="f-row">
@@ -335,6 +401,7 @@
               <div class="f-row">
                 <label class="f-label caps" for="i-zone">Zona / cartierul</label>
                 <input type="text" id="i-zone" placeholder="ex. Floreasca, zonă de birouri" autocomplete="off">
+                <div class="ideas" id="sg-zone" hidden></div>
               </div>
             </div>
             <div style="margin-top:30px">
@@ -381,11 +448,13 @@
         <nav class="toc-mobile" id="toc-mobile"></nav>
         <div id="doc"></div>
         <p class="foot-note">Textul e al tău: dă click pe orice paragraf și rescrie-l. Modificările rămân salvate în acest browser. &middot; &copy; Around The Corner</p>
+        <div class="print-foot">Generat cu Groundwork &middot; Around The Corner &middot; toolkit.aroundthecorner.ro/groundwork</div>
       </div>
     </section>
   </main>
 </div>
 
+<script src="content.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

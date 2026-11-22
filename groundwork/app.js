@@ -1,5 +1,6 @@
-/* Groundwork v0.2 — wizard premium + generatorul planului scris.
-   Totul rulează în browser; răspunsurile stau în localStorage ("gw-v1"). */
+/* Groundwork v0.3: wizard premium, pas de confirmare a conceptului, plan generat.
+   Totul rulează în browser; răspunsurile stau în localStorage ("gw-v2").
+   Generatorul capitolelor stă separat, în content.js. */
 
 "use strict";
 
@@ -7,17 +8,79 @@ var GW_UNLOCKED = true; // v0.x: totul deschis; badge-urile PRO arată viitorul 
 
 var $ = function (id) { return document.getElementById(id); };
 
-/* ── starea ───────────────────────────────────────────────────────────── */
+/* ── starea ──────────────────────────────────────────────────────────── */
 var A = {};
-try { A = JSON.parse(localStorage.getItem("gw-v1") || "{}"); } catch (e) { A = {}; }
-function save() { try { localStorage.setItem("gw-v1", JSON.stringify(A)); } catch (e) {} }
+try { A = JSON.parse(localStorage.getItem("gw-v2") || "{}"); } catch (e) { A = {}; }
+function save() { try { localStorage.setItem("gw-v2", JSON.stringify(A)); } catch (e) {} }
 
-/* ── configurația wizard-ului ─────────────────────────────────────────── */
+/* cheia răspunsurilor: editările manuale din plan rămân valabile doar cât timp
+   răspunsurile nu se schimbă */
+function answersKey() {
+  var o = {};
+  Object.keys(A).forEach(function (k) {
+    if (k !== "edits" && k !== "editsKey" && k !== "generated") o[k] = A[k];
+  });
+  return JSON.stringify(o);
+}
+
+/* ── sugestii la intro ───────────────────────────────────────────────── */
+var SG = {
+  name: ["Doza", "Origini", "La Filtru", "Primul Shot", "Tura de Dimineață", "Colțul Cald",
+    "Apropo", "Pauza Bună", "Strada Nouă", "Undeva Aproape", "Ritual", "Boabe",
+    "Partea Bună", "Dimineți", "Al Doilea Shot", "Pe Colț", "Crema", "Mers pe Jos"],
+  idea: ["cu viennoiserie din cuptor propriu", "cu filter rotit lunar", "pentru oamenii care lucrează remote",
+    "cu brunch de weekend", "cu bar la vedere și locuri puține", "cu boabe la raft de la prăjitori români",
+    "pentru părinții din cartier", "cu abonament de cafea pentru birourile din zonă",
+    "cu terasă spre stradă", "unde barista îți știe comanda", "cu prăjitorie proprie, la vedere",
+    "deschisă de la 7 dimineața, pentru drumul spre birou"],
+  zone: ["zonă de birouri", "cartier rezidențial", "centru istoric", "lângă universitate",
+    "stradă comercială", "lângă parc"]
+};
+var sgOff = { name: 0, idea: 0, zone: 0 };
+
+function renderIdeas(kind) {
+  var box = $("sg-" + kind);
+  if (!box) return;
+  var pool = SG[kind], n = kind === "zone" ? pool.length : 5;
+  var h = '<span class="lbl">Idei</span>';
+  for (var i = 0; i < Math.min(n, pool.length); i++) {
+    var v = pool[(sgOff[kind] + i) % pool.length];
+    h += '<button type="button" class="idea-chip" data-v="' + v.replace(/"/g, "&quot;") + '">' + v + "</button>";
+  }
+  if (pool.length > n) h += '<button type="button" class="idea-more" data-more="' + kind + '">Altele &rarr;</button>';
+  box.innerHTML = h;
+  box.hidden = false;
+}
+
+function initIdeas() {
+  ["name", "idea", "zone"].forEach(renderIdeas);
+  document.addEventListener("click", function (e) {
+    var more = e.target.closest(".idea-more");
+    if (more) {
+      var k = more.getAttribute("data-more");
+      sgOff[k] = (sgOff[k] + 5) % SG[k].length;
+      renderIdeas(k);
+      return;
+    }
+    var chip = e.target.closest(".idea-chip");
+    if (!chip) return;
+    var box = chip.closest(".ideas"), v = chip.getAttribute("data-v");
+    if (box.id === "sg-name") { $("i-name").value = v; $("i-name").closest(".f-row").classList.remove("miss"); }
+    if (box.id === "sg-zone") { $("i-zone").value = v; }
+    if (box.id === "sg-idea") {
+      var t = $("i-idea");
+      if (!t.value.trim()) t.value = "O cafenea " + v + ".";
+      else t.value = t.value.trim().replace(/\.+$/, "") + ", " + v + ".";
+    }
+  });
+}
+
+/* ── configurația wizard-ului ────────────────────────────────────────── */
 var STEPS = [
   {
     id: "format", kick: "step 1 · the format", short: "The Format", title: "What are we building?",
     lead: "Formatul decide aproape tot ce urmează: investiția, echipa, meniul, fluxul prin spațiu. E prima decizie, nu ultima.",
-    panel: { art: "a35", stat: "60 – 120", sub: "clienți pe zi, realitatea primului an. Pe intervalul ăsta construim planul, nu pe 200+." },
+    panel: function () { return { art: "a35", stat: "60 – 120", sub: "clienți pe zi, realitatea primului an. Pe intervalul ăsta construim planul, nu pe 200+." }; },
     questions: [
       {
         id: "format", type: "single",
@@ -34,10 +97,21 @@ var STEPS = [
       {
         id: "space", type: "nums",
         h: "Spațiul",
-        why: "De ce contează: suprafața dictează investiția în amenajare (se calculează pe metru pătrat), iar numărul de locuri pune plafonul veniturilor din servirea la masă.",
+        why: "De ce contează: suprafața dictează investiția în amenajare (se calculează pe metru pătrat), locurile pun plafonul veniturilor din servirea la masă, iar terasa poate adăuga un sezon întreg de vânzări.",
         nums: [
           { id: "mp", label: "Suprafață (mp)", def: 60, min: 10 },
-          { id: "seats", label: "Locuri la masă", def: 24, min: 0 }
+          { id: "seats", label: "Locuri la masă", def: 24, min: 0 },
+          { id: "terrace", label: "Locuri la terasă", def: 0, min: 0 }
+        ]
+      },
+      {
+        id: "rentq", type: "nums",
+        h: "Chiria lunară estimată",
+        why: function () {
+          return "De ce contează: chiria e cel mai nemilos cost fix, o plătești și în lunile proaste. Regula de sănătate: chiria plus utilitățile stau sub 15% din vânzări. Pentru spații stradale bune" + (A.city ? " în " + A.city : " în orașele mari") + ", reperul din 2026 e 90 – 140 lei/mp pe lună; negociază 1-2 luni fără chirie pe perioada amenajării.";
+        },
+        nums: [
+          { id: "rent", label: "Chirie (lei / lună)", def: 7000, min: 0 }
         ]
       }
     ]
@@ -45,7 +119,7 @@ var STEPS = [
   {
     id: "menu", kick: "step 2 · the menu", short: "The Menu", title: "What do we serve?",
     lead: "Meniul nu e o listă de produse, e promisiunea pe care o faci oaspetelui. Scurt și stăpânit bate lung și aproximativ.",
-    panel: { art: "a31", stat: "+30 – 40%", sub: "atât poate adăuga food-ul bun la bonul mediu al unei vizite." },
+    panel: function () { return { art: "a31", stat: "+30 – 40%", sub: "atât poate adăuga food-ul bun la bonul mediu al unei vizite." }; },
     questions: [
       {
         id: "coffee", type: "single",
@@ -57,6 +131,17 @@ var STEPS = [
           { v: "filter", label: "Accent pe filter / slow" }
         ],
         def: ["both"]
+      },
+      {
+        id: "roaster", type: "single",
+        h: "De unde vine cafeaua",
+        why: "De ce contează: prăjitorul îți dă nu doar boabele, ci și training, calibrare și uneori espressorul în comodat. <strong>Propunem o prăjitorie parteneră din România</strong>: boabe proaspete, drum scurt, relație directă; prăjirea proprie vine mai târziu, când volumul o justifică.",
+        opts: [
+          { v: "local", label: "Prăjitorie din România", small: "partener aproape" },
+          { v: "import", label: "Prăjitor din străinătate", small: "identitate, logistică" },
+          { v: "own", label: "Prăjire proprie", small: "control total" }
+        ],
+        def: ["local"]
       },
       {
         id: "altmilk", type: "single",
@@ -86,7 +171,13 @@ var STEPS = [
   {
     id: "position", kick: "step 3 · the position", short: "The Position", title: "Where do we sit in the market?",
     lead: "Prețul e cel mai vizibil mesaj de poziționare pe care îl trimiți. Trebuie să spună aceeași poveste ca spațiul, meniul și servirea.",
-    panel: { stat: "14 – 22 lei", sub: "intervalul sănătos al unui flat white mid-range în orașele mari. Prețul face parte din produs." },
+    panel: function () {
+      var fw = A.p_fw || 20, seg = (A.segment || [])[0];
+      if (seg === "mid" && (fw < 16 || fw > 24)) return { stat: lei(fw) + " e în afara benzii", sub: "mid-range înseamnă 16-24 lei pe flat white în 2026. Ori muți prețul, ori îți asumi alt segment." };
+      if (seg === "premium" && fw < 22) return { stat: "Premium sub 22 lei?", sub: "prețul face parte din produs: sub 22 de lei, povestea premium nu se mai leagă." };
+      if (seg === "value" && fw > 18) return { stat: lei(fw) + " pare scump", sub: "pentru segmentul accesibil, flat white-ul peste 18 lei va fi perceput ca scump." };
+      return { stat: "16 – 24 lei", sub: "intervalul sănătos al unui flat white mid-range în orașele mari, în 2026. Prețul tău stă în bandă." };
+    },
     questions: [
       {
         id: "segment", type: "single",
@@ -102,10 +193,10 @@ var STEPS = [
       {
         id: "prices", type: "nums",
         h: "Prețurile de referință (lei)",
-        why: "De ce contează: espresso-ul și flat white-ul sunt ancorele după care oaspeții îți judecă tot meniul, iar bonul mediu de food îți arată cât aduce bucătăria la fiecare vizită.",
+        why: "De ce contează: espresso-ul și flat white-ul sunt ancorele după care oaspeții îți judecă tot meniul, iar bonul mediu de food îți arată cât aduce bucătăria la fiecare vizită. Panoul din dreapta îți spune pe loc dacă prețul se potrivește cu segmentul ales.",
         nums: [
-          { id: "p_esp", label: "Espresso", def: 12, min: 5 },
-          { id: "p_fw", label: "Flat white", def: 18, min: 8 },
+          { id: "p_esp", label: "Espresso", def: 14, min: 5 },
+          { id: "p_fw", label: "Flat white", def: 20, min: 8 },
           { id: "p_food", label: "Bon mediu food", def: 25, min: 0 }
         ]
       }
@@ -114,7 +205,7 @@ var STEPS = [
   {
     id: "service", kick: "step 4 · the service", short: "The Service", title: "How does service work?",
     lead: "Modul de servire stabilește ritmul zilei, numărul de oameni din tură și chiar arhitectura barului.",
-    panel: { art: "a32", stat: "4 minute", sub: "ținta de la ușă la cafea în mână, în vârful dimineții." },
+    panel: function () { return { art: "a32", stat: "4 minute", sub: "ținta de la ușă la cafea în mână, în vârful dimineții." }; },
     questions: [
       {
         id: "service", type: "multi",
@@ -145,8 +236,22 @@ var STEPS = [
   {
     id: "guests", kick: "step 5 · the guests", short: "The Guests", title: "Who are we serving?",
     lead: "Nu poți fi cafeneaua tuturor. Alege două, trei momente din zi pe care vrei să le câștigi, și construiește totul în jurul lor.",
-    panel: { art: "a36", stat: "Brunch-ul de weekend", sub: "bonuri duble, timp lung la masă, alt fel de oaspete." },
+    panel: function () { return { art: "a36", stat: "Brunch-ul de weekend", sub: "bonuri duble, timp lung la masă, alt fel de oaspete." }; },
     questions: [
+      {
+        id: "area", type: "single",
+        h: "Profilul zonei",
+        why: function () {
+          return "De ce contează: zona îți scrie calendarul. Birourile mor în august și în weekend, zonele studențești mor vara, centrul are iarna lungă. Planul" + (A.zone ? " pentru " + A.zone : "") + " trebuie construit pe ritmul real al zonei, nu pe media anului.";
+        },
+        opts: [
+          { v: "office", label: "Birouri", small: "luni-vineri, vârf dimineața" },
+          { v: "residential", label: "Rezidențial", small: "cel mai stabil" },
+          { v: "student", label: "Studențesc", small: "vara scade" },
+          { v: "tourist", label: "Central / turistic", small: "vara duce iarna" }
+        ],
+        def: ["office"]
+      },
       {
         id: "moments", type: "multi",
         h: "Momentele pe care le țintim",
@@ -176,7 +281,7 @@ var STEPS = [
   {
     id: "team", kick: "step 6 · the team", short: "The Team", title: "Who runs the place?",
     lead: "În primele luni, cafeneaua seamănă izbitor cu omul care stă cel mai mult în ea. Decide din start cine e omul ăla.",
-    panel: { stat: "2 pe tură", sub: "minimul care ține calitatea în viață la orele de vârf." },
+    panel: function () { return { stat: "2 pe tură", sub: "minimul care ține calitatea în viață la orele de vârf. Un barista bun costă 8.000 – 11.000 lei pe lună, cost total angajator, în 2026." }; },
     questions: [
       {
         id: "founder", type: "single",
@@ -190,6 +295,18 @@ var STEPS = [
         def: ["barista"]
       },
       {
+        id: "experience", type: "single",
+        h: "Experiența ta în domeniu",
+        why: "De ce contează: răspunsul schimbă planul de echipă și dosarul de finanțare. Banca și investitorii întreabă primii de experiență; lipsa ei nu blochează proiectul, dar cere un head barista cu vechime lângă tine, din prima zi.",
+        opts: [
+          { v: "none", label: "Prima afacere", small: "vin din alt domeniu" },
+          { v: "barista", label: "Am lucrat la bar" },
+          { v: "manager", label: "Am condus o locație" },
+          { v: "owner", label: "Am mai avut o afacere" }
+        ],
+        def: ["none"]
+      },
+      {
         id: "staff", type: "nums",
         h: "Echipa de start",
         why: "De ce contează: la program de zi, un bar are nevoie de minimum două persoane pe tură ca să nu moară calitatea la vârf. Trei bariști plus fondatorul acoperă o săptămână întreagă fără epuizare.",
@@ -201,20 +318,36 @@ var STEPS = [
   },
   {
     id: "money", kick: "step 7 · the money", short: "The Money", title: "What are we working with?",
-    lead: "Ultimul pas înainte de plan: banii. Fără cifre exacte încă, doar ordinele de mărime care decid ce fel de proiect construim.",
-    panel: { art: "a30", stat: "3 – 4 luni", sub: "de costuri stau în bancă, neatinse, în ziua deschiderii. Regula de aur a supraviețuirii." },
+    lead: "Ultimul set de răspunsuri înainte de plan: banii. Fără cifre exacte încă, doar ordinele de mărime care decid ce fel de proiect construim.",
+    panel: function () {
+      var inv = investEstimate();
+      return { stat: lei(inv.low) + " – " + lei(inv.high), sub: "investiția estimată pentru răspunsurile tale de până acum, cu capital de lucru de " + lei(inv.wc) + " inclus. Se recalculează din răspunsuri." };
+    },
     questions: [
+      {
+        id: "clientsq", type: "nums",
+        h: "Câți clienți pe zi, realist?",
+        why: function () {
+          return "De ce contează: e cifra din care se naște tot planul financiar. Aproape toate proiecțiile de cafenele noi pornesc de la 200+; realitatea primului an" + (A.city ? " în " + A.city : "") + " e de regulă 60-120 de clienți pe zi, ca medie. <strong>Propunem 80</strong>: destul de prudent cât să supraviețuiești, destul de realist cât să te ia banca în serios.";
+        },
+        nums: [
+          { id: "clients", label: "Clienți / zi (media anului 1)", def: 80, min: 10 }
+        ]
+      },
       {
         id: "budget", type: "single",
         h: "Bugetul de investiție",
-        why: "De ce contează: bugetul nu decide doar cât de frumos e spațiul, ci mai ales câte luni de rezervă ai după deschidere. Regula de aur: 3-4 luni de costuri de funcționare stau în bancă, neatinse, în ziua deschiderii.",
+        why: function () {
+          var inv = investEstimate();
+          return "De ce contează: bugetul nu decide doar cât de frumos e spațiul, ci mai ales câte luni de rezervă ai după deschidere. Pentru răspunsurile tale de până acum, estimarea Groundwork e <strong>" + lei(inv.low) + " – " + lei(inv.high) + "</strong>; am propus intervalul de buget care o acoperă.";
+        },
         opts: [
           { v: "b150", label: "Sub 150.000 lei" },
-          { v: "b300", label: "150 – 300.000 lei" },
-          { v: "b600", label: "300 – 600.000 lei" },
+          { v: "b300", label: "150.000 – 300.000 lei" },
+          { v: "b600", label: "300.000 – 600.000 lei" },
           { v: "b600p", label: "Peste 600.000 lei" }
         ],
-        def: ["b300"]
+        def: ["b300"], dynamicDef: true
       },
       {
         id: "source", type: "multi",
@@ -227,6 +360,27 @@ var STEPS = [
           { v: "grant", label: "Fonduri / granturi" }
         ],
         def: ["savings"]
+      },
+      {
+        id: "equityq", type: "nums",
+        h: "Aportul tău propriu",
+        showIf: function () { return (A.source || []).indexOf("loan") >= 0 || (A.source || []).indexOf("grant") >= 0; },
+        why: "De ce contează: nicio bancă și niciun program de finanțare nu intră într-un proiect în care fondatorul nu riscă nimic. Pragul uzual: minimum 15% din investiție vine de la tine.",
+        nums: [
+          { id: "equity", label: "Aport propriu (lei)", def: 60000, min: 0 }
+        ]
+      },
+      {
+        id: "collateral", type: "single",
+        showIf: function () { return (A.source || []).indexOf("loan") >= 0; },
+        h: "Garanțiile pentru credit",
+        why: "De ce contează: banca nu finanțează idei, finanțează riscuri acoperite. <strong>Propunem garanția de stat</strong>: programele de garantare acoperă până la 80% din credit și sunt făcute exact pentru afaceri la început de drum.",
+        opts: [
+          { v: "state", label: "Garanție de stat", small: "FNGCIMM / FRC" },
+          { v: "personal", label: "Fideiusiune personală" },
+          { v: "realestate", label: "Ipotecă pe imobil" }
+        ],
+        def: ["state"]
       },
       {
         id: "goal", type: "single",
@@ -243,7 +397,10 @@ var STEPS = [
   }
 ];
 
-/* ── navigație ecrane ─────────────────────────────────────────────────── */
+var CONCEPT_STEP = STEPS.length;      // pasul 8: confirmarea conceptului
+var TOTAL_STEPS = STEPS.length + 1;   // 8
+
+/* ── navigație ecrane ────────────────────────────────────────────────── */
 var step = 0;
 var maxStepSeen = 0;
 
@@ -255,9 +412,16 @@ function show(id) {
 function gwHome() { show("scr-intro"); $("top-step").textContent = "groundwork"; $("prog").style.width = "0"; renderRail("intro"); return false; }
 
 function gwStart() {
-  A.name = $("i-name").value.trim() || "Cafeneaua";
+  var miss = [];
+  [["i-name", "name"], ["i-city", "city"]].forEach(function (p) {
+    var el = $(p[0]), row = el.closest(".f-row");
+    if (!el.value.trim()) { row.classList.add("miss"); miss.push(el); }
+    else row.classList.remove("miss");
+  });
+  if (miss.length) { miss[0].focus(); miss[0].scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  A.name = $("i-name").value.trim();
   A.idea = $("i-idea").value.trim();
-  A.city = $("i-city").value.trim() || "orașul tău";
+  A.city = $("i-city").value.trim();
   A.zone = $("i-zone").value.trim();
   save();
   step = 0;
@@ -271,61 +435,102 @@ function gwBack() {
 }
 
 function gwNext() {
+  if (step === CONCEPT_STEP) { gwGenerate(); return; }
   collectNums();
   save();
-  if (step === STEPS.length - 1) { buildPlan(); show("scr-plan"); $("top-step").textContent = "the plan"; $("prog").style.width = "100%"; return; }
-  step++; renderStep();
+  step++;
+  renderStep();
 }
 
 function gwJump(i) {
-  if (i <= maxStepSeen) { collectNums(); save(); step = i; renderStep(); }
+  if (i <= maxStepSeen) {
+    if (step < CONCEPT_STEP) collectNums();
+    save(); step = i;
+    show("scr-wizard");
+    renderStep();
+  }
 }
 
 function gwEdit() { step = 0; show("scr-wizard"); renderStep(); }
 
-/* ── rail-ul lateral ──────────────────────────────────────────────────── */
+function gwReset() {
+  try { localStorage.removeItem("gw-v2"); } catch (e) {}
+  location.reload();
+}
+
+/* ── rail-ul lateral ─────────────────────────────────────────────────── */
+function railItem(cls, click, n, label) {
+  return '<button type="button" class="rail-item ' + cls + '" ' + (click || "") + ">" +
+    '<span class="n">' + n + "</span><span>" + label + "</span></button>";
+}
+
 function renderRail(mode, C) {
   var nav = $("rail-nav"), h = "";
   if (mode === "wizard") {
     STEPS.forEach(function (s, i) {
       var cls = i === step ? "now" : (i <= maxStepSeen ? "done" : "");
-      h += '<button type="button" class="rail-item ' + cls + '" ' + (i <= maxStepSeen ? 'onclick="gwJump(' + i + ')"' : "") + ">" +
-           '<span class="n">' + String(i + 1).padStart(2, "0") + "</span><span>" + s.short + "</span></button>";
+      h += railItem(cls, i <= maxStepSeen ? 'onclick="gwJump(' + i + ')"' : "", String(i + 1).padStart(2, "0"), s.short);
     });
-    h += '<div class="rail-rule"></div>' +
-         '<div class="rail-item"><span class="n">→</span><span>The Plan</span></div>';
+    var ccls = step === CONCEPT_STEP ? "now" : (maxStepSeen >= CONCEPT_STEP ? "done" : "");
+    h += railItem(ccls, maxStepSeen >= CONCEPT_STEP ? 'onclick="gwJump(' + CONCEPT_STEP + ')"' : "", "08", "The Concept");
+    h += '<div class="rail-rule"></div>' + railItem("", "", "→", "The Plan");
   } else if (mode === "plan" && C) {
     C.forEach(function (c, i) {
-      h += '<button type="button" class="rail-item link" onclick="document.getElementById(\'ch' + (i + 1) + '\').scrollIntoView({behavior:\'smooth\'})">' +
-           '<span class="n">' + String(i + 1).padStart(2, "0") + "</span><span>" + c.t + "</span></button>";
+      h += railItem("link", 'onclick="document.getElementById(\'ch' + (i + 1) + '\').scrollIntoView({behavior:\'smooth\'})"', String(i + 1).padStart(2, "0"), c.t);
     });
   } else {
-    h = '<div class="rail-item"><span class="n">··</span><span>7 pași · 15 minute</span></div>' +
+    h = '<div class="rail-item"><span class="n">··</span><span>8 pași · 15 minute</span></div>' +
         '<div class="rail-item"><span class="n">→</span><span>Planul tău, scris</span></div>';
   }
   nav.innerHTML = h;
 }
 
-/* ── render wizard ────────────────────────────────────────────────────── */
-function renderStep() {
-  var s = STEPS[step];
-  if (step > maxStepSeen) maxStepSeen = step;
+/* ── render wizard ───────────────────────────────────────────────────── */
+function visibleQuestions(s) {
+  return s.questions.filter(function (q) { return !q.showIf || q.showIf(); });
+}
 
+function applyDefaults(s) {
   s.questions.forEach(function (q) {
     if (q.type === "nums") {
       q.nums.forEach(function (n) { if (A[n.id] === undefined) A[n.id] = n.def; });
     } else if (A[q.id] === undefined) {
-      A[q.id] = q.def.slice();
+      if (q.dynamicDef && q.id === "budget") {
+        var mid = (investEstimate().low + investEstimate().high) / 2;
+        A.budget = [mid < 150000 ? "b150" : mid < 300000 ? "b300" : mid < 600000 ? "b600" : "b600p"];
+      } else {
+        A[q.id] = q.def.slice();
+      }
     }
   });
+}
+
+function ctxHtml(p, enter) {
+  return '<div class="ctx-tile' + (enter ? " step-enter" : "") + (p.art ? "" : " noart") + '"><div class="ctx-kick caps">groundwork knows</div>' +
+    (p.art ? '<div class="ctx-art"><img src="assets/art/' + p.art + '.png" alt=""></div>' : '<div class="ctx-spacer"></div>') +
+    '<div class="ctx-stat">' + p.stat + '</div><div class="ctx-sub">' + p.sub + "</div></div>";
+}
+
+function updateCtx() {
+  if (step === CONCEPT_STEP) { $("ctx").innerHTML = ctxHtml(conceptPanel(), false); return; }
+  var s = STEPS[step];
+  $("ctx").innerHTML = ctxHtml(s.panel(), false);
+}
+
+function renderStep() {
+  if (step === CONCEPT_STEP) { renderConcept(); return; }
+  var s = STEPS[step];
+  if (step > maxStepSeen) maxStepSeen = step;
+  applyDefaults(s);
 
   var h = '<div class="step-enter">' +
           '<div class="step-kick caps">' + s.kick + "</div>" +
           '<h2 class="step-title">' + s.title + "</h2>" +
           '<p class="step-lead">' + s.lead + "</p>";
 
-  s.questions.forEach(function (q, qi) {
-    h += '<div class="q"><div class="q-n">' + String(step + 1).padStart(2, "0") + "." + (qi + 1) + '</div><h3>' + q.h + "</h3>" + '<p class="why">' + q.why + "</p>";
+  visibleQuestions(s).forEach(function (q, qi) {
+    var why = typeof q.why === "function" ? q.why() : q.why;
+    h += '<div class="q"><div class="q-n">' + String(step + 1).padStart(2, "0") + "." + (qi + 1) + '</div><h3>' + q.h + "</h3>" + '<p class="why">' + why + "</p>";
     if (q.type === "nums") {
       h += '<div class="num-row">';
       q.nums.forEach(function (n) {
@@ -337,8 +542,10 @@ function renderStep() {
       h += '<div class="chips" data-q="' + q.id + '" data-type="' + q.type + '">';
       q.opts.forEach(function (o) {
         var on = (A[q.id] || []).indexOf(o.v) >= 0;
+        var rec = (q.def || []).indexOf(o.v) >= 0;
         h += '<button type="button" class="chip' + (on ? " on" : "") + '" data-v="' + o.v + '">' +
-             o.label + (o.small ? " <small>· " + o.small + "</small>" : "") + "</button>";
+             o.label + (o.small ? " <small>· " + o.small + "</small>" : "") +
+             (rec ? ' <span class="rec">propus</span>' : "") + "</button>";
       });
       h += "</div>";
     }
@@ -347,17 +554,12 @@ function renderStep() {
   h += "</div>";
 
   $("step-host").innerHTML = h;
+  $("ctx").innerHTML = ctxHtml(s.panel(), true);
 
-  /* panoul de context */
-  var p = s.panel || {};
-  $("ctx").innerHTML =
-    '<div class="ctx-tile step-enter' + (p.art ? "" : " noart") + '"><div class="ctx-kick caps">groundwork knows</div>' +
-    (p.art ? '<div class="ctx-art"><img src="assets/art/' + p.art + '.png" alt=""></div>' : '<div class="ctx-spacer"></div>') +
-    '<div class="ctx-stat">' + p.stat + '</div><div class="ctx-sub">' + p.sub + "</div></div>";
-
-  $("prog").style.width = Math.round(((step + 1) / (STEPS.length + 1)) * 100) + "%";
-  $("top-step").textContent = "pas " + (step + 1) + " / " + STEPS.length;
-  $("btn-next").textContent = step === STEPS.length - 1 ? "Generează planul →" : "Continuă →";
+  $("prog").style.width = Math.round(((step + 1) / (TOTAL_STEPS + 1)) * 100) + "%";
+  $("top-step").textContent = "pas " + (step + 1) + " / " + TOTAL_STEPS;
+  $("btn-next").textContent = step === STEPS.length - 1 ? "Vezi conceptul →" : "Continuă →";
+  $("btn-back").textContent = "← Înapoi";
   renderRail("wizard");
 
   Array.prototype.forEach.call(document.querySelectorAll(".chips"), function (box) {
@@ -376,11 +578,22 @@ function renderStep() {
       A[qid] = cur;
       b.classList.toggle("on", cur.indexOf(b.getAttribute("data-v")) >= 0);
       save();
+      if (qid === "source") { collectNums(); var y = window.scrollY; renderStep(); window.scrollTo(0, y); return; }
+      updateCtx();
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.num-row input[type="number"]'), function (inp) {
+    inp.addEventListener("input", function () {
+      var id = inp.id.replace(/^n-/, "");
+      var v = parseFloat(inp.value);
+      if (!isNaN(v)) { A[id] = Math.max(parseFloat(inp.min) || 0, v); updateCtx(); }
     });
   });
 }
 
 function collectNums() {
+  if (step >= STEPS.length) return;
   STEPS[step].questions.forEach(function (q) {
     if (q.type !== "nums") return;
     q.nums.forEach(function (n) {
@@ -390,224 +603,158 @@ function collectNums() {
   });
 }
 
-/* ── helpers generator ────────────────────────────────────────────────── */
-function has(qid, v) { return (A[qid] || []).indexOf(v) >= 0; }
-function one(qid) { return (A[qid] || [])[0]; }
-function pick(qid, map) { return map[one(qid)] || map._ || ""; }
-function lei(n) { return Math.round(n).toLocaleString("ro-RO") + " lei"; }
-
-/* ideea fondatorului, îmblânzită pentru mijloc de frază: literă mică, fără punct final */
-function ideaInline() {
-  var t = (A.idea || "").trim().replace(/\.+$/, "");
-  return t.charAt(0).toLowerCase() + t.slice(1);
+/* ── pasul 8: The Concept ────────────────────────────────────────────── */
+function findQ(qid) {
+  for (var i = 0; i < STEPS.length; i++) {
+    var qs = STEPS[i].questions;
+    for (var j = 0; j < qs.length; j++) if (qs[j].id === qid) return qs[j];
+  }
+  return null;
 }
 
-var FORMAT_NAME = { bar: "bar specialty", food: "cafenea cu food", togo: "concept to-go", roastery: "roastery café" };
-var FOOD_NAME = { none: "fără food", viennoiserie: "viennoiserie și snacks", brunch: "brunch light", lunch: "bucătărie completă" };
-
-/* investiția estimată: amenajare+echipamente pe mp, după format */
-function investEstimate() {
-  var perMp = { bar: 3000, food: 3800, togo: 2400, roastery: 3400 }[one("format")] || 3200;
-  var base = A.mp * perMp;
-  var equipment = { bar: 90000, food: 110000, togo: 70000, roastery: 160000 }[one("format")] || 100000;
-  if (one("food") === "lunch") equipment += 60000; else if (one("food") === "brunch") equipment += 30000;
-  var monthly = A.mp * 1500 * 0.12 + (A.baristas + 1) * 7500; // aproximare chirie+utilități+echipă
-  var wc = monthly * 3.5; // capital de lucru 3-4 luni
-  var low = Math.round((base + equipment + wc) * 0.85 / 5000) * 5000;
-  var high = Math.round((base + equipment + wc) * 1.2 / 5000) * 5000;
-  return { low: low, high: high, wc: Math.round(wc / 5000) * 5000 };
+function lbl(qid) {
+  var q = findQ(qid);
+  if (!q || !q.opts) return "";
+  return (A[qid] || []).map(function (v) {
+    for (var i = 0; i < q.opts.length; i++) if (q.opts[i].v === v) return q.opts[i].label;
+    return v;
+  }).join(", ");
 }
 
-var BUDGET_MID = { b150: 120000, b300: 225000, b600: 450000, b600p: 750000 };
-
-/* ── capitolele planului ──────────────────────────────────────────────── */
-function chapters() {
+function conceptPanel() {
   var inv = investEstimate();
-  var momentsTxt = [];
-  if (has("moments", "commute")) momentsTxt.push("dimineața de 6:30-9:30, când oamenii trec spre birou și vor cafea bună, repede");
-  if (has("moments", "laptop")) momentsTxt.push("intervalul 10:00-16:00, al celor care lucrează remote și caută un birou cu espressor");
-  if (has("moments", "social")) momentsTxt.push("după-amiaza întâlnirilor, unde contează mesele și liniștea conversației");
-  if (has("moments", "brunch")) momentsTxt.push("weekendul de brunch, cu bonuri duble și timp lung la masă");
-  if (has("moments", "family")) momentsTxt.push("familiile din cartier, care revin zilnic dacă se simt binevenite");
-
-  var C = [];
-
-  /* 1 ── Executive Summary */
-  C.push({ t: "Executive Summary", sub: "Sumarul executiv: pagina pe care o citește toată lumea", pro: false, html:
-    "<p><strong>" + A.name + "</strong> este " + (A.idea ? ideaInline() : "o " + FORMAT_NAME[one("format")] + " nouă") +
-    ", amplasată în " + A.city + (A.zone ? ", zona " + A.zone : "") + ". Conceptul: " + FORMAT_NAME[one("format")] +
-    " de " + A.mp + " mp cu " + A.seats + " locuri, poziționat " +
-    pick("segment", { value: "accesibil, cu prețuri corecte care invită la vizite zilnice", mid: "mid-range, unde calitatea specialty rămâne accesibilă zi de zi", premium: "premium, cu o experiență care justifică fiecare leu" }) + ".</p>" +
-    "<p>Oferta: " + pick("coffee", { espresso: "program de espresso executat impecabil", both: "espresso pentru ritmul dimineții și filter pentru identitate", filter: "un program de filter care diferențiază locul de orice altă cafenea din zonă" }) +
-    ", completat de " + FOOD_NAME[one("food")] + ". Echipa de start: fondatorul " +
-    pick("founder", { barista: "prezent zilnic la bar", manager: "în rol de manager activ", investor: "în rol de investitor, cu un head barista responsabil de operare" }) +
-    " și " + A.baristas + " bariști.</p>" +
-    "<p>Investiția estimată pentru acest format este între " + lei(inv.low) + " și " + lei(inv.high) +
-    ", incluzând un capital de lucru de aproximativ " + lei(inv.wc) + " (3-4 luni de funcționare, neatins în ziua deschiderii). Obiectivul: " +
-    pick("goal", { lifestyle: "o locație profitabilă și stabilă, cu marjă netă de 8-15% din anul 2", growth: "validarea modelului în prima locație și extinderea la a doua în 24-30 de luni", franchise: "construirea unui brand și a unui manual de operare care să susțină francizarea" }) + ".</p>"
-  });
-
-  /* 2 ── The Concept */
-  C.push({ t: "The Concept", sub: "Conceptul și povestea locului", pro: false, html:
-    "<p>" + A.name + " nu concurează cu toate cafenelele din " + A.city + ", ci cu felul în care arată o zi obișnuită din viața oamenilor din " + (A.zone || "zona aleasă") + ". " +
-    pick("vibe", { calm: "Atmosfera e calmă și minimalistă: un loc în care zgomotul orașului rămâne la ușă, iar cafeaua are spațiu să fie luată în serios.",
-      social: "Atmosfera e vie și socială: un loc cu energie, în care barista vorbește cu oamenii peste tejghea și muzica face parte din produs.",
-      neighborhood: "Atmosfera e de cartier: numele oaspeților se țin minte, comanda „ca de obicei” există, iar locul devine o prelungire a sufrageriei." }) + "</p>" +
-    "<p>Formatul de " + FORMAT_NAME[one("format")] + " pe " + A.mp + " mp înseamnă " +
-    pick("format", { bar: "un bar dominant, puține locuri și un flux rapid: totul e construit în jurul calității în ceașcă și al vitezei",
-      food: "un echilibru între bar și zona de mese: cafeaua aduce frecvența, food-ul aduce valoarea bonului și timpul petrecut",
-      togo: "un punct compact, cu flux de trecere: viteza și consistența sunt întregul produs",
-      roastery: "prăjitoria la vedere ca spectacol central: locul vinde nu doar cafea, ci și povestea originii ei, plus boabele la raft" }) + ".</p>" +
-    (A.idea ? "<p>În cuvintele fondatorului: „" + A.idea + "”. Planul de față transformă această propoziție în decizii concrete de meniu, echipă, spațiu și bani.</p>" : "")
-  });
-
-  /* 3 ── The Market */
-  C.push({ t: "The Market", sub: "Piața și competiția locală", pro: false, html:
-    "<p>Piața de cafea specialty din România crește constant, dar crește și competiția: diferențierea nu mai vine din „avem cafea bună”, ci din consistență, servire și poziția în ziua clientului. Pentru " + A.name + ", piața relevantă nu e " + A.city + " întreg, ci raza de 10 minute de mers pe jos din jurul locației" + (A.zone ? " din " + A.zone : "") + ".</p>" +
-    "<div class='callout'><strong>De făcut pe teren:</strong> petrece două dimineți (una de marți, una de sâmbătă) în fața spațiului vizat și numără: câți oameni trec între 7:30 și 9:30, câți intră la competitorii din zonă, cât așteaptă la coadă. Două ore de numărat bat orice studiu cumpărat.</div>" +
-    "<ul><li><strong>Competitori direcți:</strong> cafenelele specialty din aceeași zonă de mers pe jos. De cartografiat: prețul flat white-ului, programul, locurile, viteza la vârf.</li>" +
-    "<li><strong>Competitori indirecți:</strong> lanțurile (5 to go, Starbucks, Ted's), benzinăriile premium și espressoarele din birouri. Concurează pe preț și comoditate, nu pe calitate.</li>" +
-    "<li><strong>Avantajul apărabil:</strong> " + pick("vibe", { calm: "experiența calmă, care nu există în lanțuri", social: "relația personală barista-oaspete, imposibil de copiat la scară", neighborhood: "loialitatea de cartier, construită vizită cu vizită" }) + ".</li></ul>"
-  });
-
-  /* 4 ── The Guests */
-  C.push({ t: "The Guests", sub: "Clienții și momentele zilei pe care le câștigăm", pro: false, html:
-    "<p>" + A.name + " nu își propune să fie cafeneaua tuturor. Planul câștigă " + momentsTxt.length + " momente precise din zi:</p>" +
-    "<ul>" + momentsTxt.map(function (m) { return "<li>" + m + ";</li>"; }).join("") + "</ul>" +
-    "<p>Fiecare moment are propriul drum al oaspetelui, de la trotuar până la „pe mâine”: cât durează comanda, unde se așteaptă, ce vede pe tejghea, ce primește odată cu cafeaua. Aceste drumuri se desenează explicit (customer journey) înainte de deschidere și se testează în soft opening." +
-    (has("moments", "commute") ? " Pentru dimineața de trecere, ținta operațională: maximum 4 minute de la ușă la cafea în mână, altfel momentul e pierdut definitiv în favoarea vitezei." : "") + "</p>"
-  });
-
-  /* 5 ── Menu & Pricing */
-  var fw = A.p_fw, esp = A.p_esp;
-  var segCheck = "";
-  if (one("segment") === "mid" && (fw < 14 || fw > 22)) segCheck = "<div class='callout'><strong>Semnal:</strong> un flat white de " + lei(fw) + " iese din intervalul tipic mid-range (14-22 lei). Ori repoziționezi prețul, ori asumă explicit segmentul " + (fw > 22 ? "premium" : "accesibil") + " în tot planul.</div>";
-  if (one("segment") === "premium" && fw < 20) segCheck = "<div class='callout'><strong>Semnal:</strong> poziționare premium cu flat white sub 20 de lei contrazice povestea. Prețul face parte din produs.</div>";
-  if (one("segment") === "value" && fw > 16) segCheck = "<div class='callout'><strong>Semnal:</strong> pentru segmentul accesibil, flat white peste 16 lei va fi perceput ca scump în " + A.city + ".</div>";
-  C.push({ t: "Menu & Pricing", sub: "Meniul și arhitectura prețurilor", pro: false, html:
-    "<p>Meniul de start e scurt și stăpânit: " + pick("coffee", { espresso: "linia completă de espresso (espresso, macchiato, flat white, cappuccino, latte)", both: "linia de espresso plus 2-3 origini la filter, rotite lunar", filter: "3-4 origini la filter ca nucleu, cu espresso în rol secundar" }) +
-    (one("altmilk") !== "no" ? ", lapte vegetal " + (one("altmilk") === "incl" ? "inclus în preț" : "cu supliment") : "") +
-    ", iar la food: " + pick("food", { none: "nimic deocamdată, decizie asumată pentru simplitate operațională", viennoiserie: "viennoiserie de la un furnizor local bun plus 2-3 snacks, fără bucătărie caldă", brunch: "un meniu de brunch scurt (5-7 poziții), servit până la 15:00", lunch: "mic dejun și prânz complet, cu un meniu care se schimbă sezonier" }) + ".</p>" +
-    "<table><tr><th>Ancoră</th><th>Preț</th><th>Rol în meniu</th></tr>" +
-    "<tr><td>Espresso</td><td>" + lei(esp) + "</td><td>ancora de jos: definește percepția de corectitudine</td></tr>" +
-    "<tr><td>Flat white</td><td>" + lei(fw) + "</td><td>vedeta: cel mai vândut produs pe lapte, reperul comparației cu competiția</td></tr>" +
-    (one("food") !== "none" ? "<tr><td>Bon mediu food</td><td>" + lei(A.p_food) + "</td><td>ridică bonul mediu al vizitei peste pragul de sustenabilitate</td></tr>" : "") +
-    "</table>" + segCheck +
-    "<p>Regula de disciplină: niciun produs nou nu intră în meniu fără să iasă altul, și fără să-i fie calculat costul pe porție (COGS) înainte de prima vânzare.</p>"
-  });
-
-  /* 6 ── Marketing & Launch */
-  C.push({ t: "Marketing & Launch", sub: "Cum află lumea și de ce revine", pro: true, html:
-    "<p>Marketingul unei cafenele noi are două faze distincte: înainte de deschidere construiești curiozitate, după deschidere construiești obișnuință. Bugetul e mic, deci fiecare leu merge în lucruri care se văd din stradă sau se dau mai departe.</p>" +
-    "<ul><li><strong>Faza 0 (6 săptămâni înainte):</strong> cont de Instagram cu povestea amenajării, geamul folosit ca afiș („deschidem aici în curând”), relație cu 3-4 creatori locali din " + A.city + " invitați la preview.</li>" +
-    "<li><strong>Soft opening (1 săptămână):</strong> prieteni, vecini și vecinii de stradă comercială, cafea din partea casei, feedback structurat pe flux și produs.</li>" +
-    "<li><strong>Primele 90 de zile:</strong> card de fidelitate simplu (a 10-a cafea din partea casei), prezență constantă pe Instagram (3 postări/săptămână, nu campanii), parteneriate cu birourile din zonă" + (has("moments", "brunch") ? ", și un rezervă-masa simplu pentru brunch-ul de weekend" : "") + ".</li>" +
-    (has("service", "delivery") ? "<li><strong>Delivery:</strong> listare pe o singură platformă la început, cu meniu redus care călătorește bine; comisionul de 25-30% se acceptă doar pe produsele cu marjă mare.</li>" : "") +
-    "</ul><p>Indicatorul care contează în primele luni nu e numărul de urmăritori, ci rata de revenire: câți dintre oaspeții de luni se întorc până vineri.</p>"
-  });
-
-  /* 7 ── Operations & Team */
-  C.push({ t: "Operations & Team", sub: "Operațiuni, echipă și responsabilități", pro: true, html:
-    "<p>Structura de start: fondatorul " + pick("founder", { barista: "lucrează zilnic la bar și deține calitatea, rețetele și relația cu oaspeții", manager: "conduce operațional fără a fi legat de bar: program, furnizori, cifre, echipă", investor: "deleagă operarea unui head barista cu mandat clar și raportare săptămânală pe cifre" }) +
-    ", " + A.baristas + " bariști" + (one("food") === "lunch" || one("food") === "brunch" ? ", plus bucătar responsabil de partea de food" : "") + ".</p>" +
-    "<p>Fiecare zonă de responsabilitate are un singur proprietar (principiul RACI: un responsabil, un decident pe fiecare sarcină): </p>" +
-    "<table><tr><th>Zona</th><th>Proprietar</th></tr>" +
-    "<tr><td>Calitate cafea & rețete (dial-in zilnic)</td><td>" + (one("founder") === "barista" ? "fondatorul" : "head barista") + "</td></tr>" +
-    "<tr><td>Program & ture</td><td>" + (one("founder") === "investor" ? "head barista" : "fondatorul") + "</td></tr>" +
-    "<tr><td>Comenzi & furnizori</td><td>" + (one("founder") === "investor" ? "head barista" : "fondatorul") + "</td></tr>" +
-    (one("food") !== "none" ? "<tr><td>Food: producție / recepție & etichetare</td><td>" + (one("food") === "viennoiserie" ? "barista de serviciu" : "bucătarul") + "</td></tr>" : "") +
-    "<tr><td>Cifre: P&L lunar, cash</td><td>fondatorul</td></tr></table>" +
-    "<p>Instrumente din ziua 1: registru de rețete și dial-in (un singur adevăr pentru toată echipa), checklist de deschidere/închidere, și o oră pe săptămână de degustare împreună. Consistența nu e talent, e sistem.</p>"
-  });
-
-  /* 8 ── Space & Equipment */
-  var eq = { bar: ["Espressor 2 grupuri (clasa La Marzocco Linea / Victoria Arduino Eagle One)", "2 râșnițe espresso + 1 râșniță filter", "Filtru batch brew", "Frigidere bar + vitrină mică", "Blat tehnic cu chiuvete conforme DSP"],
-             food: ["Espressor 2 grupuri", "2 râșnițe espresso + 1 filter", "Batch brew", "Vitrină food dublă (caldă/rece după meniu)", "Echipare bucătărie după nivelul de food ales", "POS cu modul de stocuri"],
-             togo: ["Espressor 2 grupuri rapid", "2 râșnițe", "Batch brew de volum", "Vitrină compactă", "Fereastră/flux de servire dedicat"],
-             roastery: ["Prăjitor 5-15 kg cu ventilație autorizată", "Espressor 2 grupuri", "Râșnițe espresso + retail", "Zonă de ambalare și raft de boabe", "Spațiu verde de depozitare"] }[one("format")];
-  C.push({ t: "Space & Equipment", sub: "Spațiul, fluxul și echipamentele", pro: true, html:
-    "<p>Pe " + A.mp + " mp, prioritatea e fluxul, nu estetica: oaspetele intră, comandă, așteaptă și primește fără să se încrucișeze cu cei care pleacă" + (A.seats > 0 ? ", iar cele " + A.seats + " de locuri sunt dispuse astfel încât barul să rămână scena principală" : "") + ". Amenajarea se bugetează la " + lei({bar:3000,food:3800,togo:2400,roastery:3400}[one("format")] || 3200) + "/mp (medie realistă " + A.city + ", de la instalații la mobilier).</p>" +
-    "<p>Echipamentele de bază pentru formatul ales:</p><ul>" + eq.map(function (e) { return "<li>" + e + ";</li>"; }).join("") + "</ul>" +
-    "<div class='callout'><strong>Regulă de buget:</strong> espressorul și râșnițele nu sunt locul de economisit, acolo se aude diferența în ceașcă. Economiile se fac la mobilier (second-hand bun) și la lucrările care nu ating instalațiile.</div>"
-  });
-
-  /* 9 ── The Numbers */
-  var bm = BUDGET_MID[one("budget")];
-  var fitNote;
-  if (bm < inv.low * 0.9) fitNote = "<div class='callout'><strong>Semnal important:</strong> bugetul declarat (" + pick("budget", { b150: "sub 150.000 lei", b300: "150-300.000 lei", b600: "300-600.000 lei", b600p: "peste 600.000 lei" }) + ") este sub estimarea pentru acest format. Variante: spațiu mai mic, format to-go, echipamente refurbished, sau extinderea bugetului înainte de a semna orice contract de chirie.</div>";
-  else if (bm > inv.high * 1.3) fitNote = "<div class='callout'><strong>De remarcat:</strong> bugetul declarat depășește confortabil estimarea. Diferența nu se cheltuie pe amenajare mai scumpă, ci rămâne rezervă: cel mai bun prieten al unei cafenele noi e un cont care nu se golește.</div>";
-  else fitNote = "<div class='callout'><strong>Verificare:</strong> bugetul declarat se potrivește cu estimarea formatului. Următorul pas e transformarea estimării în deviz real, pe oferte.</div>";
-  C.push({ t: "The Numbers", sub: "Cadrul financiar: estimări și repere sănătoase", pro: false, html:
-    "<p>Pentru " + FORMAT_NAME[one("format")] + " de " + A.mp + " mp, investiția totală estimată este <strong>" + lei(inv.low) + " – " + lei(inv.high) + "</strong>: amenajare, echipamente și, obligatoriu, capital de lucru de ~" + lei(inv.wc) + " pentru primele 3-4 luni.</p>" + fitNote +
-    "<p>Reperele după care se judecă sănătatea afacerii, lună de lună (P&L pe structura folosită în industria de specialitate):</p>" +
-    "<table><tr><th>Indicator</th><th>Interval sănătos</th></tr>" +
-    "<tr><td>COGS (cafea, lapte, ambalaje, food)</td><td>25 – 35% din vânzări</td></tr>" +
-    "<tr><td>Echipă (salarii + taxe)</td><td>30 – 35% din vânzări</td></tr>" +
-    "<tr><td>Chirie + utilități</td><td>sub 15% din vânzări</td></tr>" +
-    "<tr><td>Marjă netă (anii 1-2)</td><td>8 – 15%</td></tr></table>" +
-    "<p>Și reperul de realism care salvează planuri: aproape toate proiecțiile de cafenele noi pornesc de la 200+ clienți pe zi. Realitatea primului an este de regulă <strong>60-120 de clienți pe zi</strong>, cu creștere lună de lună. Planul " + A.name + " se construiește pe acest interval, iar orice depășire devine surpriză plăcută, nu condiție de supraviețuire.</p>" +
-    "<div class='callout'><strong>Urmează:</strong> modulul Groundwork Financials va transforma aceste repere în proiecții complete pe 5 ani (venituri bottom-up, P&L lunar, cash flow și punctul minim de cash), din aceleași răspunsuri.</div>"
-  });
-
-  /* 10 ── Risks & Plan B */
-  C.push({ t: "Risks & Plan B", sub: "Riscurile principale și răspunsurile pregătite", pro: true, html:
-    "<table><tr><th>Risc</th><th>Semnal timpuriu</th><th>Plan B</th></tr>" +
-    "<tr><td>Trafic sub așteptări în primele luni</td><td>sub 60 clienți/zi în luna 3</td><td>capitalul de lucru acoperă 3-4 luni; se accelerează parteneriatele cu birouri și cardul de fidelitate înainte de orice reducere de preț</td></tr>" +
-    "<tr><td>Creșterea costurilor (cafea verde, lapte, energie)</td><td>COGS trece de 35%</td><td>recalculare porții și prețuri pe ancore, nu panică pe tot meniul; contracte pe 6-12 luni cu furnizorii cheie</td></tr>" +
-    "<tr><td>Plecarea unui om cheie</td><td>orice demisie în primele 12 luni</td><td>rețetele și procedurile stau în registru, nu în memoria cuiva; recrutare continuă pasivă (relații, nu anunțuri de urgență)</td></tr>" +
-    (has("source", "loan") ? "<tr><td>Rata creditului în luni slabe</td><td>cash sub 1,5 luni de costuri</td><td>linia de rezervă definită înainte de deschidere; discuție cu banca la primul semnal, nu la prima întârziere</td></tr>" : "") +
-    (one("food") !== "none" ? "<tr><td>Risipa pe food</td><td>pierderi peste 8% din achiziții</td><td>meniu mai scurt, producție pe baza vânzărilor din registru, reduceri de final de zi</td></tr>" : "") +
-    "</table>" +
-    "<p>Principiul general: fiecare risc are un semnal măsurabil și o reacție decisă dinainte. Deciziile proaste se iau sub presiune; planul există ca să nu fie nevoie de ele.</p>"
-  });
-
-  /* 11 ── Opening Roadmap */
-  C.push({ t: "Opening Roadmap", sub: "Drumul până la deschidere, săptămână cu săptămână", pro: true, html:
-    "<table><tr><th>Săptămânile</th><th>Etapa</th></tr>" +
-    "<tr><td>1 – 2</td><td>validarea zonei pe teren (numărătoarea de trafic), negocierea spațiului, antecontract cu clauză de autorizare</td></tr>" +
-    "<tr><td>3 – 4</td><td>SRL & coduri CAEN, proiect de amenajare, deviz pe oferte reale, comanda echipamentelor cu termen lung</td></tr>" +
-    "<tr><td>5 – 10</td><td>amenajare; în paralel: dosar DSVSA (înregistrare sanitar-veterinară), aviz DSP, autorizație de funcționare de la primărie, ISU dacă suprafața o cere, contract deșeuri & neutralizare</td></tr>" +
-    "<tr><td>11 – 12</td><td>angajare și training echipă (rețete, flux, servire), meniu final cu COGS calculat pe fiecare poziție, POS configurat</td></tr>" +
-    "<tr><td>13</td><td>soft opening: prieteni și cartier, ajustări pe flux</td></tr>" +
-    "<tr><td>14</td><td>deschidere oficială" + (has("moments", "brunch") ? ", cu primul brunch de weekend anunțat din prima zi" : "") + "</td></tr>" +
-    "</table>" +
-    "<div class='callout'><strong>Despre autorizații în România:</strong> documentul care blochează cel mai des deschiderile e înregistrarea DSVSA" + (one("food") === "lunch" || one("food") === "brunch" ? " (cu atât mai mult cu bucătărie caldă)" : "") + ". Se depune devreme, nu după amenajare, iar proiectul spațiului se face cu cerințele DSVSA/DSP pe masă, ca să nu se spargă pereți de două ori.</div>"
-  });
-
-  return C;
+  var rata = has("source", "loan") ? loanMonthly(creditNeeded(inv)) : 0;
+  return {
+    stat: lei(inv.low) + " – " + lei(inv.high),
+    sub: "investiția estimată, cu capital de lucru de " + lei(inv.wc) + ". Pragul de rentabilitate: aproximativ " + breakEvenClients(rata) + " clienți pe zi. Detaliile, în plan."
+  };
 }
 
-/* ── render plan ──────────────────────────────────────────────────────── */
-function buildPlan() {
+function renderConcept() {
+  if (CONCEPT_STEP > maxStepSeen) maxStepSeen = CONCEPT_STEP;
+
+  function fact(k, v, i) {
+    return '<div class="fact"><span class="k caps">' + k + '</span><span class="v">' + v +
+      '</span><button type="button" class="ed" onclick="gwJump(' + i + ')">Modifică</button></div>';
+  }
+
+  var h = '<div class="step-enter">' +
+    '<div class="step-kick caps">step 8 · the concept</div>' +
+    '<h2 class="step-title">Does this sound right?</h2>' +
+    '<p class="step-lead">Așa arată conceptul tău, pus cap la cap din răspunsuri. Dacă ceva sună greșit, modifică acum: planul întreg se construiește pe propozițiile de mai jos.</p>' +
+    '<div class="concept"><p class="lede">' + conceptText() + "</p>" +
+    '<div class="facts">' +
+    fact("Formatul & spațiul", FORMAT_NAME[one("format")] + " · " + nrDe(A.mp, "mp", "mp") + " · " + nrDe(A.seats, "loc", "locuri") + (A.terrace > 0 ? " + " + nrDe(A.terrace, "loc", "locuri") + " la terasă" : "") + " · chirie " + lei(A.rent) + "/lună", 0) +
+    fact("Meniul", lbl("coffee") + " · " + lbl("food") + " · " + lbl("roaster"), 1) +
+    fact("Poziționarea", lbl("segment") + " · espresso " + lei(A.p_esp) + " · flat white " + lei(A.p_fw), 2) +
+    fact("Servirea", lbl("service") + " · " + lbl("hours"), 3) +
+    fact("Oaspeții", lbl("moments") + " · " + lbl("area"), 4) +
+    fact("Echipa", lbl("founder") + " · " + nrDe(A.baristas, "barista", "bariști") + " · " + lbl("experience"), 5) +
+    fact("Banii", nrDe(A.clients, "client", "clienți") + "/zi · " + lbl("budget") + " · " + lbl("source"), 6) +
+    "</div></div></div>";
+
+  $("step-host").innerHTML = h;
+  $("ctx").innerHTML = ctxHtml(conceptPanel(), true);
+
+  $("prog").style.width = Math.round((TOTAL_STEPS / (TOTAL_STEPS + 1)) * 100) + "%";
+  $("top-step").textContent = "pas 8 / " + TOTAL_STEPS;
+  $("btn-next").textContent = "Generează planul →";
+  $("btn-back").textContent = "← Înapoi";
+  renderRail("wizard");
+}
+
+/* ── momentul generării ──────────────────────────────────────────────── */
+function gwGenerate() {
+  save();
   var C = chapters();
+  var ov = document.createElement("div");
+  ov.id = "gen";
+  ov.innerHTML = '<div class="inner"><div class="caps">groundwork</div><h2>Scriem planul.</h2><ul>' +
+    C.map(function (c) { return "<li>" + c.t + "</li>"; }).join("") + "</ul></div>";
+  document.body.appendChild(ov);
+  var items = ov.querySelectorAll("li");
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var dt = reduced ? 0 : 130;
+  items.forEach(function (li, i) {
+    setTimeout(function () { li.classList.add("ok"); }, dt * (i + 1));
+  });
+  setTimeout(function () {
+    buildPlan(C);
+    A.generated = true;
+    save();
+    show("scr-plan");
+    $("top-step").textContent = "the plan";
+    $("prog").style.width = "100%";
+    ov.remove();
+  }, dt * (items.length + 3));
+}
+
+function gwShowPlan() {
+  buildPlan(chapters());
+  show("scr-plan");
+  $("top-step").textContent = "the plan";
+  $("prog").style.width = "100%";
+  maxStepSeen = CONCEPT_STEP;
+}
+
+/* ── render plan ─────────────────────────────────────────────────────── */
+var editTimer = null;
+
+function buildPlan(C) {
   $("plan-title").textContent = A.name;
   $("plan-sub").textContent = FORMAT_NAME[one("format")] + " · " + A.city + (A.zone ? " · " + A.zone : "") + " · " +
     new Date().toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
 
+  var key = answersKey();
+  var edits = (A.editsKey === key && A.edits) ? A.edits : null;
+  if (!edits && A.edits) { delete A.edits; delete A.editsKey; save(); }
+
   var tocm = "", doc = "";
   C.forEach(function (c, i) {
     var id = "ch" + (i + 1);
+    var body = (edits && edits[id]) ? edits[id] : c.html;
     tocm += '<a href="#' + id + '">' + String(i + 1).padStart(2, "0") + " · " + c.t + "</a>";
     doc += '<article class="chapter" id="' + id + '">' +
            (c.pro ? '<span class="pro-badge">Pro</span>' : "") +
            '<div class="ch-head"><span class="ch-no">' + String(i + 1).padStart(2, "0") + "</span>" +
            "<h2>" + c.t + "</h2></div>" +
            '<p class="ch-sub">' + c.sub + "</p>" +
-           '<div contenteditable="true" spellcheck="false">' + c.html + "</div>" +
+           '<div contenteditable="true" spellcheck="false" data-ch="' + id + '">' + body + "</div>" +
            "</article>";
   });
   $("toc-mobile").innerHTML = tocm;
   $("doc").innerHTML = doc;
   renderRail("plan", C);
+
+  $("doc").addEventListener("input", function (e) {
+    var ed = e.target.closest("[data-ch]");
+    if (!ed) return;
+    clearTimeout(editTimer);
+    editTimer = setTimeout(function () {
+      A.edits = A.edits || {};
+      A.edits[ed.getAttribute("data-ch")] = ed.innerHTML;
+      A.editsKey = answersKey();
+      save();
+    }, 400);
+  });
 }
 
-/* ── pornire: reluăm de unde a rămas utilizatorul ─────────────────────── */
+/* ── pornire: reluăm de unde a rămas utilizatorul ────────────────────── */
 (function () {
   if (A.name) {
-    $("i-name").value = A.name === "Cafeneaua" ? "" : A.name;
+    $("i-name").value = A.name;
     $("i-idea").value = A.idea || "";
-    $("i-city").value = A.city === "orașul tău" ? "" : A.city;
+    $("i-city").value = A.city || "";
     $("i-zone").value = A.zone || "";
   }
+  if (A.generated) {
+    var r = $("resume");
+    r.innerHTML = '<div><div class="caps">plan salvat</div>' +
+      "<p>Planul pentru <strong>" + A.name + "</strong> e generat și salvat în acest browser.</p></div>" +
+      '<div class="acts"><button class="btn sm" onclick="gwShowPlan()">Deschide planul</button>' +
+      '<button class="btn sm ghost" onclick="gwReset()">Ia de la capăt</button></div>';
+    r.hidden = false;
+  }
+  initIdeas();
   renderRail("intro");
 })();
