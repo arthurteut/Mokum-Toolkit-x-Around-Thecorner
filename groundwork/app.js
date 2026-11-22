@@ -1,9 +1,9 @@
-/* Groundwork v0.1 — wizard + generatorul planului scris.
+/* Groundwork v0.2 — wizard premium + generatorul planului scris.
    Totul rulează în browser; răspunsurile stau în localStorage ("gw-v1"). */
 
 "use strict";
 
-var GW_UNLOCKED = true; // v0.1: totul deschis; badge-urile PRO arată viitorul model freemium
+var GW_UNLOCKED = true; // v0.x: totul deschis; badge-urile PRO arată viitorul model freemium
 
 var $ = function (id) { return document.getElementById(id); };
 
@@ -15,8 +15,9 @@ function save() { try { localStorage.setItem("gw-v1", JSON.stringify(A)); } catc
 /* ── configurația wizard-ului ─────────────────────────────────────────── */
 var STEPS = [
   {
-    id: "format", kick: "step 1 · the format", title: "What are we building?",
+    id: "format", kick: "step 1 · the format", short: "The Format", title: "What are we building?",
     lead: "Formatul decide aproape tot ce urmează: investiția, echipa, meniul, fluxul prin spațiu. E prima decizie, nu ultima.",
+    panel: { art: "a35", stat: "60 – 120", sub: "clienți pe zi, realitatea primului an. Pe intervalul ăsta construim planul, nu pe 200+." },
     questions: [
       {
         id: "format", type: "single",
@@ -42,8 +43,9 @@ var STEPS = [
     ]
   },
   {
-    id: "menu", kick: "step 2 · the menu", title: "What do we serve?",
+    id: "menu", kick: "step 2 · the menu", short: "The Menu", title: "What do we serve?",
     lead: "Meniul nu e o listă de produse, e promisiunea pe care o faci oaspetelui. Scurt și stăpânit bate lung și aproximativ.",
+    panel: { art: "a31", stat: "+30 – 40%", sub: "atât poate adăuga food-ul bun la bonul mediu al unei vizite." },
     questions: [
       {
         id: "coffee", type: "single",
@@ -82,8 +84,9 @@ var STEPS = [
     ]
   },
   {
-    id: "position", kick: "step 3 · the position", title: "Where do we sit in the market?",
+    id: "position", kick: "step 3 · the position", short: "The Position", title: "Where do we sit in the market?",
     lead: "Prețul e cel mai vizibil mesaj de poziționare pe care îl trimiți. Trebuie să spună aceeași poveste ca spațiul, meniul și servirea.",
+    panel: { photo: "food-1.jpg", stat: "Prețul face parte din produs.", sub: "Farfuria, ceașca și bonul spun aceeași poveste." },
     questions: [
       {
         id: "segment", type: "single",
@@ -109,8 +112,9 @@ var STEPS = [
     ]
   },
   {
-    id: "service", kick: "step 4 · the service", title: "How does service work?",
+    id: "service", kick: "step 4 · the service", short: "The Service", title: "How does service work?",
     lead: "Modul de servire stabilește ritmul zilei, numărul de oameni din tură și chiar arhitectura barului.",
+    panel: { art: "a32", stat: "4 minute", sub: "ținta de la ușă la cafea în mână, în vârful dimineții." },
     questions: [
       {
         id: "service", type: "multi",
@@ -139,8 +143,9 @@ var STEPS = [
     ]
   },
   {
-    id: "guests", kick: "step 5 · the guests", title: "Who are we serving?",
+    id: "guests", kick: "step 5 · the guests", short: "The Guests", title: "Who are we serving?",
     lead: "Nu poți fi cafeneaua tuturor. Alege două, trei momente din zi pe care vrei să le câștigi, și construiește totul în jurul lor.",
+    panel: { photo: "food-2.jpg", stat: "Brunch-ul de weekend", sub: "bonuri duble, timp lung la masă, alt fel de oaspete." },
     questions: [
       {
         id: "moments", type: "multi",
@@ -169,8 +174,9 @@ var STEPS = [
     ]
   },
   {
-    id: "team", kick: "step 6 · the team", title: "Who runs the place?",
+    id: "team", kick: "step 6 · the team", short: "The Team", title: "Who runs the place?",
     lead: "În primele luni, cafeneaua seamănă izbitor cu omul care stă cel mai mult în ea. Decide din start cine e omul ăla.",
+    panel: { art: "a36", stat: "2 pe tură", sub: "minimul care ține calitatea în viață la orele de vârf." },
     questions: [
       {
         id: "founder", type: "single",
@@ -194,8 +200,9 @@ var STEPS = [
     ]
   },
   {
-    id: "money", kick: "step 7 · the money", title: "What are we working with?",
+    id: "money", kick: "step 7 · the money", short: "The Money", title: "What are we working with?",
     lead: "Ultimul pas înainte de plan: banii. Fără cifre exacte încă, doar ordinele de mărime care decid ce fel de proiect construim.",
+    panel: { art: "a30", stat: "3 – 4 luni", sub: "de costuri stau în bancă, neatinse, în ziua deschiderii. Regula de aur a supraviețuirii." },
     questions: [
       {
         id: "budget", type: "single",
@@ -238,13 +245,14 @@ var STEPS = [
 
 /* ── navigație ecrane ─────────────────────────────────────────────────── */
 var step = 0;
+var maxStepSeen = 0;
 
 function show(id) {
   ["scr-intro", "scr-wizard", "scr-plan"].forEach(function (s) { $(s).hidden = (s !== id); });
   window.scrollTo(0, 0);
 }
 
-function gwHome() { show("scr-intro"); $("top-step").textContent = ""; return false; }
+function gwHome() { show("scr-intro"); $("top-step").textContent = "groundwork"; $("prog").style.width = "0"; renderRail("intro"); return false; }
 
 function gwStart() {
   A.name = $("i-name").value.trim() || "Cafeneaua";
@@ -265,16 +273,44 @@ function gwBack() {
 function gwNext() {
   collectNums();
   save();
-  if (step === STEPS.length - 1) { buildPlan(); show("scr-plan"); $("top-step").textContent = ""; return; }
+  if (step === STEPS.length - 1) { buildPlan(); show("scr-plan"); $("top-step").textContent = "the plan"; $("prog").style.width = "100%"; return; }
   step++; renderStep();
+}
+
+function gwJump(i) {
+  if (i <= maxStepSeen) { collectNums(); save(); step = i; renderStep(); }
 }
 
 function gwEdit() { step = 0; show("scr-wizard"); renderStep(); }
 
+/* ── rail-ul lateral ──────────────────────────────────────────────────── */
+function renderRail(mode, C) {
+  var nav = $("rail-nav"), h = "";
+  if (mode === "wizard") {
+    STEPS.forEach(function (s, i) {
+      var cls = i === step ? "now" : (i <= maxStepSeen ? "done" : "");
+      h += '<button type="button" class="rail-item ' + cls + '" ' + (i <= maxStepSeen ? 'onclick="gwJump(' + i + ')"' : "") + ">" +
+           '<span class="n">' + String(i + 1).padStart(2, "0") + "</span><span>" + s.short + "</span></button>";
+    });
+    h += '<div class="rail-rule"></div>' +
+         '<div class="rail-item"><span class="n">→</span><span>The Plan</span></div>';
+  } else if (mode === "plan" && C) {
+    C.forEach(function (c, i) {
+      h += '<button type="button" class="rail-item link" onclick="document.getElementById(\'ch' + (i + 1) + '\').scrollIntoView({behavior:\'smooth\'})">' +
+           '<span class="n">' + String(i + 1).padStart(2, "0") + "</span><span>" + c.t + "</span></button>";
+    });
+  } else {
+    h = '<div class="rail-item"><span class="n">··</span><span>7 pași · 15 minute</span></div>' +
+        '<div class="rail-item"><span class="n">→</span><span>Planul tău, scris</span></div>';
+  }
+  nav.innerHTML = h;
+}
+
 /* ── render wizard ────────────────────────────────────────────────────── */
 function renderStep() {
   var s = STEPS[step];
-  // default-urile se aplică la prima vizită a pasului
+  if (step > maxStepSeen) maxStepSeen = step;
+
   s.questions.forEach(function (q) {
     if (q.type === "nums") {
       q.nums.forEach(function (n) { if (A[n.id] === undefined) A[n.id] = n.def; });
@@ -283,16 +319,17 @@ function renderStep() {
     }
   });
 
-  var h = '<div class="step-kick">' + s.kick + "</div>" +
+  var h = '<div class="step-enter">' +
+          '<div class="step-kick caps">' + s.kick + "</div>" +
           '<h2 class="step-title">' + s.title + "</h2>" +
           '<p class="step-lead">' + s.lead + "</p>";
 
-  s.questions.forEach(function (q) {
-    h += '<div class="q"><h3>' + q.h + "</h3>" + '<p class="why">' + q.why + "</p>";
+  s.questions.forEach(function (q, qi) {
+    h += '<div class="q"><div class="q-n">' + String(step + 1).padStart(2, "0") + "." + (qi + 1) + '</div><h3>' + q.h + "</h3>" + '<p class="why">' + q.why + "</p>";
     if (q.type === "nums") {
       h += '<div class="num-row">';
       q.nums.forEach(function (n) {
-        h += "<div><label class=\"f-label\" for=\"n-" + n.id + "\">" + n.label + "</label>" +
+        h += "<div><label class=\"f-label caps\" for=\"n-" + n.id + "\">" + n.label + "</label>" +
              '<input type="number" id="n-' + n.id + '" min="' + n.min + '" value="' + A[n.id] + '"></div>';
       });
       h += "</div>";
@@ -307,13 +344,28 @@ function renderStep() {
     }
     h += "</div>";
   });
+  h += "</div>";
 
   $("step-host").innerHTML = h;
-  $("prog").style.width = Math.round(((step + 1) / (STEPS.length + 1)) * 100) + "%";
-  $("top-step").textContent = (step + 1) + " / " + STEPS.length;
-  $("btn-next").textContent = step === STEPS.length - 1 ? "Generează planul →" : "Continuă →";
 
-  // chip toggling
+  /* panoul de context */
+  var p = s.panel || {};
+  var ctx = "";
+  if (p.photo) {
+    ctx = '<div class="ctx-tile photo step-enter"><img src="assets/art/' + p.photo + '" alt="">' +
+          '<div class="ctx-cap"><div class="ctx-stat" style="font-size:22px">' + p.stat + '</div><div class="ctx-sub">' + p.sub + "</div></div></div>";
+  } else {
+    ctx = '<div class="ctx-tile step-enter"><div class="ctx-kick caps">groundwork knows</div>' +
+          '<div class="ctx-art"><img src="assets/art/' + p.art + '.png" alt=""></div>' +
+          '<div class="ctx-stat">' + p.stat + '</div><div class="ctx-sub">' + p.sub + "</div></div>";
+  }
+  $("ctx").innerHTML = ctx;
+
+  $("prog").style.width = Math.round(((step + 1) / (STEPS.length + 1)) * 100) + "%";
+  $("top-step").textContent = "pas " + (step + 1) + " / " + STEPS.length;
+  $("btn-next").textContent = step === STEPS.length - 1 ? "Generează planul →" : "Continuă →";
+  renderRail("wizard");
+
   Array.prototype.forEach.call(document.querySelectorAll(".chips"), function (box) {
     box.addEventListener("click", function (e) {
       var b = e.target.closest(".chip");
@@ -535,22 +587,24 @@ function chapters() {
 function buildPlan() {
   var C = chapters();
   $("plan-title").textContent = A.name;
-  $("plan-sub").textContent = FORMAT_NAME[one("format")] + " · " + A.city + (A.zone ? " · " + A.zone : "") + " · plan generat cu Groundwork";
+  $("plan-sub").textContent = FORMAT_NAME[one("format")] + " · " + A.city + (A.zone ? " · " + A.zone : "") + " · " +
+    new Date().toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
 
-  var toc = "", doc = "";
+  var tocm = "", doc = "";
   C.forEach(function (c, i) {
     var id = "ch" + (i + 1);
-    toc += '<a href="#' + id + '"><span class="n">' + String(i + 1).padStart(2, "0") + "</span>" + c.t + "</a>";
+    tocm += '<a href="#' + id + '">' + String(i + 1).padStart(2, "0") + " · " + c.t + "</a>";
     doc += '<article class="chapter" id="' + id + '">' +
            (c.pro ? '<span class="pro-badge">Pro</span>' : "") +
-           '<div class="ch-kick">capitolul ' + (i + 1) + "</div>" +
-           "<h2>" + c.t + "</h2>" +
+           '<div class="ch-head"><span class="ch-no">' + String(i + 1).padStart(2, "0") + "</span>" +
+           "<h2>" + c.t + "</h2></div>" +
            '<p class="ch-sub">' + c.sub + "</p>" +
            '<div contenteditable="true" spellcheck="false">' + c.html + "</div>" +
            "</article>";
   });
-  $("toc").innerHTML = toc;
+  $("toc-mobile").innerHTML = tocm;
   $("doc").innerHTML = doc;
+  renderRail("plan", C);
 }
 
 /* ── pornire: reluăm de unde a rămas utilizatorul ─────────────────────── */
@@ -561,4 +615,5 @@ function buildPlan() {
     $("i-city").value = A.city === "orașul tău" ? "" : A.city;
     $("i-zone").value = A.zone || "";
   }
+  renderRail("intro");
 })();
